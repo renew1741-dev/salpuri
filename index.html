@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css" />
+<link rel="stylesheet" href="css/style.css?v=3" />
 </head>
 <body class="locked">
 
@@ -37,11 +37,17 @@
     <div class="crest serif">煞</div>
     <div class="gate-brand serif">살풀이<span>:</span>천기</div>
     <div class="gate-sub">天機 · 命理 · TAROT</div>
-    <h1 class="gate-title serif">어둠 너머,<br>당신의 <em>명(命)</em>이 깨어납니다</h1>
-    <p class="gate-desc">커튼이 걷히는 순간, 촛불 아래에서<br>당신의 사주팔자와 2026년의 흐름을 읽어드립니다.</p>
+    <h1 class="gate-title serif">운명의 장막 너머,<br>당신의 <em>명식(命式)</em>이 깨어납니다</h1>
+    <p class="gate-desc serif">촛불 아래 정통 명리(命理)와 비전의 타로로<br>짚어내는 올해의 큰 흐름</p>
+    <div class="gate-master serif">
+      <span class="gm-rule"></span>
+      세상에 드러나지 않은 채 13년간 오직 한 사람의 명(命)만을 깊이 짚어온 숨은 명리·타로 실력자 — 입춘과 24절기의 정밀한 이치 위에 직관의 시선을 더합니다.
+      <span class="gm-rule"></span>
+    </div>
     <button class="enter-btn" id="enterBtn">장막 열고 입장하기</button>
-    <div class="gate-foot">입춘·24절기 기준 정밀 만세력 · 22장 타로<br>본 서비스는 오락과 자기 성찰을 위한 것으로, 의료·법률·투자의 판단을 대신하지 않습니다.</div>
+    <div class="gate-foot serif">입춘·24절기 기준 정밀 만세력 · 22장 타로</div>
   </div>
+  <p class="gate-legal">본 서비스는 오락과 자기 성찰을 위한 것으로, 의료·법률·투자의 판단을 대신하지 않습니다.</p>
 </div>
 
 <!-- 메인 -->
@@ -50,9 +56,18 @@
   <!-- 히어로 -->
   <section class="hero">
     <div class="hero-frame">
-      <img src="fortune-teller.png" alt="살풀이 : 천기의 무녀" class="hero-img" />
+      <div class="hero-slides" id="heroSlides">
+        <img src="fortune-teller.jpg" alt="촛불 아래 타로 카드를 어루만지는 살풀이 : 천기의 무녀" class="hero-img on" />
+        <img src="fortune-teller-2.jpg" alt="향연기 사이로 금박 타로 카드와 명리 두루마리에 손을 얹은 무녀" class="hero-img" loading="lazy" decoding="async" />
+        <img src="fortune-teller-3.jpg" alt="달빛과 촛불이 드는 신당에서 붉은 실과 부적을 든 무녀" class="hero-img" loading="lazy" decoding="async" />
+      </div>
       <div class="hero-vig"></div>
       <div class="hero-glow"></div>
+      <div class="hero-dots" id="heroDots" role="tablist" aria-label="히어로 장면 선택">
+        <button class="hero-dot on" data-cut="0" role="tab" aria-selected="true" aria-label="첫 번째 장면"></button>
+        <button class="hero-dot" data-cut="1" role="tab" aria-selected="false" aria-label="두 번째 장면"></button>
+        <button class="hero-dot" data-cut="2" role="tab" aria-selected="false" aria-label="세 번째 장면"></button>
+      </div>
       <div class="hero-text">
         <div class="badge-master"><i></i> 살풀이 : 천기(天機) · 정밀 명리</div>
         <div class="dialogue serif" id="dialogue"></div>
@@ -78,7 +93,7 @@
 
         <div class="field">
           <label class="field-label" for="userName">성함 <b>선택</b></label>
-          <input id="userName" class="inp" type="text" placeholder="예: 남강진 (없어도 됩니다)" maxlength="12" autocomplete="name" />
+          <input id="userName" class="inp" type="text" placeholder="" maxlength="12" autocomplete="name" />
         </div>
 
         <div class="field">
@@ -269,6 +284,6 @@
 <script src="js/saju-text.js"></script>
 <script src="js/tarot.js"></script>
 <script src="js/payment.js"></script>
-<script src="js/app.js"></script>
+<script src="js/app.js?v=3"></script>
 </body>
 </html>
