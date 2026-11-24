@@ -153,14 +153,18 @@ body.opened .curtain { pointer-events: none; }
     radial-gradient(ellipse 46% 26% at 24% 20%, rgba(214, 208, 234, .62), transparent 64%),
     radial-gradient(ellipse 52% 30% at 14% 52%, rgba(176, 168, 204, .55), transparent 66%),
     radial-gradient(ellipse 56% 26% at 32% 84%, rgba(238, 234, 250, .5), transparent 68%),
-    radial-gradient(ellipse 40% 22% at 6% 34%, rgba(224, 196, 140, .22), transparent 68%);
+    radial-gradient(ellipse 40% 22% at 6% 34%, rgba(224, 196, 140, .22), transparent 68%),
+    radial-gradient(ellipse 38% 34% at 84% 46%, rgba(226, 220, 244, .36), transparent 72%),
+    radial-gradient(ellipse 30% 20% at 74% 72%, rgba(214, 208, 234, .30), transparent 74%);
 }
 #cloudVeil .right span {
   background:
     radial-gradient(ellipse 46% 26% at 76% 24%, rgba(214, 208, 234, .6), transparent 64%),
     radial-gradient(ellipse 52% 30% at 86% 56%, rgba(172, 164, 200, .54), transparent 66%),
     radial-gradient(ellipse 54% 26% at 68% 88%, rgba(238, 234, 250, .48), transparent 68%),
-    radial-gradient(ellipse 40% 22% at 94% 40%, rgba(224, 196, 140, .2), transparent 68%);
+    radial-gradient(ellipse 40% 22% at 94% 40%, rgba(224, 196, 140, .2), transparent 68%),
+    radial-gradient(ellipse 38% 34% at 16% 50%, rgba(226, 220, 244, .34), transparent 72%),
+    radial-gradient(ellipse 30% 20% at 26% 74%, rgba(214, 208, 234, .28), transparent 74%);
   animation-direction: alternate-reverse;
   animation-duration: 20s;
 }
