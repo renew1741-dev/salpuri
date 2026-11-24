@@ -1,18 +1,21 @@
 /* ============================================================
-   살풀이 : 천기 결제 모듈
-   - 포트원(PortOne) V2 브라우저 SDK  : 카드·카카오페이·토스페이·네이버페이 통합
-   - 토스페이먼츠 표준결제 SDK        : 카드 결제 단독 연동용
-   - 크티(ctee.kr) 외부 결제 링크    : 키 발급 없이 바로 판매 가능한 대안
-   ------------------------------------------------------------------
-   ※ 실제 판매 시 해야 할 일
-     1) 포트원 관리자콘솔(admin.portone.io)에서 상점 생성 →
-        storeId, 채널키(channelKey) 발급 후 아래 CONFIG에 입력
-     2) 토스페이먼츠는 개발자센터에서 clientKey(test_ck_… / live_ck_…) 발급
-     3) 결제 승인은 반드시 서버(또는 서버리스 함수)에서 PortOne/토스
-        결제조회 API로 금액 위변조 검증 후 처리해야 합니다.
-        (이 파일의 클라이언트 코드는 결제창 호출까지만 담당합니다.)
-     4) ctee.kr 를 쓰는 경우 상품별 판매 링크를 만들어 CONFIG.ctee 에 넣으면
-        결제창 대신 해당 링크로 이동합니다.
+   살풀이 : 천기 결제 모듈 v3
+   ------------------------------------------------------------
+   실제 판매 방식이 정해지면 CONFIG.provider 값 하나만 바꾸면 됩니다.
+     'demo'     : 결제창 없이 승인 시뮬레이션 (기본값 · 테스트 배지 표시)
+     'ctee'     : 크티(ctee.kr) 상품 링크로 이동 — 키 발급 없이 바로 판매
+     'transfer' : 계좌이체 + 입금자명 확인 모달 (수동 확인 코드 방식)
+     'portone'  : 포트원 V2 결제창 (카드·카카오페이·토스페이 통합)
+     'toss'     : 토스페이먼츠 표준결제 (카드)
+   ------------------------------------------------------------
+   ※ 실제 판매 전 반드시 할 일
+     1) ctee.kr 에서 상품 3개를 만들고 판매 링크를 CONFIG.ctee 에 넣습니다.
+        (가장 빠른 실전 경로 · 카드 등록 없이 판매 가능)
+     2) 계좌이체로 받을 경우 CONFIG.transfer 의 은행·계좌·예금주를 채우고,
+        입금 확인 후 구매자에게 알려 줄 확인 코드(confirmCode)를 정합니다.
+     3) 포트원/토스로 갈 경우 키를 넣고, 승인 검증은 반드시 서버(또는 서버리스
+        함수)에서 결제조회 API로 금액을 확인한 뒤 처리해야 합니다.
+        이 파일의 클라이언트 코드는 결제창 호출까지만 담당합니다.
    ============================================================ */
 (function (global) {
   'use strict';
@@ -20,24 +23,24 @@
   const PRODUCTS = {
     report: {
       id: 'report',
-      name: '살풀이 : 천기 2026 정밀 사주+타로 리포트',
-      desc: 'PDF 저장 · 명식 상세 · 십성 지도 · 세운/대운 · 월별 운세',
+      name: '살풀이 : 천기 2026 정밀 사주 리포트',
+      desc: '13장 리포트 · 격국·십성·신살 · 2026 월별 길흉 · 대운 9구간 · PDF 저장',
       price: 9900,
       badge: '인기',
       unlock: ['report']
     },
     talisman: {
       id: 'talisman',
-      name: '맞춤 오행 개운 부적 배경화면',
-      desc: 'PNG 3종 · 용신 오행 맞춤 제작 · 휴대폰/PC 배경화면',
+      name: '개운 부적 배경화면 4종',
+      desc: '재물·인연·액막이·성공 4종 · 1080×1920 고해상 PNG · 휴대폰 배경화면',
       price: 14900,
-      badge: '제작 48시간',
+      badge: '즉시 다운로드',
       unlock: ['talisman']
     },
     vip: {
       id: 'vip',
       name: '살풀이 : 천기 VIP 패키지',
-      desc: '정밀 리포트 + 부적 3종 + 2026 월별 운세 한 장 요약',
+      desc: '정밀 리포트 + 부적 4종 + 2026 월별 운세 한 장 요약',
       price: 29900,
       badge: '38% 할인',
       unlock: ['report', 'talisman', 'vip']
@@ -45,23 +48,27 @@
   };
 
   const CONFIG = {
-    /* 'demo'   : 결제창 없이 테스트 승인 (개발·시연용)
-       'portone': 포트원 V2 결제창   'toss': 토스페이먼츠 결제창
-       'ctee'   : 크티 외부 링크로 이동 */
-    mode: 'demo',
-    portone: {
-      storeId: 'store-REPLACE-WITH-YOUR-STORE-ID',        // 예: store-a1b2c3d4-...
-      channelKey: 'channel-key-REPLACE-WITH-YOUR-CHANNEL', // 예: channel-key-9f8e...
-      payMethod: 'CARD'                                    // CARD | EASY_PAY | TRANSFER ...
-    },
-    toss: {
-      clientKey: 'test_ck_REPLACE_WITH_YOUR_CLIENT_KEY',   // 테스트: test_ck_…  실연동: live_ck_…
-      method: '카드'
+    provider: 'demo',
+    transfer: {
+      bank: '',                 // 예: 국민은행
+      account: '',              // 예: 123-456-7890-12
+      holder: '',               // 예금주
+      minutes: 60,              // 입금 기한(분)
+      confirmCode: ''           // 입금 확인 후 구매자에게 알려 줄 코드 (미설정 시 확인 기능 숨김)
     },
     ctee: {
-      report: 'https://ctee.kr/place/salpuri/report',
-      talisman: 'https://ctee.kr/place/salpuri/talisman',
-      vip: 'https://ctee.kr/place/salpuri/vip'
+      report: '',               // 예: https://ctee.kr/place/salpuri/report
+      talisman: '',
+      vip: ''
+    },
+    portone: {
+      storeId: '',
+      channelKey: '',
+      payMethod: 'CARD'
+    },
+    toss: {
+      clientKey: '',
+      method: '카드'
     }
   };
 
@@ -87,8 +94,9 @@
   function saveOrder(order) {
     try {
       const list = JSON.parse(localStorage.getItem(ORDER_KEY) || '[]');
-      list.push(order);
-      localStorage.setItem(ORDER_KEY, JSON.stringify(list.slice(-20)));
+      const idx = list.findIndex(o => o.orderId === order.orderId);
+      if (idx >= 0) list[idx] = order; else list.push(order);
+      localStorage.setItem(ORDER_KEY, JSON.stringify(list.slice(-30)));
     } catch (e) { /* 저장 실패는 결제를 막지 않음 */ }
   }
 
@@ -96,7 +104,12 @@
     try { return JSON.parse(localStorage.getItem(ORDER_KEY) || '[]'); } catch (e) { return []; }
   }
 
-  /** 결제 실행 — 성공 시 {ok:true, order} 반환 */
+  function findLatest(productId) {
+    const list = getOrders().filter(o => o.productId === productId);
+    return list.length ? list[list.length - 1] : null;
+  }
+
+  /** 결제 실행 — {ok:true, order} / {ok:true, pending:true, order} / {ok:false, error} */
   async function pay(productId, customer) {
     const product = PRODUCTS[productId];
     if (!product) return { ok: false, error: '상품을 찾을 수 없습니다.' };
@@ -106,21 +119,32 @@
       productName: product.name,
       amount: product.price,
       customer: customer || {},
-      mode: CONFIG.mode,
+      provider: CONFIG.provider,
       paidAt: new Date().toISOString(),
       status: 'pending'
     };
 
-    if (CONFIG.mode === 'ctee') {
+    if (CONFIG.provider === 'ctee') {
       const url = CONFIG.ctee[productId];
-      if (url) { global.open(url, '_blank', 'noopener'); return { ok: true, external: true, order }; }
-      return { ok: false, error: '크티 링크가 설정되지 않았습니다.' };
+      if (!url) return { ok: false, error: '크티 링크가 아직 설정되지 않았습니다.' };
+      order.status = 'external';
+      saveOrder(order);
+      global.open(url, '_blank', 'noopener');
+      return { ok: true, external: true, order };
     }
 
-    if (CONFIG.mode === 'portone') {
+    if (CONFIG.provider === 'transfer') {
+      const t = CONFIG.transfer;
+      if (!t.bank || !t.account) return { ok: false, error: '입금 계좌가 아직 설정되지 않았습니다.' };
+      order.status = 'awaiting_transfer';
+      order.transfer = { bank: t.bank, account: t.account, holder: t.holder, minutes: t.minutes };
+      saveOrder(order);
+      return { ok: true, pending: true, order, transfer: order.transfer };
+    }
+
+    if (CONFIG.provider === 'portone' && CONFIG.portone.storeId && CONFIG.portone.channelKey) {
       try {
         await loadScript('https://cdn.portone.io/v2/browser-sdk.js');
-        /* 포트원 V2 표준 결제창 호출 구조 */
         const res = await global.PortOne.requestPayment({
           storeId: CONFIG.portone.storeId,
           channelKey: CONFIG.portone.channelKey,
@@ -137,25 +161,21 @@
           redirectUrl: location.origin + location.pathname + '?payment=redirect',
           noticeUrls: []
         });
-        if (res && res.code) {
-          return { ok: false, error: res.message || '결제가 취소되었습니다.' };
-        }
+        if (res && res.code) return { ok: false, error: res.message || '결제가 취소되었습니다.' };
         order.status = 'paid';
         order.txId = (res && res.txId) || '';
         saveOrder(order);
         return { ok: true, order };
       } catch (e) {
-        // 키 미설정·SDK 차단 시 데모로 안전하게 떨어짐
         console.warn('[payment] PortOne unavailable → demo fallback', e);
         return demoApprove(order);
       }
     }
 
-    if (CONFIG.mode === 'toss') {
+    if (CONFIG.provider === 'toss' && CONFIG.toss.clientKey) {
       try {
         await loadScript('https://js.tosspayments.com/v2/standard');
         const toss = global.TossPayments(CONFIG.toss.clientKey);
-        /* 토스페이먼츠 표준결제 호출 구조 */
         await toss.requestPayment({
           method: CONFIG.toss.method,
           amount: { currency: 'KRW', value: product.price },
@@ -165,8 +185,8 @@
           successUrl: location.origin + location.pathname + '?payment=success',
           failUrl: location.origin + location.pathname + '?payment=fail'
         });
-        // successUrl 로 이동하므로 이 아래는 실행되지 않음
         order.status = 'redirect';
+        saveOrder(order);
         return { ok: true, order };
       } catch (e) {
         console.warn('[payment] Toss unavailable → demo fallback', e);
@@ -185,8 +205,23 @@
         order.txId = 'DEMO-' + order.orderId.slice(-6);
         saveOrder(order);
         resolve({ ok: true, order, demo: true });
-      }, 1400);
+      }, 1200);
     });
+  }
+
+  /** 계좌이체 — 입금 확인 코드로 수동 승인 */
+  function confirmTransfer(orderId, code) {
+    const order = getOrders().find(o => o.orderId === orderId);
+    if (!order) return { ok: false, error: '주문을 찾을 수 없습니다.' };
+    if (order.status === 'paid') return { ok: true, order };
+    if (!CONFIG.transfer.confirmCode) return { ok: false, error: '입금 확인 기능이 설정되지 않았습니다.' };
+    if (String(code || '').trim() !== String(CONFIG.transfer.confirmCode)) {
+      return { ok: false, error: '확인 코드가 맞지 않습니다.' };
+    }
+    order.status = 'paid';
+    order.confirmedAt = new Date().toISOString();
+    saveOrder(order);
+    return { ok: true, order };
   }
 
   /** 결제 성공 후 잠금 해제된 상품 목록 */
@@ -197,6 +232,10 @@
     });
     return set;
   }
+  const has = key => unlocked().has(key);
 
-  global.Payment = { PRODUCTS, CONFIG, pay, unlocked, getOrders, makeOrderId };
+  global.Payment = {
+    PRODUCTS, CONFIG, pay, confirmTransfer, unlocked, has,
+    getOrders, findLatest, makeOrderId
+  };
 })(window);

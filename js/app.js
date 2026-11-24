@@ -27,6 +27,73 @@
     el._t = setTimeout(() => el.classList.remove('show'), ms);
   };
 
+  /* ================= 점사(點沙) 의식 로딩 ================= */
+  const SEAL_SVG = `<svg viewBox="0 0 120 120" class="ritual-seal-svg" aria-hidden="true">
+    <defs>
+      <linearGradient id="rgold" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#f6e3ad"/><stop offset="50%" stop-color="#c9a24d"/><stop offset="100%" stop-color="#f6e3ad"/>
+      </linearGradient>
+    </defs>
+    <circle cx="60" cy="60" r="54" fill="none" stroke="url(#rgold)" stroke-width="0.8" opacity=".55"/>
+    <circle cx="60" cy="60" r="46" fill="none" stroke="url(#rgold)" stroke-width="0.5" opacity=".3" stroke-dasharray="2 6"/>
+    <g class="seal-trigrams" fill="none" stroke="url(#rgold)" stroke-width="1.4" opacity=".7">
+      <path d="M60 10 L60 20 M54 12 L54 18 M66 12 L66 18"/>
+      <path d="M110 60 L100 60 M108 54 L102 54 M108 66 L102 66"/>
+      <path d="M60 110 L60 100 M54 108 L54 102 M66 108 L66 102"/>
+      <path d="M10 60 L20 60 M12 54 L18 54 M12 66 L18 66"/>
+    </g>
+    <g class="seal-taiji">
+      <path d="M60 34 a26 26 0 0 1 0 52 a13 13 0 0 1 0 -26 a13 13 0 0 0 0 -26Z" fill="#f6e3ad" opacity=".92"/>
+      <circle cx="60" cy="47" r="4.2" fill="#0a0710"/>
+      <circle cx="60" cy="73" r="4.2" fill="#f6e3ad"/>
+    </g>
+  </svg>`;
+
+  /** host 안에 촛불·태극 인장 의식을 재생하고 끝나면 cb */
+  function playRitual(host, lines, cb) {
+    const el = typeof host === 'string' ? $(host) : host;
+    if (!el) { cb && cb(); return; }
+    el.innerHTML = `<div class="ritual">
+      <div class="ritual-halo"></div>
+      <div class="ritual-seal">${SEAL_SVG}</div>
+      <div class="ritual-candle"><i class="flame"></i><i class="wick"></i><i class="wax"></i><span class="candle-glow"></span></div>
+      <div class="ritual-line serif"></div>
+      <div class="ritual-dots"><i></i><i></i><i></i></div>
+    </div>`;
+    el.classList.remove('out');
+    el.classList.add('show');
+    const lineEl = el.querySelector('.ritual-line');
+    const step = 620;
+    lines.forEach((t, i) => {
+      setTimeout(() => {
+        lineEl.classList.remove('in');
+        void lineEl.offsetWidth;
+        lineEl.textContent = t;
+        lineEl.classList.add('in');
+      }, i * step);
+    });
+    const total = lines.length * step + 140;
+    setTimeout(() => {
+      el.classList.add('out');
+      setTimeout(() => {
+        el.classList.remove('show', 'out');
+        el.innerHTML = '';
+        cb && cb();
+      }, 280);
+    }, total);
+  }
+
+  const RITUAL_SAJU = [
+    '천간과 지지의 기운을 짚어보는 중...',
+    '입춘과 절기의 문턱에서 명식을 세우는 중...',
+    '올해의 살(煞)과 복(福)을 가르는 중...'
+  ];
+  const RITUAL_TAROT = [
+    '세 장의 카드가 당신의 이야기를 겹치는 중...',
+    '과거의 뿌리에서 현재의 자리를 읽는 중...',
+    '올해의 살(煞)과 복(福)을 가르는 중...'
+  ];
+
   /* ================= 안개 · 입자 ================= */
   const fog = { burstAt: 0 };   // 입장 클릭 시 안개가 좌우로 흩어지는 시점
   function initFog() {
@@ -461,20 +528,21 @@
 
     $('#formCard').classList.add('hidden');
     $('#resultPanel').classList.remove('show');
-    $('#loadingPanel').classList.add('show');
-    $('#loadingPanel').scrollIntoView({ block: 'center' });
+    $('#resultPanel').classList.remove('reveal');
     audio.tap();
-    setTimeout(() => {
+    playRitual('#ritualOverlay', RITUAL_SAJU, () => {
       state.analysis = res;
       renderResult(res);
-      $('#loadingPanel').classList.remove('show');
       $('#resultPanel').classList.add('show');
+      void $('#resultPanel').offsetWidth;
+      $('#resultPanel').classList.add('reveal');
       const label = name ? `${name} 님` : '당신';
-      typeDialogue(`${label}의 사주에 ${S.ELEM_KO[res.yongsin.yong]}(${S.ELEM_HANJA[res.yongsin.yong]})의 기운이 부족하구나. 아래에서 확인해 보세요.`);
-      $('#resultPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      typeDialogue(`${label}의 사주에는 ${S.ELEM_KO[res.yongsin.yong]}(${S.ELEM_HANJA[res.yongsin.yong]})의 기운이 약(藥)으로 쓰이는구나. 아래에서 확인해 보세요.`);
+      const top = $('#resultPanel');
+      top.scrollIntoView({ behavior: 'smooth', block: 'start' });
       if (P.unlocked().size) renderReport(res);
       renderPriceList();
-    }, 1500);
+    });
   }
 
   const elemVar = ['--w-wood', '--w-fire', '--w-earth', '--w-metal', '--w-water'];
@@ -509,6 +577,7 @@
           <div class="ji serif" style="color:var(${elemVar[eJ]}); margin-top:6px">${JI[p.ji]}</div>
           <div class="han">${JI_KO[p.ji]} · ${S.ELEM_HANJA[eJ]}</div>
           <div class="tg">${p.pos === '일' ? '일간(나)' : S.TEN_GODS[p.ganTenGod]}<br><span style="opacity:.7">${S.TEN_GODS[p.jiTenGod]}(지)</span></div>
+          <div class="stage"><em>${p.stageName || ''}</em><span>${S.STAGE_HANJA[p.stage] || ''}</span></div>
           <div class="jjg">${p.jiTenGodList.map(x => GAN_KO[x.gan]).join('·')}</div>`;
       }
       grid.appendChild(d);
@@ -556,6 +625,9 @@
         <div class="k" style="margin-top:2px">${S.ELEM_KO[e]}</div>
       </div>`).join('');
 
+    // 격국 · 십성 지도
+    renderTenGodMap(a);
+
     // 무료 풀이
     $('#freeReading').innerHTML = TX.buildFree(a);
 
@@ -571,6 +643,17 @@
       (s.inter.length ? `<br><span style="color:#e2a35e">원국과 ${[...new Set(s.inter.map(i => i.type))].join('·')}${/합$|충$/.test([...new Set(s.inter.map(i => i.type))].pop()) ? '이' : '가'} 잡혀 변화가 큰 해입니다.</span>` : '') +
       `<br>다음 해 ${a.saeun[1].year}년은 ${S.GAN[a.saeun[1].gan]}${S.JI[a.saeun[1].ji]}년 · ${a.saeun[1].tenGodName}입니다.`;
 
+    // 2026 월별 — 잡을 달 · 피할 달
+    const ms = TX.monthly2026(a);
+    const good = TX.bestMonths(ms, 2), bad = TX.worstMonths(ms, 2);
+    const monEl = $('#saeunMonths');
+    if (monEl) {
+      monEl.innerHTML = `<div class="mon-good"><span class="mk">잡아야 할 달</span>` +
+        good.map(m => `<span class="mchip">${m.start} ${m.name}<b>${S.GAN[m.gan]}${S.JI[m.ji]}</b></span>`).join('') + `</div>` +
+        `<div class="mon-bad"><span class="mk">피할 달</span>` +
+        bad.map(m => `<span class="mchip">${m.start} ${m.name}<b>${S.GAN[m.gan]}${S.JI[m.ji]}</b></span>`).join('') + `</div>`;
+    }
+
     // 대운
     const nowY = new Date().getFullYear();
     $('#dwStrip').innerHTML = a.daewoon.list.map(d => {
@@ -584,8 +667,34 @@
       `(절입까지 ${a.daewoon.days}일 ÷ 3) · ${a.gender}성 ${S.GAN_KO[a.yearPillar.gan]}년생`;
 
     // 잠금 문구
-    const un = P.unlocked();
-    if (un.size) $('#unlockBtn').textContent = '프리미엄 리포트 열람하기 (결제 완료)';
+    if (P.has('report')) {
+      const ub = $('#unlockBtn');
+      ub.textContent = '프리미엄 리포트 열람하기 (결제 완료)';
+      ub.onclick = () => switchTab('premium');
+    }
+    renderTalismans();
+  }
+
+  function renderTenGodMap(a) {
+    const host = $('#tgMap');
+    if (!host) return;
+    const groupOf = g => g <= 1 ? 'self' : g <= 3 ? 'output' : g <= 5 ? 'wealth' : g <= 7 ? 'officer' : 'resource';
+    const gp = { self: 0, output: 0, wealth: 0, officer: 0, resource: 0 };
+    const cnt = new Array(10).fill(0);
+    a.pillars.forEach(p => {
+      if (!p || p.gan == null) return;
+      if (p.ganTenGod != null) { gp[groupOf(p.ganTenGod)] += 1.2; cnt[p.ganTenGod] += 1.2; }
+      if (p.jiTenGod != null) { gp[groupOf(p.jiTenGod)] += 1; cnt[p.jiTenGod] += 1; }
+    });
+    const max = Math.max(1, ...Object.values(gp));
+    const rows = [['비겁', 'self', '나를 세우는 힘'], ['식상', 'output', '만들어내는 힘'], ['재성', 'wealth', '재물을 다루는 힘'], ['관성', 'officer', '책임과 자리'], ['인성', 'resource', '배움과 후원']];
+    const top = cnt.map((v, i) => ({ v, i })).filter(x => x.v > 0).sort((x, y) => y.v - x.v).slice(0, 3);
+    host.innerHTML = `<div class="gk-line"><span class="gk-badge serif">${a.gyeokguk.hanja}</span>
+      <div><b class="serif">${a.gyeokguk.name}</b><span>${a.gyeokguk.gist}</span></div></div>` +
+      rows.map(([nm, key, desc]) => `<div class="tg-row"><span class="nm">${nm}<small>${desc}</small></span>
+        <div class="tg-track"><i style="width:${Math.round(gp[key] / max * 100)}%"></i></div>
+        <span class="v">${Math.round(gp[key] * 10) / 10}</span></div>`).join('') +
+      `<div class="tg-chips">${top.map(t => `<span class="tg-chip">${S.TEN_GODS[t.i]}<em>${S.TEN_GODS_HANJA[t.i]}</em></span>`).join('')}</div>`;
   }
 
   function renderRadar(pct) {
@@ -704,7 +813,7 @@
 
   function layoutFan() {
     const stage = $('#deckStage');
-    const cards = $$('#deckFan .fan-card');
+    const cards = $$('#deckFan .fan-card').filter(c => !c.classList.contains('picked'));
     if (!cards.length || !stage) return;
     const w = stage.clientWidth || 340;
     const R = Math.min(w * 0.54, 300);
@@ -723,6 +832,34 @@
     });
   }
 
+  function flyCardToSlot(fromEl, slot, done) {
+    const r1 = fromEl.getBoundingClientRect();
+    const r2 = slot.getBoundingClientRect();
+    if (!r1.width || !r2.width) { done && done(); return; }
+    const flyer = document.createElement('div');
+    flyer.className = 'fly-card';
+    flyer.innerHTML = T.cardBack();
+    flyer.style.cssText = `left:${r1.left}px;top:${r1.top}px;width:${r1.width}px;height:${r1.height}px`;
+    document.body.appendChild(flyer);
+    const dx = (r2.left + r2.width / 2) - (r1.left + r1.width / 2);
+    const dy = (r2.top + r2.height / 2) - (r1.top + r1.height / 2);
+    const sc = r2.width / r1.width;
+    const anim = flyer.animate([
+      { transform: 'translate(0,0) scale(1) rotate(0deg)', offset: 0 },
+      { transform: `translate(${dx * .5}px, ${dy * .5 - 48}px) scale(${(sc + 1) / 2}) rotate(-9deg)`, offset: .5 },
+      { transform: `translate(${dx}px, ${dy}px) scale(${sc}) rotate(0deg)`, offset: 1 }
+    ], { duration: 620, easing: 'cubic-bezier(.22,.8,.28,1)' });
+    const finish = () => { flyer.remove(); done && done(); };
+    if (anim.finished) anim.finished.then(finish).catch(finish); else setTimeout(finish, 660);
+  }
+
+  function slotBurst(slot) {
+    const b = document.createElement('span');
+    b.className = 'slot-burst';
+    slot.appendChild(b);
+    setTimeout(() => b.remove(), 1100);
+  }
+
   function pickCard(el) {
     if (state.tarot.picked.length >= 3) return;
     const slotIdx = state.tarot.picked.length;
@@ -732,9 +869,10 @@
     state.tarot.picked.push({ card, rev });
     el.classList.add('picked');
     audio.tap();
+    requestAnimationFrame(() => layoutFan());   // 남은 카드가 자리를 메운다
 
     const slot = $(`.slot-card[data-slot="${slotIdx}"]`);
-    slot.classList.remove('empty');
+    slot.classList.remove('empty', 'flipped');
     slot.querySelector('.face.front').innerHTML = `
       <div class="numeral">${card.numeral}</div>
       <div class="art-wrap">${T.ART[card.n]}</div>
@@ -742,18 +880,29 @@
       <div class="cen">${card.en}</div>
       <div class="rev-mark">逆</div>`;
     if (rev) slot.classList.add('reversed');
-    slot.style.transform = 'scale(.86)';
-    slot.style.opacity = '.2';
-    setTimeout(() => {
-      slot.style.transition = 'transform .5s cubic-bezier(.2,.9,.3,1), opacity .4s';
-      slot.style.transform = 'scale(1)';
-      slot.style.opacity = '1';
-    }, 30);
-    setTimeout(() => slot.classList.add('flipped'), 330);
+
+    flyCardToSlot(el, slot, () => {
+      slot.classList.add('flipped');
+      slotBurst(slot);
+    });
 
     const left = 3 - state.tarot.picked.length;
-    $('#deckHint').textContent = left > 0 ? `카드 ${3 - left + 1}장째 · ${left}장 더 고르세요` : '세 장이 모두 놓였습니다';
-    if (left === 0) setTimeout(renderReading, 1000);
+    $('#deckHint').textContent = left > 0 ? `카드 ${3 - left + 1}장째 · ${left}장 더 고르세요` : '세 장이 모두 놓였습니다 — 점사를 풀어냅니다';
+    if (left === 0) setTimeout(() => revealReading(), 900);
+  }
+
+  /** 카드가 다 놓인 뒤 — 의식 로딩 후 해석 */
+  function revealReading() {
+    if (state.tarot.picked.length < 3) return;
+    $('#readingBox').innerHTML = '';
+    $('#readSummary').classList.add('hidden');
+    playRitual('#ritualOverlay', RITUAL_TAROT, () => {
+      renderReading();
+      const box = $('#readingBox');
+      box.classList.remove('unfold');
+      void box.offsetWidth;
+      box.classList.add('unfold');
+    });
   }
 
   function renderReading() {
@@ -761,54 +910,49 @@
     if (picked.length < 3) return;
     const catObj = T.CATEGORIES.find(c => c.id === cat);
     const box = $('#readingBox');
-    box.innerHTML = picked.map((p, i) => {
+    box.innerHTML = `<div class="reading-head">
+      <span class="rh-cat">${catObj.icon} ${catObj.name}</span>
+      <p class="rh-frame">${catObj.frame}</p>
+    </div>` + picked.map((p, i) => {
       const pos = T.POSITIONS[i];
+      const frame = T.FRAME[cat][pos.id];
       const txt = p.rev ? p.card.rev : p.card.up;
-      return `<div class="read-item">
-        <h4>${pos.name} · ${pos.desc}</h4>
-        <h4><b>${p.card.name}</b> <span class="dir ${p.rev ? 'rev' : 'up'}">${p.rev ? '역방향' : '정방향'}</span></h4>
-        <p>${txt}</p>
-        <div class="cat">${catObj.icon} ${catObj.name} — ${p.card.cat[cat]}</div>
-        <div class="key">${p.card.key}</div>
+      const bridge = i > 0 ? T.bridgeSentence(picked[i - 1], p) : '';
+      return `<div class="read-item" style="--i:${i}">
+        <div class="ri-head"><span class="ri-pos">${pos.name} · ${pos.desc}</span><span class="dir ${p.rev ? 'rev' : 'up'}">${p.rev ? '역방향 逆' : '정방향 正'}</span></div>
+        <h4 class="serif">${p.card.name}<span class="ri-en">${p.card.en}</span></h4>
+        <p class="ri-frame">${frame}</p>
+        ${bridge ? `<p class="ri-bridge">${bridge}</p>` : ''}
+        <p class="ri-main">${txt}</p>
+        ${p.card.deep ? `<p class="ri-deep">${p.card.deep}</p>` : ''}
+        <p class="ri-cat">${catObj.icon} ${p.card.cat[cat]}</p>
+        <div class="ri-act"><b>이 카드가 권하는 것</b>${p.card.act}</div>
       </div>`;
     }).join('');
 
-    const revCount = picked.filter(p => p.rev).length;
     const [a, b, c] = picked;
-    const josa = (w, withB, noB) => {
-      const c = w.charCodeAt(w.length - 1);
-      if (c < 0xAC00 || c > 0xD7A3) return noB;
-      return ((c - 0xAC00) % 28) ? withB : noB;
-    };
-    let summary = `<strong>${a.card.name}</strong>${josa(a.card.name, '이', '가')} 지금의 뿌리가 되고, ` +
-      `<strong>${b.card.name}</strong>${josa(b.card.name, '이', '가')} 당신이 서 있는 자리이며, ` +
-      `<strong>${c.card.name}</strong>${josa(c.card.name, '이', '가')} 향하는 방향입니다. `;
-    summary += revCount === 0
-      ? '세 장이 모두 정방향으로 놓였습니다. 지금 잡은 방향을 의심하지 말고 밀고 나가십시오. 이 흐름은 흔들리지 않습니다.'
-      : revCount === 1
-        ? '한 장이 역방향입니다. 그 자리에서만 잠시 멈추면 됩니다. 나머지 두 장의 힘이 충분히 버텨 줍니다.'
-        : revCount === 2
-          ? '두 장이 역방향입니다. 서두르면 같은 자리를 맴돕니다. 결정을 미루는 것이 이번 달의 정답입니다.'
-          : '세 장이 모두 역방향으로 놓였습니다. 지금은 새로 시작할 때가 아니라 정리할 때입니다. 버릴 것을 먼저 정하십시오.';
-    summary += `<br><br>${catObj.icon} <strong>${catObj.name}</strong> — ${catObj.intro} `;
-    const strong = picked.map((p, i) => ({ p, w: GODW(p) })).sort((x, y) => y.w - x.w)[0];
-    summary += `가장 힘이 실린 카드는 <strong>${strong.p.card.name}</strong>입니다. ${strong.p.card.cat[cat]}`;
-
+    const revCount = picked.filter(p => p.rev).length;
+    const strong = picked.map(p => ({ p, w: (p.rev ? 0.65 : 1) + p.card.n / 60 })).sort((x, y) => y.w - x.w)[0].p;
     const sum = $('#readSummary');
-    sum.innerHTML = summary;
+    sum.innerHTML = `<div class="sum-eyebrow serif">세 장의 이야기</div>
+      <p class="sum-lead">과거의 <strong>${a.card.name}</strong>, 현재의 <strong>${b.card.name}</strong>, 미래의 <strong>${c.card.name}</strong>. ` +
+      `세 장을 겹쳐 놓으면 이 질문의 답은 <strong>${strong.card.name}</strong>에서 가장 크게 울립니다.</p>
+      <p>${T.REV_NOTE[revCount]}</p>
+      <p>${catObj.synth}</p>
+      <p class="sum-strong">가장 힘이 실린 카드는 <strong>${strong.card.name}</strong> — ${strong.card.key}입니다. ${strong.card.cat[cat]}</p>
+      <div class="sum-act"><b>${catObj.icon} 지금 할 일</b>${catObj.act}</div>
+      <p class="sum-note">타로는 정해진 미래가 아니라 지금의 흐름을 비추는 거울입니다. 결정은 언제나 당신의 몫입니다.</p>`;
     sum.classList.remove('hidden');
+    const sr = $('#shareTarotRow'); if (sr) sr.classList.remove('hidden');
     sum.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }
-
-  function GODW(p) {
-    // 정방향일수록, 그리고 카드 번호가 클수록 완성에 가깝다고 보는 단순 가중
-    return (p.rev ? 0.6 : 1) + p.card.n / 40;
   }
 
   function resetTarot() {
     state.tarot.picked = [];
     $('#readingBox').innerHTML = '';
+    $('#readingBox').classList.remove('unfold');
     $('#readSummary').classList.add('hidden');
+    const sr = $('#shareTarotRow'); if (sr) sr.classList.add('hidden');
     $('#deckHint').textContent = '부채꼴 카드 22장 중 3장을 직접 고르세요';
     $$('.slot-card').forEach(s => {
       s.classList.remove('flipped', 'reversed');
@@ -818,6 +962,132 @@
     });
     buildDeck();
     audio.tap();
+  }
+
+  /* ================= 부적 갤러리 ================= */
+  const TALISMANS = [
+    { id: 'wealth', hanja: '財', name: '재물운', sub: '돈의 통로를 여는 부적',
+      file: 'talisman-wealth.png', thumb: 'talisman-wealth-thumb.jpg', elems: [3],
+      desc: '금빛 인장과 엽전, 흐르는 금가루. 들어오는 돈을 붙잡고 새는 구멍을 막는 기운입니다.' },
+    { id: 'love', hanja: '緣', name: '인연운', sub: '끊어진 실을 잇는 부적',
+      file: 'talisman-love.png', thumb: 'talisman-love-thumb.jpg', elems: [1],
+      desc: '붉은 실과 금빛 고리, 달빛 아래 꽃잎. 인연이 닿는 방향을 열어 주는 기운입니다.' },
+    { id: 'ward', hanja: '解', name: '액막이 · 살풀이', sub: '들어온 살을 풀어내는 부적',
+      file: 'talisman-ward.png', thumb: 'talisman-ward-thumb.jpg', elems: [2, 4],
+      desc: '금빛 나침환과 소금·재, 깃털. 몸과 집에 들어온 액을 씻어내는 기운입니다.' },
+    { id: 'career', hanja: '昇', name: '성공 · 합격운', sub: '오르는 길을 여는 부적',
+      file: 'talisman-career.png', thumb: 'talisman-career-thumb.jpg', elems: [0],
+      desc: '달빛 아래 솟은 봉우리와 두 마리 학. 자리와 이름이 올라가는 기운입니다.' }
+  ];
+
+  const hasTalisman = () => P.has('talisman') || P.has('vip');
+
+  function renderTalismans() {
+    const host = $('#talismanGrid');
+    if (!host) return;
+    const a = state.analysis;
+    const yong = a ? a.yongsin.yong : null;
+    const own = hasTalisman();
+    host.innerHTML = TALISMANS.map(t => {
+      const fit = a && t.elems.includes(yong);
+      return `<figure class="tal-item ${fit ? 'fit' : ''}" data-tal="${t.id}">
+        <div class="tal-img">
+          <img src="${t.thumb}" alt="${t.name} 부적 배경화면 미리보기" loading="lazy" decoding="async" />
+          ${fit ? '<span class="tal-fit">이 명식에 맞음</span>' : ''}
+          <span class="tal-zoom">미리보기</span>
+        </div>
+        <figcaption>
+          <div class="tal-title"><b class="serif">${t.name}</b><em>${t.hanja}</em></div>
+          <span class="tal-sub">${t.sub}</span>
+          <span class="tal-state ${own ? 'on' : ''}">${own ? '내려받기 가능' : '구매 후 다운로드'}</span>
+        </figcaption>
+      </figure>`;
+    }).join('');
+    $$('#talismanGrid [data-tal]').forEach(f => f.onclick = () => openTalView(f.dataset.tal));
+  }
+
+  function openTalView(id) {
+    const t = TALISMANS.find(x => x.id === id);
+    if (!t) return;
+    const view = $('#talView');
+    if (!view) return;
+    const own = hasTalisman();
+    view.querySelector('.tal-view-img').src = t.file;
+    view.querySelector('.tal-view-img').alt = `${t.name} 부적 배경화면 1080×1920`;
+    view.querySelector('.tv-meta').innerHTML =
+      `<b class="serif">${t.name} <em>${t.hanja}</em></b><span>${t.desc}</span>
+       <small>1080 × 1920 PNG · 스마트폰 배경화면 비율(9:16)</small>`;
+    view.querySelector('.tv-actions').innerHTML = own
+      ? `<a class="btn-gold tal-dl" href="${t.file}" download="살풀이-천기-부적-${t.name}.png">배경화면 내려받기</a>
+         <button class="btn-ghost" id="tvAll">4종 모두 받기</button>`
+      : `<button class="btn-gold" id="tvBuy">부적 4종 열기 · 14,900원</button>
+         <span class="tv-note">결제하면 4종 전부 바로 내려받을 수 있습니다.</span>`;
+    view.classList.add('show');
+    document.body.classList.add('tal-open');
+    audio.tap();
+    if (own) {
+      const all = $('#tvAll');
+      if (all) all.onclick = () => {
+        TALISMANS.forEach((x, i) => setTimeout(() => {
+          const a = document.createElement('a');
+          a.href = x.file; a.download = `살풀이-천기-부적-${x.name}.png`;
+          document.body.appendChild(a); a.click(); a.remove();
+        }, i * 320));
+        toast('부적 4종 다운로드를 시작했습니다.');
+      };
+    } else {
+      const buy = $('#tvBuy');
+      if (buy) buy.onclick = () => { closeTalView(); openPay('talisman'); };
+    }
+  }
+
+  function closeTalView() {
+    const view = $('#talView');
+    if (!view) return;
+    view.classList.remove('show');
+    document.body.classList.remove('tal-open');
+  }
+
+  /* ================= 공유 ================= */
+  async function shareSite(text) {
+    const url = location.origin + location.pathname;
+    const title = '살풀이 : 천기 — 정밀 만세력 · 신비 타로';
+    const payload = { title, text, url };
+    try {
+      if (navigator.share) { await navigator.share(payload); return; }
+    } catch (e) {
+      if (e && e.name === 'AbortError') return;
+    }
+    const copy = async () => {
+      const body = `${text}\n${url}`;
+      try {
+        await navigator.clipboard.writeText(body);
+        toast('링크가 복사되었습니다. 붙여넣기로 공유하세요.');
+      } catch (e) {
+        const ta = document.createElement('textarea');
+        ta.value = body;
+        ta.style.cssText = 'position:fixed;left:-9999px;top:0';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); } catch (err) {}
+        ta.remove();
+        toast('링크가 복사되었습니다. 붙여넣기로 공유하세요.');
+      }
+    };
+    copy();
+  }
+
+  function shareSaju() {
+    const a = state.analysis;
+    if (!a) { toast('사주 명식을 먼저 펼쳐 주세요.'); switchTab('saju'); return; }
+    const dp = a.pillars.find(p => p.pos === '일');
+    shareSite(`${a.name ? a.name + ' 님의' : '내'} 사주 명식 — ${S.GAN[dp.gan]}${S.JI[dp.ji]}일주 · ${a.gyeokguk.name} · 용신 ${S.ELEM_KO[a.yongsin.yong]}. 살풀이 : 천기에서 풀어봤어요.`);
+  }
+
+  function shareTarot() {
+    const p = state.tarot.picked;
+    if (p.length < 3) { toast('카드 세 장을 먼저 뽑아 주세요.'); switchTab('tarot'); return; }
+    shareSite(`오늘의 타로 — 과거 ${p[0].card.name} · 현재 ${p[1].card.name} · 미래 ${p[2].card.name}. 살풀이 : 천기에서 뽑아봤어요.`);
   }
 
   /* ================= 상품 · 결제 ================= */
@@ -842,56 +1112,57 @@
   }
 
   function openPay(productId) {
-    if (!state.analysis) {
+    const prod = P.PRODUCTS[productId];
+    if (!prod) return;
+    const un = P.unlocked();
+    if (prod.unlock.every(k => un.has(k))) { toast('이미 결제하신 상품입니다.'); return; }
+    if (productId !== 'talisman' && !state.analysis) {
       toast('사주 명식을 먼저 조회해 주세요.');
       switchTab('saju');
       $('#formCard').scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
-    const prod = P.PRODUCTS[productId];
-    const un = P.unlocked();
-    if (prod.unlock.every(k => un.has(k))) {
-      toast('이미 결제하신 상품입니다. 리포트를 열람해 주세요.');
-      switchTab('premium');
-      return;
-    }
-    const demo = P.CONFIG.mode === 'demo';
+    state.payProduct = productId;
+    const provider = P.CONFIG.provider;
+    const demo = provider === 'demo';
     const box = $('#payModalBox');
+    const methodNote = provider === 'transfer'
+      ? '아래 계좌로 입금하시면 확인 후 열립니다.'
+      : provider === 'ctee' ? '크티 결제 페이지로 이동합니다.'
+        : demo ? '현재 테스트 모드입니다. 실제 금액이 청구되지 않으며, 결제 시연 후 바로 열립니다.'
+          : '결제창에서 결제를 완료하시면 이 화면으로 돌아와 열립니다.';
+    const transfer = P.CONFIG.transfer;
     box.innerHTML = `
       <div class="modal-head">
         <h3 class="serif">${prod.name}</h3>
-        <button class="modal-x" id="mClose">✕</button>
+        <button class="modal-x" id="mClose" aria-label="닫기">✕</button>
       </div>
       <div class="modal-prod">${prod.desc}${demo ? '<span class="demo-badge">테스트 결제</span>' : ''}</div>
+      ${provider === 'ctee' ? '' : `
       <div class="field">
         <label class="field-label" for="payName">성함</label>
-        <input class="inp" id="payName" type="text" value="${state.analysis.name || ''}" placeholder="홍길동" />
+        <input class="inp" id="payName" type="text" value="${state.analysis ? (state.analysis.name || '') : ''}" placeholder="홍길동" />
       </div>
       <div class="field">
-        <label class="field-label" for="payContact">연락처 (리포트·부적 발송)</label>
+        <label class="field-label" for="payContact">연락처 <b>리포트·부적 안내</b></label>
         <input class="inp" id="payContact" type="tel" placeholder="010-0000-0000" value="" />
-      </div>
-      <div class="field">
-        <label class="field-label">결제 수단</label>
-        <div class="pay-methods seg-2 seg" id="payMethodSeg">
-          <button type="button" class="seg-btn active" data-m="CARD">신용·체크카드</button>
-          <button type="button" class="seg-btn" data-m="EASY_PAY">카카오페이·토스페이</button>
-        </div>
-      </div>
+      </div>`}
+      ${provider === 'transfer' ? `
+      <div class="deposit-box">
+        <div class="dep-row"><span>입금 계좌</span><b>${transfer.bank} ${transfer.account}</b></div>
+        <div class="dep-row"><span>예금주</span><b>${transfer.holder}</b></div>
+        <div class="dep-row"><span>입금 금액</span><b>${prod.price.toLocaleString()}원</b></div>
+        <div class="dep-row"><span>입금자명</span><b id="depNameView">-</b></div>
+        <p class="dep-note">입금자명을 성함과 같게 입력하시고, ${transfer.minutes}분 안에 입금해 주십시오. 확인 후 열람 권한이 열립니다.</p>
+      </div>` : ''}
       <div class="pay-sum"><span>결제 금액 (VAT 포함)</span><b>${prod.price.toLocaleString()}원</b></div>
-      <button class="btn-gold" id="payGo">${prod.price.toLocaleString()}원 결제하기</button>
-      <div class="pay-note">
-        ${demo
-          ? '현재 테스트 모드입니다. 실제 금액이 청구되지 않으며 결제 시연 후 프리미엄 리포트가 열립니다.<br>실제 판매 시에는 관리자 콘솔의 상점 ID·채널키를 js/payment.js 의 CONFIG 에 넣으면 포트원·토스페이먼츠 결제창이 호출됩니다.'
-          : '결제창에서 결제를 완료하시면 이 화면으로 돌아와 리포트가 열립니다.'}
-      </div>`;
-    $$('#payMethodSeg .seg-btn').forEach(b => b.onclick = () => {
-      $$('#payMethodSeg .seg-btn').forEach(x => x.classList.toggle('active', x === b));
-      P.CONFIG.portone.payMethod = b.dataset.m;
-      audio.tap();
-    });
-    $('#mClose').onclick = closePay;
-    $('#payGo').onclick = doPay;
+      <button class="btn-gold" id="payGo">${provider === 'transfer' ? '입금했습니다' : provider === 'ctee' ? '구매 페이지로 이동' : `${prod.price.toLocaleString()}원 결제하기`}</button>
+      <div class="pay-note">${methodNote}</div>`;
+    const mClose = $('#mClose'); if (mClose) mClose.onclick = closePay;
+    const payGo = $('#payGo'); if (payGo) payGo.onclick = () => doPay(productId);
+    const payName = $('#payName');
+    const depView = $('#depNameView');
+    if (payName && depView) payName.addEventListener('input', () => { depView.textContent = payName.value.trim() || '-'; });
     $('#payModal').classList.add('show');
     audio.tap();
   }
@@ -900,18 +1171,16 @@
     $('#payModal').classList.remove('show');
   }
 
-  async function doPay() {
+  async function doPay(productId) {
     const btn = $('#payGo');
-    const name = $('#payName').value.trim();
-    const contact = $('#payContact').value.trim();
-    if (!contact) { toast('연락처를 입력해 주세요.'); $('#payContact').focus(); return; }
+    const nameEl = $('#payName');
+    const contactEl = $('#payContact');
+    const contact = contactEl ? contactEl.value.trim() : '';
+    if (contactEl && !contact) { toast('연락처를 입력해 주세요.'); contactEl.focus(); return; }
     btn.disabled = true;
-    btn.textContent = '결제를 확인하는 중…';
-    // 상품 판별: 모달 제목으로 역추적
-    const title = $('#payModalBox .modal-head h3').textContent;
-    const productId = Object.keys(P.PRODUCTS).find(k => P.PRODUCTS[k].name === title);
+    btn.textContent = '확인하는 중…';
+    const res = await P.pay(productId, { name: nameEl ? nameEl.value.trim() : '', phone: contact });
 
-    const res = await P.pay(productId, { name, phone: contact });
     if (!res.ok) {
       toast(res.error || '결제가 완료되지 않았습니다.');
       btn.disabled = false;
@@ -919,31 +1188,82 @@
       return;
     }
     const box = $('#payModalBox');
+
+    if (res.external) {
+      box.innerHTML = `
+        <div class="pay-step">
+          <div class="done-icon">↗</div>
+          <div class="big">결제 페이지가 열렸습니다</div>
+          <p>새 창에서 결제를 완료하시면<br>주문 확인 후 이 화면의 상품이 열립니다.<br>
+          <b style="color:#f6e3ad">주문번호 ${res.order.orderId}</b></p>
+          <button class="btn-ghost mt20" id="payDone">닫기</button>
+        </div>`;
+      $('#payDone').onclick = closePay;
+      return;
+    }
+
+    if (res.pending) {
+      const t = res.transfer;
+      box.innerHTML = `
+        <div class="pay-step">
+          <div class="done-icon">₩</div>
+          <div class="big">입금을 기다리고 있습니다</div>
+          <p><b style="color:#f6e3ad">${t.bank} ${t.account}</b><br>예금주 ${t.holder} · ${res.order.amount.toLocaleString()}원<br>
+          주문번호 <b style="color:#f6e3ad">${res.order.orderId}</b></p>
+          <p class="small mt14">입금자명과 위 주문번호를 판매자에게 알려 주시면 확인 후 열립니다.</p>
+          ${P.CONFIG.transfer.confirmCode ? `
+          <div class="field" style="text-align:left;margin-top:16px">
+            <label class="field-label" for="confirmCode">입금 확인 코드</label>
+            <input class="inp" id="confirmCode" type="text" inputmode="numeric" placeholder="안내받은 코드" />
+          </div>
+          <button class="btn-gold" id="confirmGo">확인 코드로 열기</button>` : ''}
+          <button class="btn-ghost mt14" id="payDone">닫기</button>
+        </div>`;
+      const cg = $('#confirmGo');
+      if (cg) cg.onclick = () => {
+        const r = P.confirmTransfer(res.order.orderId, $('#confirmCode').value);
+        if (!r.ok) { toast(r.error); return; }
+        finishPaid(res.order.productId, r.order, false);
+      };
+      const pd = $('#payDone'); if (pd) pd.onclick = closePay;
+      renderPriceList();
+      return;
+    }
+
+    finishPaid(productId, res.order, !!res.demo);
+  }
+
+  function finishPaid(productId, order, demo) {
+    const box = $('#payModalBox');
+    const ownTalisman = P.has('talisman');
     box.innerHTML = `
       <div class="pay-step">
         <div class="done-icon">✓</div>
         <div class="big">결제가 완료되었습니다</div>
-        <p>주문번호 <b style="color:#f6e3ad">${res.order.orderId}</b><br>
-        ${P.PRODUCTS[productId].name}<br>
-        프리미엄 리포트가 열렸습니다.${res.demo ? '<br><span class="demo-badge">테스트 결제</span>' : ''}</p>
-        <button class="btn-gold mt20" id="payDone" style="max-width:220px;margin:20px auto 0">리포트 열기</button>
+        <p>주문번호 <b style="color:#f6e3ad">${order.orderId}</b><br>
+        ${P.PRODUCTS[productId].name}${demo ? '<br><span class="demo-badge">테스트 결제</span>' : ''}</p>
+        <button class="btn-gold mt20" id="payDone" style="max-width:240px;margin:20px auto 0">${ownTalisman ? '부적 · 리포트 열기' : '리포트 열기'}</button>
       </div>`;
     $('#payDone').onclick = () => {
       closePay();
       switchTab('premium');
       renderReport(state.analysis);
+      renderTalismans();
       setTimeout(() => $('#reportCard').scrollIntoView({ behavior: 'smooth', block: 'start' }), 200);
     };
     renderPriceList();
-    if (P.unlocked().size) renderReport(state.analysis);
-    $('#unlockBtn').textContent = '프리미엄 리포트 열람하기 (결제 완료)';
-    $('#unlockBtn').onclick = () => { switchTab('premium'); };
+    renderTalismans();
+    if (P.has('report') && state.analysis) renderReport(state.analysis);
+    const un = $('#unlockBtn');
+    if (un) {
+      un.textContent = P.has('report') ? '프리미엄 리포트 열람하기 (결제 완료)' : '정밀 리포트 열기 (9,900원)';
+      un.onclick = () => { if (P.has('report')) switchTab('premium'); else openPay('report'); };
+    }
   }
 
   function renderReport(a) {
     if (!a) return;
-    const un = P.unlocked();
-    if (!un.size) {
+    if (!P.has('report') && !P.has('vip')) {
       $('#reportLocked').classList.remove('hidden');
       $('#reportBody').classList.add('hidden');
       $('#printRow').classList.add('hidden');
@@ -953,7 +1273,6 @@
     $('#reportBody').classList.remove('hidden');
     $('#printRow').classList.remove('hidden');
     $('#reportBody').innerHTML = TX.buildPremium(a);
-    $('#printRow').classList.remove('hidden');
   }
 
   /* ================= 초기화 ================= */
@@ -965,16 +1284,35 @@
     initForm();
     initTarot();
     renderPriceList();
+    renderTalismans();
 
     $('#enterBtn').onclick = enter;
     $('#soundBtn').onclick = () => { audio.toggle(); story.toggleSound(); };
     $$('.tab').forEach(t => t.onclick = () => switchTab(t.dataset.tab));
     $('#calcBtn').onclick = calc;
     $('#resetBtn').onclick = resetForm;
-    $('#unlockBtn').onclick = () => openPay('report');
+    $('#unlockBtn').onclick = () => { if (P.has('report')) switchTab('premium'); else openPay('report'); };
     $('#goSaju').onclick = () => switchTab('saju');
     $('#payModal').onclick = (e) => { if (e.target.id === 'payModal') closePay(); };
     $('#printBtn').onclick = () => window.print();
+
+    // 공유
+    const shareTop = $('#shareTop'), shareFoot = $('#shareFoot');
+    if (shareTop) shareTop.onclick = () => shareSite('살풀이 : 천기 — 촛불 아래에서 내 명(命)을 풀어봤어요.');
+    if (shareFoot) shareFoot.onclick = () => shareSite('살풀이 : 천기 — 촛불 아래에서 내 명(命)을 풀어봤어요.');
+    const sSaju = $('#shareSaju'), sTarot = $('#shareTarot');
+    if (sSaju) sSaju.onclick = shareSaju;
+    if (sTarot) sTarot.onclick = shareTarot;
+
+    // 부적 라이트박스
+    const view = $('#talView');
+    if (view) {
+      view.addEventListener('click', e => {
+        if (e.target === view || e.target.classList.contains('tal-close')) closeTalView();
+      });
+      const x = view.querySelector('.tal-close');
+      if (x) x.onclick = closeTalView;
+    }
 
     // URL 파라미터 복귀 처리(토스 successUrl)
     const q = new URLSearchParams(location.search);
@@ -985,7 +1323,9 @@
     }
 
     // 키보드 접근성: ESC 로 모달 닫기
-    addEventListener('keydown', e => { if (e.key === 'Escape') closePay(); });
+    addEventListener('keydown', e => {
+      if (e.key === 'Escape') { closePay(); closeTalView(); }
+    });
   }
 
   document.addEventListener('DOMContentLoaded', init);

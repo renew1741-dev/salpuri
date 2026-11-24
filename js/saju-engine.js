@@ -359,6 +359,53 @@
     return { yong, hee, gi, score, selfGang, selfYak };
   }
 
+  /* ---------- 십이운성(十二運星) ---------- */
+  const STAGE_NAMES = ['장생', '목욕', '관대', '임관', '제왕', '쇠', '병', '사', '묘', '절', '태', '양'];
+  const STAGE_HANJA = ['長生', '沐浴', '冠帶', '臨官', '帝旺', '衰', '病', '死', '墓', '絶', '胎', '養'];
+  /* 일간별 장생지 — 甲亥 乙午 丙寅 丁酉 戊寅 己酉 庚巳 辛子 壬申 癸卯 */
+  const STAGE_START = [11, 6, 2, 9, 2, 9, 5, 0, 8, 3];
+  function stageOf(dayGan, ji) {
+    const dir = dayGan % 2 === 0 ? 1 : -1;          // 양간 순행 · 음간 역행
+    return mod((ji - STAGE_START[dayGan]) * dir, 12);
+  }
+
+  /* ---------- 격국(格局) ---------- */
+  const GYEOKGUK = {
+    0: { name: '건록격', hanja: '建祿格', gist: '내 이름으로 서는 사람', strength: '자기 힘으로 판을 만들고, 남이 세운 판에 얹혀 살지 않습니다.', shadow: '도움을 청하는 순간을 놓쳐 혼자 다 짊어집니다.', advice: '동업·공동명의는 처음부터 문서로 몫을 나누십시오.' },
+    1: { name: '양인격', hanja: '羊刃格', gist: '칼날을 품은 추진력', strength: '결정적인 순간에 남이 못 하는 결단을 대신 내립니다.', shadow: '날이 서 있어 가까운 사람을 베고 나서 후회합니다.', advice: '결정을 말로 옮기기 전에 하루를 두십시오.' },
+    2: { name: '식신격', hanja: '食神格', gist: '꾸준히 먹고사는 그릇', strength: '손으로 결과물을 내는 일에서 오래 먹고삽니다.', shadow: '편안함에 기대어 판을 키우는 타이밍을 놓칩니다.', advice: '한 가지를 10년 굴릴 구조로 만들어 두십시오.' },
+    3: { name: '상관격', hanja: '傷官格', gist: '틀을 뒤집는 재주', strength: '남들이 당연하게 여긴 것을 의심하는 눈이 있습니다.', shadow: '옳은 말도 위계를 건드려 적을 만듭니다.', advice: '상사에게는 결론보다 순서를 먼저 말하십시오.' },
+    4: { name: '편재격', hanja: '偏財格', gist: '돈이 흐르는 자리를 아는 눈', strength: '유통·영업·투자에서 남보다 한 발 먼저 움직입니다.', shadow: '들어오는 속도만큼 새는 구멍도 큽니다.', advice: '수입의 20%는 손대지 않는 통장으로 먼저 보내십시오.' },
+    5: { name: '정재격', hanja: '正財格', gist: '차곡차곡 쌓는 성실', strength: '반복되는 수입을 안정적으로 굴리는 힘이 있습니다.', shadow: '큰 기회 앞에서 계산이 앞서 놓칩니다.', advice: '한 번은 계산을 접고 작게 시험해 보십시오.' },
+    6: { name: '편관격', hanja: '偏官格', gist: '압박을 이기는 사람', strength: '경쟁·규제·위기 관리에서 존재감이 커집니다.', shadow: '스스로를 벼려 몸이 먼저 신호를 보냅니다.', advice: '잠을 줄여 일을 늘리는 방식을 가장 먼저 끊으십시오.' },
+    7: { name: '정관격', hanja: '正官格', gist: '반듯한 자리와 명예', strength: '직함·자격·공식 절차를 갖출수록 운이 열립니다.', shadow: '체면 때문에 손해를 알면서도 물러서지 못합니다.', advice: '체면이 걸린 자리일수록 숫자로 따져 보십시오.' },
+    8: { name: '편인격', hanja: '偏印格', gist: '남다른 공부의 눈', strength: '남이 안 보는 분야를 파고들어 전문성이 됩니다.', shadow: '생각이 실행을 앞질러 시작을 미룹니다.', advice: '완벽한 준비 대신 이번 주에 한 번 공개하십시오.' },
+    9: { name: '정인격', hanja: '正印格', gist: '배움과 보호의 그릇', strength: '문서·자격·후원이 사람을 살립니다.', shadow: '보호받는 자리에 오래 머물러 스스로 서는 때를 놓칩니다.', advice: '후원에 기대는 일 하나를 내 힘으로 바꾸십시오.' }
+  };
+
+  const GYEOKGUK_WOLGEOB = {
+    name: '월겁격', hanja: '月劫格', gist: '내 힘을 이웃과 나누는 사람',
+    strength: '사람을 모으고 함께 판을 키우는 힘이 있습니다.',
+    shadow: '내가 세운 판을 남이 가져가도 말하지 못합니다.',
+    advice: '처음부터 몫과 기한을 문서로 남기십시오.'
+  };
+
+  function gyeokgukOf(pillars, dayGan, monthJi) {
+    const hidden = JIJANGGAN[monthJi];
+    const exposed = pillars.filter(p => p && p.gan != null && p.pos !== '일').map(p => p.gan);
+    let chosen = hidden[0][0], how = '본기(本氣)';
+    for (const [g] of hidden) {
+      if (exposed.includes(g)) { chosen = g; how = '투출(透出)'; break; }
+    }
+    const tg = tenGod(dayGan, chosen);
+    const LOK = [2, 3, 5, 6, 5, 6, 8, 9, 11, 0];       // 갑인 을묘 병사 정오 무사 기오 경신 신유 임해 계자
+    const YANGIN = [3, 2, 6, 5, 6, 5, 9, 8, 0, 11];   // 갑묘 을인 병오 정사 무오 기사 경유 신신 임자 계해
+    let info = GYEOKGUK[tg];
+    if (tg === 0 && monthJi !== LOK[dayGan]) info = GYEOKGUK_WOLGEOB;
+    if (tg === 1 && monthJi !== YANGIN[dayGan]) info = GYEOKGUK_WOLGEOB;
+    return Object.assign({}, info, { tenGod: tg, gan: chosen, how, monthJi });
+  }
+
   /* ---------- 신살 ---------- */
   const SAMHAP = [
     { group: [8, 0, 4], dohwa: 9, yeokma: 2, hwagae: 4 },   // 申子辰
@@ -388,9 +435,22 @@
       if (branches.has(g.yeokma)) list.push({ name: '역마살', hanja: '驛馬煞', desc: '한곳에 머물기보다 움직이며 기회를 잡습니다.' });
       if (branches.has(g.hwagae)) list.push({ name: '화개살', hanja: '華蓋煞', desc: '예술·종교·탐구에 깊이 빠지는 기질이 있습니다.' });
     });
-    // 공망
-    const dayIdx = pillars.find(p => p && p.pos === '일');
+    // 일주 기준 특수 신살 — 괴강(魁罡)·백호(白虎)
+    const day = pillars.find(p => p && p.pos === '일');
+    if (day) {
+      if ([[6, 4], [6, 10], [8, 4], [4, 10]].some(([g, j]) => g === day.gan && j === day.ji))
+        list.push({ name: '괴강살', hanja: '魁罡煞', desc: '한 번 마음먹으면 물러서지 않는 강한 기세가 있습니다.' });
+      if ([[0, 4], [1, 7], [2, 10], [3, 1], [4, 4], [8, 10], [9, 1]].some(([g, j]) => g === day.gan && j === day.ji))
+        list.push({ name: '백호살', hanja: '白虎煞', desc: '급한 성질과 강한 생명력이 함께 있어, 다스리면 큰 힘이 됩니다.' });
+    }
     return dedupe(list);
+  }
+
+  /** 공망(空亡) — 일주 기준 비어 있는 두 지지 */
+  function gongmangOf(pillars, dayIdx) {
+    const gm = gongmang(dayIdx);
+    const hits = pillars.filter(p => p && p.ji != null && gm.includes(p.ji)).map(p => ({ pos: p.pos, ji: p.ji }));
+    return { jis: gm, hits };
   }
   function dedupe(arr) {
     const seen = new Set(); const out = [];
@@ -531,7 +591,7 @@
       { pos: '시', label: '시주', gan: hp ? hp.gan : null, ji: hp ? hp.ji : null }
     ];
 
-    // 4) 십성 부여
+    // 4) 십성 · 십이운성 부여
     pillars.forEach(p => {
       if (!p || p.gan == null) return;
       p.ganTenGod = (p.pos === '일') ? null : tenGod(dayGan, p.gan);
@@ -540,12 +600,18 @@
         gan: g, ratio: r, tenGod: tenGod(dayGan, g)
       }));
     });
+    pillars.forEach(p => {
+      if (!p || p.ji == null) return;
+      p.stage = stageOf(dayGan, p.ji);
+      p.stageName = STAGE_NAMES[p.stage];
+    });
 
     const ew = elementWeights(pillars, dayGan);
     const strength = strengthOf(pillars, dayGan, ew);
     const ys = yongsinOf(dayGan, ew, strength);
     const sals = salsOf(pillars, dayGan);
-    const gm = gongmang(dp.index);
+    const gongmangInfo = gongmangOf(pillars, dp.index);
+    const gyeokguk = gyeokgukOf(pillars, dayGan, mp.ji);
     const dw = daewoonList(ts, solar.y, mp.gan, mp.ji, yp.gan, gender);
 
     // 5) 세운
@@ -585,7 +651,8 @@
       strength,
       yongsin: ys,
       sals,
-      gongmang: gm,
+      gongmang: gongmangInfo,
+      gyeokguk,
       daewoon: dw,
       saeun,
       terms: termsOfYear(solar.y)
@@ -607,6 +674,7 @@
     ELEM_HANJA, ELEM_KO, ELEM_COLOR, ELEM_TRAIT,
     ELEM_DIRECTION, ELEM_NUM, ELEM_COLORNAME, ELEM_ORGAN,
     JIJANGGAN, TEN_GODS, TEN_GODS_HANJA, TERM_INFO, SIJIN, SIJIN_RANGE,
+    STAGE_NAMES, STAGE_HANJA, stageOf, GYEOKGUK, gyeokgukOf,
     mod
   };
 })(window);
