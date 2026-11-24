@@ -9,7 +9,7 @@ saju-site/
 ├── css/style.css         전체 스타일 (다크 골드·버건디 테마, 반응형, 인쇄용 PDF 스타일)
 ├── audio/
 │   ├── bgm.mp3           배경음악 루프 ("Eastern Thought" — Kevin MacLeod, CC BY 3.0)
-│   └── narration-1~3.mp3 히어로 3컷 여성 내레이션 (로컬 합성·EQ·-16 LUFS)
+│   └── narration-1~3.mp3 히어로 3컷 여성 내레이션 (ElevenLabs 'Saju Husky V3 Warm' · -16.5 LUFS)
 ├── fortune-teller.jpg    히어로 1컷 — 촛불 아래 타로 카드
 ├── fortune-teller-2.jpg  히어로 2컷 — 금박 카드·명리 두루마리
 ├── fortune-teller-3.jpg  히어로 3컷 — 달빛 신당의 붉은 실·부적
