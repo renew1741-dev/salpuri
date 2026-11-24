@@ -36,6 +36,7 @@
   const iGa = w => josa(w, '이', '가');
   const eun = w => josa(w, '은', '는');
   const wa = w => josa(w, '과', '와');
+  const eul = w => josa(w, '을', '를');
 
   /* ---------- KST 날짜 ---------- */
   function kstNow() {
@@ -168,7 +169,7 @@
     else if (gHap.t === 'gen') { score += 5; reasons.push('일진의 기운이 내 기운을 살립니다'); }
     else if (gHap.t === 'same') { score += 2; reasons.push('일진이 내 기운과 같은 결입니다'); }
     else if (gHap.t === 'control') { score -= 3; reasons.push('일진이 내 기운을 누릅니다'); }
-    jrAll.forEach(r => { if (r.t !== 'none') { score += r.w * 1.1; reasons.push(`일지 ${JI[dj.ji]}${iGa(JI[dj.ji])} 내 배우자궁과 ${r.name}(${r.hanja})`); } });
+    jrAll.forEach(r => { if (r.t !== 'none') { score += r.w * 1.1; reasons.push(`일지 ${JI[dj.ji]}${iGa(JI[dj.ji])} 내 배우자궁과 ${r.name}(${r.hanja})${eul(r.name)} 이룹니다`); } });
     const GOOD_TEN = { 2: 7, 3: -4, 4: 4, 5: 6, 6: -5, 7: 7, 8: 2, 9: 5, 0: 1, 1: -3 };
     score += GOOD_TEN[ten];
     const ye = [GAN_ELEM[dj.gan], JI_ELEM[dj.ji]];
