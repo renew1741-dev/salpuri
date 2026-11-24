@@ -6,10 +6,32 @@
 <meta name="theme-color" content="#06050a" />
 <title>살풀이 : 천기(天機) — 정밀 만세력 사주 · 신비 타로</title>
 <meta name="description" content="입춘·24절기와 율리우스 적일로 계산하는 정밀 만세력, 22장 메이저 아르카나 타로, 그리고 2026 병오년 세운 리포트. 살풀이 : 천기에서 당신의 명(命)을 읽습니다." />
+
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="살풀이 : 천기" />
+<meta property="og:title" content="살풀이 : 천기 — 내 명(命)을 촛불 아래에서 읽다" />
+<meta property="og:description" content="입춘·24절기 정밀 만세력과 22장 타로. 격국·신살·2026 월별 길흉까지, 13년 숨은 실력자의 시선으로 짚어 드립니다." />
+<meta property="og:image" content="https://renew1741-dev.github.io/salpuri/og-image.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://renew1741-dev.github.io/salpuri/" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="살풀이 : 천기 — 내 명(命)을 촛불 아래에서 읽다" />
+<meta name="twitter:description" content="입춘·24절기 정밀 만세력과 22장 타로. 2026 병오년 세운까지 한 번에." />
+<meta name="twitter:image" content="https://renew1741-dev.github.io/salpuri/og-image.jpg" />
+
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+<link rel="apple-touch-icon" href="icon-192.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="살풀이" />
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=3" />
+<link rel="stylesheet" href="css/style.css?v=5" />
 </head>
 <body class="locked">
 
@@ -68,6 +90,10 @@
         <button class="hero-dot" data-cut="1" role="tab" aria-selected="false" aria-label="두 번째 장면"></button>
         <button class="hero-dot" data-cut="2" role="tab" aria-selected="false" aria-label="세 번째 장면"></button>
       </div>
+      <button class="hero-share" id="shareTop" aria-label="친구에게 공유하기">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v11M12 3 8.5 6.5M12 3l3.5 3.5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>공유</span>
+      </button>
       <div class="hero-text">
         <div class="badge-master"><i></i> 살풀이 : 천기(天機) · 정밀 명리</div>
         <div class="dialogue serif" id="dialogue"></div>
@@ -132,12 +158,6 @@
         <button class="btn-gold" id="calcBtn">내 사주 명식 펼쳐보기</button>
       </div>
 
-      <div class="loading" id="loadingPanel">
-        <div class="spin-ring"></div>
-        <p class="serif">절기와 천간의 기운을 모으는 중…</p>
-        <small>입춘·24절기 · 율리우스 적일로 원국을 세우고 있습니다</small>
-      </div>
-
       <div id="resultPanel">
 
         <!-- 명식 -->
@@ -146,6 +166,10 @@
             <div class="result-brand serif">살풀이 : 천기(天機) · 정밀 만세력</div>
             <h2 class="serif" id="resultName">사주 명식</h2>
             <p id="resultSub"></p>
+            <button class="share-btn" id="shareSaju">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v11M12 3 8.5 6.5M12 3l3.5 3.5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              내 점사 공유하기
+            </button>
           </div>
 
           <div class="pillar-grid" id="pillarGrid"></div>
@@ -172,6 +196,12 @@
           <div class="yongshin" id="yongshinBox"></div>
         </div>
 
+        <!-- 격국 · 십성 지도 -->
+        <div class="card">
+          <div class="section-head"><h2 class="serif">격국과 십성의 지도</h2><span class="en">STRUCTURE</span></div>
+          <div class="tg-map" id="tgMap"></div>
+        </div>
+
         <!-- 무료 풀이 -->
         <div class="card">
           <div class="section-head"><h2 class="serif">무료 풀이</h2><span class="en">SUMMARY</span></div>
@@ -185,6 +215,7 @@
             <div class="saeun-ganji" id="saeunGanji">丙午<small>2026</small></div>
             <div class="saeun-text" id="saeunText"></div>
           </div>
+          <div class="saeun-months" id="saeunMonths"></div>
           <div class="hr-gold"></div>
           <div class="section-head"><h2 class="serif">대운의 흐름</h2><span class="en">10 YEARS</span></div>
           <div class="dw-strip" id="dwStrip"></div>
@@ -194,12 +225,13 @@
         <!-- 잠금 -->
         <div class="card">
           <div class="lock-box">
-            <div class="lock-title">🔒 프리미엄 정밀 풀이 — 10개 장 리포트</div>
+            <div class="lock-title">🔒 프리미엄 정밀 풀이 — 13장 리포트</div>
             <ul class="blur-list">
-              <li>십성 지도 · 재물의 그릇과 새는 구멍</li>
-              <li>배우자궁과 인연이 열리는 시기</li>
-              <li>2026년 월별 길흉 12개월 캘린더</li>
-              <li>대운 9구간 · 개운 방위와 색</li>
+              <li>격국의 그림자 · 겉과 속의 간극</li>
+              <li>재물의 그릇과 새는 구멍 · 구체적 계좌 처방</li>
+              <li>배우자궁과 인연이 열리는 달</li>
+              <li>2026년 월별 길흉 12개월 · 피할 달과 잡을 달</li>
+              <li>대운 9구간 · 살풀이 처방과 부적</li>
             </ul>
             <button class="btn-gold lock-cta" id="unlockBtn">정밀 리포트 열기 (9,900원)</button>
           </div>
@@ -229,6 +261,13 @@
         <div class="reading" id="readingBox"></div>
         <div class="read-summary hidden" id="readSummary"></div>
 
+        <div class="center mt20 hidden" id="shareTarotRow">
+          <button class="btn-ghost share-btn" id="shareTarot">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v11M12 3 8.5 6.5M12 3l3.5 3.5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            내 점사 공유하기
+          </button>
+        </div>
+
         <div class="center mt20">
           <button class="btn-ghost" id="resetTarot">카드 다시 섞기</button>
         </div>
@@ -243,9 +282,15 @@
         <div class="price-list mt14" id="priceList"></div>
         <div class="pay-note">
           · 결제 즉시 이 화면에서 프리미엄 리포트가 열립니다.<br>
-          · 부적 배경화면은 결제 후 48시간 내 제작되어 안내드립니다.<br>
+          · 부적 배경화면 4종은 결제 후 바로 내려받으실 수 있습니다.<br>
           · 리포트는 PDF로 저장하실 수 있습니다(인쇄 → PDF 저장).
         </div>
+      </div>
+
+      <div class="card" id="talismanCard">
+        <div class="section-head"><h2 class="serif">개운 부적 배경화면</h2><span class="en">TALISMAN · 4</span></div>
+        <p class="small">용신(用神)의 기운을 화면에 두는 것이 가장 쉬운 개운법입니다. 1080×1920 PNG로 바로 내려받아 잠금화면에 두십시오.</p>
+        <div class="talisman-grid" id="talismanGrid"></div>
       </div>
 
       <div class="card" id="reportCard">
@@ -268,9 +313,28 @@
     <p>살풀이 : 천기(天機) · 정밀 만세력 &amp; 타로<br>
     입춘 기준 연주 · 24절기 월주 · JDN 일주 · 오호둔·오서둔 시간<br>
     본 서비스는 오락 및 자기 성찰을 위한 콘텐츠이며, 의료·법률·금융 투자 판단의 근거로 사용할 수 없습니다.</p>
+    <button class="share-btn foot-share" id="shareFoot">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v11M12 3 8.5 6.5M12 3l3.5 3.5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      친구에게 공유하기
+    </button>
     <p class="credit">Music: "Eastern Thought" by Kevin MacLeod (incompetech.com) — Licensed under Creative Commons: By Attribution 3.0</p>
   </footer>
 </main>
+
+<!-- 점사 의식 (전체 화면) -->
+<div class="ritual-overlay" id="ritualOverlay" aria-live="polite"></div>
+
+<!-- 부적 미리보기 -->
+<div class="tal-view" id="talView" role="dialog" aria-modal="true" aria-label="부적 배경화면 미리보기">
+  <div class="tal-view-inner">
+    <button class="tal-close" aria-label="닫기">✕</button>
+    <div class="tal-view-frame"><img class="tal-view-img" alt="" /></div>
+    <div class="tal-view-bar">
+      <div class="tv-meta"></div>
+      <div class="tv-actions"></div>
+    </div>
+  </div>
+</div>
 
 <!-- 결제 모달 -->
 <div class="modal-bg" id="payModal">
@@ -284,6 +348,6 @@
 <script src="js/saju-text.js"></script>
 <script src="js/tarot.js"></script>
 <script src="js/payment.js"></script>
-<script src="js/app.js?v=4"></script>
+<script src="js/app.js?v=6"></script>
 </body>
 </html>

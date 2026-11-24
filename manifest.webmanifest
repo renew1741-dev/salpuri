@@ -1,0 +1,19 @@
+{
+  "name": "살풀이 : 천기 — 정밀 만세력 · 신비 타로",
+  "short_name": "살풀이",
+  "description": "입춘·24절기로 세우는 정밀 만세력, 22장 타로, 2026 세운 리포트.",
+  "lang": "ko",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#06050a",
+  "theme_color": "#06050a",
+  "categories": ["lifestyle", "entertainment"],
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
