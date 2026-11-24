@@ -1702,3 +1702,10 @@ body.tal-open { overflow: hidden; }
 #ggResult, #ggFormCard, #reportCard, #todayBody, #sinsalBody, #yearlyBody, #wealthBody, #taekilBody {
   scroll-margin-top: 84px;
 }
+
+/* 오늘의 운세 — 근거 목록과 총평 사이 호흡 */
+.td-hero .td-reasons + .pl-summary {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(217, 185, 120, .14);
+}
