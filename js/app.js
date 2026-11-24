@@ -13,6 +13,8 @@
   const GunghapText = window.GunghapText;
   const Plus = window.Plus;
   const PlusText = window.PlusText;
+  const Gaewun = window.Gaewun;
+  const GaewunText = window.GaewunText;
 
   const state = {
     gender: '여',
@@ -26,6 +28,7 @@
       a: { gender: '여', cal: '양력' }, b: { gender: '남', cal: '양력' } },
     yearly: 2026,
     tk: { purpose: 'move', range: 'month' },
+    gw: { height: null, weight: null, shown: false },
     last: {}
   };
 
@@ -438,6 +441,7 @@
     if (id === 'yearly') renderYearPanel();
     if (id === 'wealth') renderWealthPanel();
     if (id === 'taekil') renderTaekilPanel();
+    if (id === 'gaewun') renderGaewunPanel();
     if (id === 'gunghap') { syncGunghapA(); renderProfileBars(); }
     const panel = document.getElementById('panel-' + id);
     if (panel) panel.scrollIntoView({ block: 'start', behavior: 'smooth' });
@@ -544,6 +548,36 @@
     const x = Plus.taekil(a, state.tk.purpose, state.tk.range);
     state.last.taekil = { x, a };
     host.innerHTML = PlusText.renderTaekil(x, a);
+  }
+
+  /* ================= 개운 처방 ================= */
+  function readGw() {
+    const h = $('#gwHeight'), w = $('#gwWeight');
+    state.gw.height = h && h.value !== '' ? +h.value : null;
+    state.gw.weight = w && w.value !== '' ? +w.value : null;
+  }
+
+  function renderGaewunPanel() {
+    const host = $('#gaewunBody');
+    if (!host) return;
+    const a = getAnalysis(host); if (!a) return;
+    readGw();
+    const x = Gaewun.build(a, { height: state.gw.height, weight: state.gw.weight });
+    state.last.gaewun = { x, a };
+    host.innerHTML = GaewunText.render(x, a);
+    state.gw.shown = true;
+  }
+
+  function softRenderGaewun() {
+    if (!state.gw.shown) return;
+    const host = $('#gaewunBody');
+    if (!host || !host.children.length) return;
+    const a = state.analysis;
+    if (!a) return;
+    readGw();
+    const x = Gaewun.build(a, { height: state.gw.height, weight: state.gw.weight });
+    state.last.gaewun = { x, a };
+    host.innerHTML = GaewunText.render(x, a);
   }
 
   /* ================= 폼 ================= */
@@ -1375,6 +1409,10 @@
       if (!last) return;
       const t = last.x.top[0];
       shareSite(`${last.x.purpose.name} 길일 — ${t.m}/${t.d} (${t.wd}) ${t.ganji}일 ${t.score}점(${t.grade}). 살풀이 : 천기에서 골랐어요.`);
+    } else if (kind === 'gaewun') {
+      const last = state.last.gaewun;
+      if (!last) { toast('개운 처방을 먼저 펼쳐 주세요.'); switchTab('gaewun'); return; }
+      shareSite(GaewunText.shareText(last.x, last.a));
     }
   }
 
@@ -1620,6 +1658,24 @@
     });
     const tkb = $('#tkCalcBtn');
     if (tkb) tkb.onclick = () => { audio.tap(); renderTaekilPanel(); };
+
+    /* 개운 처방 */
+    const gwb = $('#gwCalcBtn');
+    if (gwb) gwb.onclick = () => {
+      audio.tap();
+      renderGaewunPanel();
+      const t = $('#gaewunBody');
+      if (t) setTimeout(() => t.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+    };
+    ['gwHeight', 'gwWeight'].forEach(id => {
+      const el2 = document.getElementById(id);
+      if (!el2) return;
+      el2.addEventListener('input', () => {
+        clearTimeout(el2._gwt);
+        el2._gwt = setTimeout(softRenderGaewun, 420);
+      });
+      el2.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); renderGaewunPanel(); } });
+    });
 
     /* 확장 메뉴 공유 · 메뉴 이동 */
     document.addEventListener('click', e => {
