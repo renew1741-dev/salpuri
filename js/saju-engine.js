@@ -95,7 +95,7 @@
       y: 100 * b + d - 4800 + Math.floor(m / 10)
     };
   }
-  /* 60갑자 index — 1983-07-10 = 己亥(index 35) 기준 검증 완료 */
+  /* 60갑자 index — 2000-01-01 = 戊午(index 54) 기준 검증 완료 */
   function dayGanjiIndex(jdn) { return mod(jdn + 49, 60); }
 
   /* ---------- 음양력 ---------- */

@@ -9,14 +9,24 @@
   const TX = window.SajuText;
   const T = window.Tarot;
   const P = window.Payment;
+  const Gunghap = window.Gunghap;
+  const GunghapText = window.GunghapText;
+  const Plus = window.Plus;
+  const PlusText = window.PlusText;
 
   const state = {
     gender: '여',
     cal: '양력',
     sijin: null,        // null = 모름
     analysis: null,
+    analysisSig: '',
     tab: 'saju',
-    tarot: { cat: 'love', picked: [], reading: [] }
+    tarot: { cat: 'love', picked: [], reading: [] },
+    gg: { rel: 'some', touchedA: false, result: null,
+      a: { gender: '여', cal: '양력' }, b: { gender: '남', cal: '양력' } },
+    yearly: 2026,
+    tk: { purpose: 'move', range: 'month' },
+    last: {}
   };
 
   const toast = (msg, ms = 2200) => {
@@ -92,6 +102,11 @@
     '세 장의 카드가 당신의 이야기를 겹치는 중...',
     '과거의 뿌리에서 현재의 자리를 읽는 중...',
     '올해의 살(煞)과 복(福)을 가르는 중...'
+  ];
+  const RITUAL_GUNGHAP = [
+    '두 사람의 여덟 글자를 한 장에 겹쳐 놓는 중...',
+    '일간과 일지, 오행의 빈 곳을 맞대는 중...',
+    '올해 두 사람 사이에 놓인 흐름을 짚는 중...'
   ];
 
   /* ================= 안개 · 입자 ================= */
@@ -418,9 +433,117 @@
     $$('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + id));
     if (id === 'tarot') requestAnimationFrame(layoutFan);
     if (id === 'premium') renderPriceList();
+    if (id === 'today') renderTodayPanel();
+    if (id === 'sinsal') renderSinsalPanel();
+    if (id === 'yearly') renderYearPanel();
+    if (id === 'wealth') renderWealthPanel();
+    if (id === 'taekil') renderTaekilPanel();
+    if (id === 'gunghap') { syncGunghapA(); renderProfileBars(); }
     const panel = document.getElementById('panel-' + id);
     if (panel) panel.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    const nav = $('.tabs'), tabEl = document.querySelector(`.tab[data-tab="${id}"]`);
+    if (nav && tabEl && nav.scrollWidth > nav.clientWidth + 4) {
+      nav.scrollTo({ left: Math.max(0, tabEl.offsetLeft - (nav.clientWidth - tabEl.offsetWidth) / 2), behavior: 'smooth' });
+    }
     audio.tap();
+  }
+
+  /* ================= 입력 공유 · 명식 재사용 ================= */
+  const pad2 = n => String(n).padStart(2, '0');
+
+  function profileInput() {
+    return {
+      name: $('#userName').value.trim(),
+      gender: state.gender,
+      year: +$('#birthYear').value,
+      month: +$('#birthMonth').value,
+      day: +$('#birthDay').value,
+      calendar: state.cal === '양력' ? '양력' : '음력',
+      leap: state.cal === '음력윤달',
+      sijin: state.sijin
+    };
+  }
+
+  function ensureAnalysis() {
+    const inp = profileInput();
+    const sig = JSON.stringify(inp);
+    if (state.analysis && state.analysisSig === sig) return state.analysis;
+    if (state.cal === '음력윤달' && !leapMonthOf(inp.year)) return { error: '선택한 해에는 윤달이 없습니다. 사주 탭에서 음력(평달)을 선택해 주세요.' };
+    const res = S.analyze(inp);
+    if (res && res.ok) { state.analysis = res; state.analysisSig = sig; }
+    return res;
+  }
+
+  function renderProfileBars() {
+    $$('.pf-slot').forEach(slot => {
+      const a = state.analysis;
+      const inp = profileInput();
+      const meta = a
+        ? `${a.gender} · ${a.solar.y}.${pad2(a.solar.m)}.${pad2(a.solar.d)} ${a.calendar} · ${a.timeKnown ? a.sijinName : '시간 모름'}`
+        : `${inp.gender} · ${inp.year}.${pad2(inp.month)}.${pad2(inp.day)} ${inp.calendar === '음력' ? (inp.leap ? '음력(윤달)' : '음력') : '양력'} · ${inp.sijin == null ? '시간 모름' : S.SIJIN[inp.sijin]}`;
+      slot.innerHTML = `<div class="pf-bar">
+        <span class="pf-seal serif">煞</span>
+        <div class="pf-txt"><b>${a && a.name ? a.name + ' 님 · ' : ''}${meta}</b><small>사주 탭에서 입력한 명식으로 계산합니다</small></div>
+        <button type="button" class="pf-edit" data-goto="saju">변경</button>
+      </div>`;
+    });
+  }
+
+  function panelError(msg) {
+    return `<div class="card"><p class="small">${msg || '명식을 계산하지 못했습니다.'}</p>
+      <div class="center mt14"><button class="btn-ghost" data-goto="saju">사주 명식 입력하기</button></div></div>`;
+  }
+
+  function getAnalysis(host) {
+    const res = ensureAnalysis();
+    if (!res || res.error || !res.ok) { host.innerHTML = panelError(res && res.error); return null; }
+    renderProfileBars();
+    return res;
+  }
+
+  function renderTodayPanel() {
+    const host = $('#todayBody');
+    if (!host) return;
+    const a = getAnalysis(host); if (!a) return;
+    const x = Plus.today(a);
+    state.last.today = x;
+    host.innerHTML = PlusText.renderToday(x, a);
+  }
+
+  function renderSinsalPanel() {
+    const host = $('#sinsalBody');
+    if (!host) return;
+    const a = getAnalysis(host); if (!a) return;
+    const x = Plus.sinsal(a);
+    state.last.sinsal = x;
+    host.innerHTML = PlusText.renderSinsal(x, a);
+  }
+
+  function renderYearPanel() {
+    const host = $('#yearlyBody');
+    if (!host) return;
+    const a = getAnalysis(host); if (!a) return;
+    const x = Plus.yearly(a, state.yearly);
+    state.last.yearly = x;
+    host.innerHTML = PlusText.renderYear(x, a, state.yearly);
+  }
+
+  function renderWealthPanel() {
+    const host = $('#wealthBody');
+    if (!host) return;
+    const a = getAnalysis(host); if (!a) return;
+    const x = Plus.wealth(a);
+    state.last.wealth = x;
+    host.innerHTML = PlusText.renderWealth(x, a);
+  }
+
+  function renderTaekilPanel() {
+    const host = $('#taekilBody');
+    if (!host) return;
+    const a = getAnalysis(host); if (!a) return;
+    const x = Plus.taekil(a, state.tk.purpose, state.tk.range);
+    state.last.taekil = { x, a };
+    host.innerHTML = PlusText.renderTaekil(x, a);
   }
 
   /* ================= 폼 ================= */
@@ -532,6 +655,10 @@
       sijin: state.sijin
     });
     if (res.error) { toast(res.error); return; }
+    state.analysisSig = JSON.stringify({
+      name, gender: state.gender, year: y, month: m, day: d,
+      calendar: state.cal === '양력' ? '양력' : '음력', leap: state.cal === '음력윤달', sijin: state.sijin
+    });
 
     $('#formCard').classList.add('hidden');
     $('#resultPanel').classList.remove('show');
@@ -770,6 +897,136 @@
     $('#formCard').classList.remove('hidden');
     typeDialogue('또 다른 이의 명이 궁금하신가요?');
     $('#formCard').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  /* ================= 궁합 ================= */
+  function buildGunghapForm() {
+    ['A', 'B'].forEach(W => {
+      const ySel = $('#gg' + W + 'Year'), mSel = $('#gg' + W + 'Month'), tSel = $('#ggTime' + W);
+      for (let y = 2026; y >= 1940; y--) {
+        const o = new Option(y + '년', y);
+        if (y === 2000) o.selected = true;
+        ySel.add(o);
+      }
+      for (let m = 1; m <= 12; m++) mSel.add(new Option(m + '월', m));
+      mSel.value = 1;
+      syncGGDays(W);
+      tSel.add(new Option('모름 · 시간 미상', ''));
+      S.SIJIN.forEach((n, i) => tSel.add(new Option(`${n} ${S.SIJIN_RANGE[i]}`, i)));
+      tSel.value = '';
+
+      $$('#ggGender' + W + ' .seg-btn').forEach(b => b.onclick = () => {
+        state.gg[W.toLowerCase()].gender = b.dataset.v;
+        $$('#ggGender' + W + ' .seg-btn').forEach(x => x.classList.toggle('active', x === b));
+        if (W === 'A') state.gg.touchedA = true;
+        audio.tap();
+      });
+      $$('#ggCal' + W + ' .seg-btn').forEach(b => b.onclick = () => {
+        state.gg[W.toLowerCase()].cal = b.dataset.v;
+        $$('#ggCal' + W + ' .seg-btn').forEach(x => x.classList.toggle('active', x === b));
+        if (W === 'A') state.gg.touchedA = true;
+        syncGGDays(W);
+        audio.tap();
+      });
+      ['Year', 'Month'].forEach(k => $('#gg' + W + k).addEventListener('change', () => {
+        if (W === 'A') state.gg.touchedA = true;
+        syncGGDays(W);
+      }));
+      $('#ggName' + W).addEventListener('change', () => { if (W === 'A') state.gg.touchedA = true; });
+      $('#gg' + W + 'Day').addEventListener('change', () => { if (W === 'A') state.gg.touchedA = true; });
+      $('#ggTime' + W).addEventListener('change', () => { if (W === 'A') state.gg.touchedA = true; });
+    });
+  }
+
+  function syncGGDays(W) {
+    const cal = state.gg[W.toLowerCase()].cal;
+    const y = +$('#gg' + W + 'Year').value, m = +$('#gg' + W + 'Month').value;
+    const dSel = $('#gg' + W + 'Day');
+    if (!dSel) return;
+    const cur = +dSel.value || 1;
+    let max;
+    if (cal === '양력') max = new Date(y, m, 0).getDate();
+    else {
+      const leap = cal === '음력윤달';
+      const probe = dd => !!S.lunarToSolar(y, m, dd, leap);
+      max = probe(1) ? (probe(30) ? 30 : 29) : 0;
+    }
+    const limit = max || 30;
+    dSel.innerHTML = '';
+    for (let d = 1; d <= limit; d++) dSel.add(new Option(d + '일', d));
+    dSel.value = Math.min(cur, limit);
+  }
+
+  function syncGunghapA() {
+    if (state.gg.touchedA) return;
+    const g = state.gg.a;
+    g.gender = state.gender;
+    g.cal = state.cal;
+    $('#ggNameA').value = $('#userName').value.trim();
+    $$('#ggGenderA .seg-btn').forEach(b => b.classList.toggle('active', b.dataset.v === state.gender));
+    $$('#ggCalA .seg-btn').forEach(b => b.classList.toggle('active', b.dataset.v === state.cal));
+    $('#ggAYear').value = $('#birthYear').value;
+    $('#ggAMonth').value = $('#birthMonth').value;
+    syncGGDays('A');
+    $('#ggADay').value = $('#birthDay').value;
+    $('#ggTimeA').value = state.sijin == null ? '' : String(state.sijin);
+  }
+
+  function ggInput(W) {
+    const g = state.gg[W.toLowerCase()];
+    const t = $('#ggTime' + W).value;
+    const year = +$('#gg' + W + 'Year').value, month = +$('#gg' + W + 'Month').value, day = +$('#gg' + W + 'Day').value;
+    if (g.cal === '음력윤달' && !leapMonthOf(year)) {
+      toast((W === 'A' ? '본인' : '상대') + ': 선택한 해에는 윤달이 없습니다. 음력(평달)을 선택해 주세요.');
+      return null;
+    }
+    return {
+      name: $('#ggName' + W).value.trim(), gender: g.gender,
+      year, month, day,
+      calendar: g.cal === '양력' ? '양력' : '음력',
+      leap: g.cal === '음력윤달',
+      sijin: t === '' ? null : +t
+    };
+  }
+
+  function calcGunghap() {
+    const aIn = ggInput('A'), bIn = ggInput('B');
+    if (!aIn || !bIn) return;
+    const A = S.analyze(aIn), B = S.analyze(bIn);
+    if (A.error) { toast('본인: ' + A.error); return; }
+    if (B.error) { toast('상대: ' + B.error); return; }
+    audio.tap();
+    $('#ggFormCard').classList.add('hidden');
+    $('#ggResult').innerHTML = '';
+    playRitual('#ritualOverlay', RITUAL_GUNGHAP, () => {
+      const x = Gunghap.analyze(A, B, state.gg.rel);
+      state.gg.result = x;
+      const host = $('#ggResult');
+      host.innerHTML = GunghapText.render(x);
+      host.classList.remove('reveal');
+      void host.offsetWidth;
+      host.classList.add('reveal');
+      typeDialogue(`두 사람의 여덟 글자를 겹쳐 보니 ${x.score}점 — ${x.grade}. 화면에서 확인해 보세요.`);
+      bindGunghapResult();
+      host.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
+
+  function bindGunghapResult() {
+    const s = $('#shareGunghap');
+    if (s) s.onclick = () => {
+      const x = state.gg.result;
+      if (!x) return;
+      shareSite(GunghapText.shareText(x));
+    };
+    const r = $('#ggReset');
+    if (r) r.onclick = () => {
+      $('#ggResult').innerHTML = '';
+      $('#ggFormCard').classList.remove('hidden');
+      typeDialogue('또 누구와의 인연이 궁금하신가요?');
+      $('#ggFormCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      audio.tap();
+    };
   }
 
   /* ================= 타로 ================= */
@@ -1097,6 +1354,30 @@
     shareSite(`오늘의 타로 — 과거 ${p[0].card.name} · 현재 ${p[1].card.name} · 미래 ${p[2].card.name}. 살풀이 : 천기에서 뽑아봤어요.`);
   }
 
+  function shareExtended(kind) {
+    const a = state.analysis;
+    if (!a) { toast('명식을 먼저 조회해 주세요.'); switchTab('saju'); return; }
+    if (kind === 'today') {
+      const x = state.last.today || Plus.today(a);
+      shareSite(`오늘의 일진 ${x.ganji.label} — ${x.score}점(${x.grade}). 행운의 방향은 ${x.luck.dir}, 색은 ${x.luck.color}. 살풀이 : 천기에서 봤어요.`);
+    } else if (kind === 'sinsal') {
+      const x = state.last.sinsal || Plus.sinsal(a);
+      const names = x.items.slice(0, 3).map(i => i.name).join(' · ');
+      shareSite(`내 사주의 살과 귀인 — ${names || '중립적인 명식'}. 살풀이 : 천기에서 풀어봤어요.`);
+    } else if (kind === 'year') {
+      const x = state.last.yearly || Plus.yearly(a, state.yearly);
+      shareSite(`${x.year} ${x.ganji}년 — ${x.theme}. 잡을 달 ${x.best[0].start} ${x.best[0].name}, 피할 달 ${x.worst[0].start} ${x.worst[0].name}. 살풀이 : 천기.`);
+    } else if (kind === 'wealth') {
+      const x = state.last.wealth || Plus.wealth(a);
+      shareSite(`내 돈의 그릇 — 사업·프리랜서 ${x.biz}%, 직장·조직 ${x.job}%. 살풀이 : 천기에서 봤어요.`);
+    } else if (kind === 'taekil') {
+      const last = state.last.taekil;
+      if (!last) return;
+      const t = last.x.top[0];
+      shareSite(`${last.x.purpose.name} 길일 — ${t.m}/${t.d} (${t.wd}) ${t.ganji}일 ${t.score}점(${t.grade}). 살풀이 : 천기에서 골랐어요.`);
+    }
+  }
+
   /* ================= 상품 · 결제 ================= */
   function renderPriceList() {
     const un = P.unlocked();
@@ -1290,6 +1571,8 @@
     story.init();          // 히어로 3컷 내레이션 프리로드
     initForm();
     initTarot();
+    buildGunghapForm();
+    renderProfileBars();
     renderPriceList();
     renderTalismans();
 
@@ -1310,6 +1593,45 @@
     const sSaju = $('#shareSaju'), sTarot = $('#shareTarot');
     if (sSaju) sSaju.onclick = shareSaju;
     if (sTarot) sTarot.onclick = shareTarot;
+    const gcb = $('#ggCalcBtn');
+    if (gcb) gcb.onclick = calcGunghap;
+    $$('#ggRelSeg .seg-btn').forEach(b => b.onclick = () => {
+      state.gg.rel = b.dataset.v;
+      $$('#ggRelSeg .seg-btn').forEach(x => x.classList.toggle('active', x === b));
+      audio.tap();
+    });
+    $$('#yrSeg .seg-btn').forEach(b => b.onclick = () => {
+      state.yearly = +b.dataset.v;
+      $$('#yrSeg .seg-btn').forEach(x => x.classList.toggle('active', x === b));
+      audio.tap();
+      renderYearPanel();
+    });
+    $$('#tkPurposeSeg .seg-btn').forEach(b => b.onclick = () => {
+      state.tk.purpose = b.dataset.v;
+      $$('#tkPurposeSeg .seg-btn').forEach(x => x.classList.toggle('active', x === b));
+      audio.tap();
+      renderTaekilPanel();
+    });
+    $$('#tkRangeSeg .seg-btn').forEach(b => b.onclick = () => {
+      state.tk.range = b.dataset.v;
+      $$('#tkRangeSeg .seg-btn').forEach(x => x.classList.toggle('active', x === b));
+      audio.tap();
+      renderTaekilPanel();
+    });
+    const tkb = $('#tkCalcBtn');
+    if (tkb) tkb.onclick = () => { audio.tap(); renderTaekilPanel(); };
+
+    /* 확장 메뉴 공유 · 메뉴 이동 */
+    document.addEventListener('click', e => {
+      const sh = e.target.closest && e.target.closest('[data-share]');
+      if (sh) { shareExtended(sh.dataset.share); return; }
+      const go = e.target.closest && e.target.closest('[data-goto]');
+      if (go) {
+        const id = go.dataset.goto;
+        switchTab(id);
+        if (id === 'saju') setTimeout(() => { const f = $('#formCard'); if (f) f.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 320);
+      }
+    });
 
     // 부적 라이트박스
     const view = $('#talView');
