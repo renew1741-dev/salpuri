@@ -28,6 +28,7 @@
   };
 
   /* ================= 안개 · 입자 ================= */
+  const fog = { burstAt: 0 };   // 입장 클릭 시 안개가 좌우로 흩어지는 시점
   function initFog() {
     const c = $('#fogCanvas'), ctx = c.getContext('2d');
     let W, H, puffs = [];
@@ -53,15 +54,25 @@
       const dt = Math.min(48, now - t0); t0 = now;
       ctx.clearRect(0, 0, W, H);
       ctx.globalCompositeOperation = 'lighter';
+      // 구름 걷힘: 클릭 직후 1.6초 동안 좌우·바깥으로 빠르게 밀려나며 옅어진다
+      const burst = fog.burstAt ? Math.max(0, 1 - (now - fog.burstAt) / 1600) : 0;
+      const bk = burst * burst;
       for (const p of puffs) {
-        p.x += p.vx * dt / 16; p.y += p.vy * dt / 16;
+        let vx = p.vx, vy = p.vy, aMul = 1;
+        if (burst > 0) {
+          const dir = p.x >= W / 2 ? 1 : -1;
+          vx += dir * 30 * bk;
+          vy += (p.y >= H / 2 ? 1 : -1) * 4 * bk;
+          aMul = 1 - 0.6 * burst;
+        }
+        p.x += vx * dt / 16; p.y += vy * dt / 16;
         if (p.x - p.r > W) p.x = -p.r;
         if (p.x + p.r < 0) p.x = W + p.r;
         if (p.y - p.r > H) p.y = -p.r;
         if (p.y + p.r < 0) p.y = H + p.r;
         const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
-        g.addColorStop(0, `rgba(${p.hue},${p.a})`);
-        g.addColorStop(.6, `rgba(${p.hue},${p.a * .35})`);
+        g.addColorStop(0, `rgba(${p.hue},${p.a * aMul})`);
+        g.addColorStop(.6, `rgba(${p.hue},${p.a * .35 * aMul})`);
         g.addColorStop(1, `rgba(${p.hue},0)`);
         ctx.fillStyle = g;
         ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.2832); ctx.fill();
@@ -92,93 +103,88 @@
     addEventListener('resize', draw, { passive: true });
   }
 
-  /* ================= 사운드 ================= */
+  /* ================= 사운드 (audio/bgm.mp3 루프) ================= */
+  const BGM_VOLUME = 0.55;
   const audio = {
-    ctx: null, master: null, on: false, timer: null,
+    el: null, on: false, fade: null, tapCtx: null,
     init() {
-      if (this.ctx) return;
-      const AC = window.AudioContext || window.webkitAudioContext;
-      if (!AC) return;
-      const ctx = this.ctx = new AC();
-      const master = this.master = ctx.createGain();
-      master.gain.value = 0.0001;
-      master.connect(ctx.destination);
-
-      // 낮게 깔리는 동양풍 드론 (D · A · E · F#)
-      [146.83, 220.0, 293.66, 369.99].forEach((f, i) => {
-        const o = ctx.createOscillator(), g = ctx.createGain(), lfo = ctx.createOscillator(), lg = ctx.createGain();
-        o.type = i === 0 ? 'sine' : (i === 3 ? 'triangle' : 'sine');
-        o.frequency.value = f * (i === 3 ? 1 : 1);
-        g.gain.value = i === 0 ? 0.10 : 0.035 / (i);
-        lfo.frequency.value = 0.05 + i * 0.017;
-        lg.gain.value = 0.008;
-        lfo.connect(lg); lg.connect(g.gain);
-        o.connect(g); g.connect(master);
-        o.start(); lfo.start();
-      });
-
-      // 바람 소리 (필터드 노이즈)
-      const len = ctx.sampleRate * 4;
-      const buf = ctx.createBuffer(1, len, ctx.sampleRate);
-      const d = buf.getChannelData(0);
-      let last = 0;
-      for (let i = 0; i < len; i++) {
-        const white = Math.random() * 2 - 1;
-        last = (last + 0.02 * white) / 1.02;
-        d[i] = last * 3.2;
+      if (this.el) return this.el;
+      const el = document.createElement('audio');
+      el.id = 'bgm';
+      el.src = 'audio/bgm.mp3';
+      el.loop = true;
+      el.preload = 'auto';
+      el.volume = 0;
+      el.setAttribute('aria-hidden', 'true');
+      el.setAttribute('playsinline', '');
+      el.addEventListener('error', () => { /* 파일이 없어도 페이지 동작에는 영향 없음 */ });
+      document.body.appendChild(el);
+      this.el = el;
+      return el;
+    },
+    fadeTo(target, ms) {
+      const el = this.el;
+      if (!el) return;
+      clearInterval(this.fade);
+      const from = el.volume, t0 = performance.now();
+      const dur = Math.max(80, ms);
+      this.fade = setInterval(() => {
+        const k = Math.min(1, (performance.now() - t0) / dur);
+        const e = k * k * (3 - 2 * k);   // smoothstep
+        el.volume = Math.min(1, Math.max(0, from + (target - from) * e));
+        if (k >= 1) clearInterval(this.fade);
+      }, 40);
+    },
+    play() {
+      const el = this.init();
+      const p = el.play();
+      if (p && p.catch) p.catch(() => {});   // 자동재생 차단은 조용히 무시
+    },
+    start() {
+      const el = this.init();
+      this.on = true;
+      clearTimeout(el._pauseT);
+      if (el.paused) { el.volume = 0; this.play(); }
+      this.fadeTo(BGM_VOLUME, 3200);         // 0 -> 0.55 부드러운 페이드인
+      this.ui(true);
+    },
+    toggle() {
+      const el = this.init();
+      this.on = !this.on;
+      clearTimeout(el._pauseT);
+      if (this.on) {
+        if (el.paused) { el.volume = 0; this.play(); }
+        this.fadeTo(BGM_VOLUME, 1400);
+      } else {
+        this.fadeTo(0, 700);
+        el._pauseT = setTimeout(() => { if (!this.on && this.el) this.el.pause(); }, 780);
       }
-      const src = ctx.createBufferSource(); src.buffer = buf; src.loop = true;
-      const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 620; bp.Q.value = 0.6;
-      const ng = ctx.createGain(); ng.gain.value = 0.05;
-      src.connect(bp); bp.connect(ng); ng.connect(master); src.start();
-
-      // 풍경(風磬) 소리
-      const notes = [587.33, 659.25, 783.99, 880.0, 1174.66, 987.77];
-      const chime = () => {
-        if (!this.on || !this.ctx) return;
+      this.ui(this.on);
+    },
+    ui(on) {
+      const btn = $('#soundBtn');
+      if (!btn) return;
+      btn.classList.toggle('off', !on);
+      btn.setAttribute('aria-pressed', String(!!on));
+      $('#soundLabel').textContent = on ? '몽환 사운드' : '소리 꺼짐';
+    },
+    tap() {                                   // UI 터치음 (BGM과 별개)
+      if (!this.on) return;
+      try {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return;
+        const ctx = this.tapCtx || (this.tapCtx = new AC());
+        if (ctx.state === 'suspended') ctx.resume();
         const now = ctx.currentTime;
         const o = ctx.createOscillator(), g = ctx.createGain();
         o.type = 'sine';
-        o.frequency.value = notes[Math.floor(Math.random() * notes.length)];
-        g.gain.setValueAtTime(0.0001, now);
-        g.gain.exponentialRampToValueAtTime(0.07, now + 0.05);
-        g.gain.exponentialRampToValueAtTime(0.0001, now + 4.2);
-        o.connect(g); g.connect(master);
-        o.start(now); o.stop(now + 4.3);
-      };
-      this.chime = chime;
-      setTimeout(chime, 400);
-      this.timer = setInterval(chime, 5200);
-    },
-    start() {
-      this.init();
-      if (!this.ctx) return;
-      this.ctx.resume();
-      this.on = true;
-      this.master.gain.cancelScheduledValues(this.ctx.currentTime);
-      this.master.gain.setTargetAtTime(0.28, this.ctx.currentTime, 1.6);
-      $('#soundBtn').classList.remove('off');
-      $('#soundLabel').textContent = '몽환 사운드';
-    },
-    toggle() {
-      if (!this.ctx) { this.start(); return; }
-      this.on = !this.on;
-      this.ctx.resume();
-      this.master.gain.setTargetAtTime(this.on ? 0.28 : 0.0001, this.ctx.currentTime, 0.4);
-      $('#soundBtn').classList.toggle('off', !this.on);
-      $('#soundLabel').textContent = this.on ? '몽환 사운드' : '소리 꺼짐';
-    },
-    tap() {
-      if (!this.on || !this.ctx) return;
-      const now = this.ctx.currentTime;
-      const o = this.ctx.createOscillator(), g = this.ctx.createGain();
-      o.type = 'sine';
-      o.frequency.setValueAtTime(920, now);
-      o.frequency.exponentialRampToValueAtTime(1380, now + 0.1);
-      g.gain.setValueAtTime(0.05, now);
-      g.gain.exponentialRampToValueAtTime(0.0001, now + 0.32);
-      o.connect(g); g.connect(this.master);
-      o.start(now); o.stop(now + 0.34);
+        o.frequency.setValueAtTime(920, now);
+        o.frequency.exponentialRampToValueAtTime(1380, now + 0.1);
+        g.gain.setValueAtTime(0.05, now);
+        g.gain.exponentialRampToValueAtTime(0.0001, now + 0.32);
+        o.connect(g); g.connect(ctx.destination);
+        o.start(now); o.stop(now + 0.34);
+      } catch (e) { /* 무시 */ }
     }
   };
 
@@ -195,11 +201,15 @@
   };
 
   function enter() {
-    document.body.classList.add('opened');
-    document.body.classList.remove('locked');
-    audio.start();
-    setTimeout(() => typeDialogue('어서 오세요… 당신의 명(命)이 어떤 빛으로 타고났는지, 한번 들여다볼까요.'), 550);
-    setTimeout(() => $('#main').scrollIntoView({ block: 'start' }), 2600);
+    const body = document.body;
+    if (body.classList.contains('opened')) return;
+    fog.burstAt = performance.now();          // 안개 입자가 좌우로 쫙 흩어진다
+    body.classList.add('clearing');
+    body.classList.add('opened');             // 구름 장막 분리 + 금박 커튼 걷힘
+    body.classList.remove('locked');
+    audio.start();                            // 0 -> 0.55 페이드인
+    setTimeout(() => typeDialogue('어서 오세요… 당신의 명(命)이 어떤 빛으로 타고났는지, 한번 들여다볼까요.'), 1150);
+    setTimeout(() => $('#main').scrollIntoView({ block: 'start' }), 3000);
   }
 
   /* ================= 탭 ================= */
@@ -825,6 +835,7 @@
   function init() {
     initFog();
     initGrain();
+    audio.init();          // BGM 미리 버퍼링(재생은 입장 클릭 때)
     initForm();
     initTarot();
     renderPriceList();
