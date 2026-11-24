@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#06050a" />
+<title>살풀이 : 천기(天機) — 정밀 만세력 사주 · 신비 타로</title>
+<meta name="description" content="입춘·24절기와 율리우스 적일로 계산하는 정밀 만세력, 22장 메이저 아르카나 타로, 그리고 2026 병오년 세운 리포트. 살풀이 : 천기에서 당신의 명(命)을 읽습니다." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="locked">
+
+<canvas id="fogCanvas"></canvas>
+<canvas id="grainCanvas"></canvas>
+
+<button id="soundBtn" aria-label="사운드 켜기/끄기">
+  <span class="bars"><i></i><i></i><i></i></span>
+  <span id="soundLabel">몽환 사운드</span>
+</button>
+
+<!-- 금박 비단 커튼 -->
+<div class="curtain curtain-left"><div class="rod"></div><div class="tie"></div><div class="fringe"></div></div>
+<div class="curtain curtain-right"><div class="rod"></div><div class="tie"></div><div class="fringe"></div></div>
+
+<!-- 입장 게이트 -->
+<div id="gate">
+  <div class="gate-inner">
+    <div class="crest serif">煞</div>
+    <div class="gate-brand serif">살풀이<span>:</span>천기</div>
+    <div class="gate-sub">天機 · 命理 · TAROT</div>
+    <h1 class="gate-title serif">어둠 너머,<br>당신의 <em>명(命)</em>이 깨어납니다</h1>
+    <p class="gate-desc">커튼이 걷히는 순간, 촛불 아래에서<br>당신의 사주팔자와 2026년의 흐름을 읽어드립니다.</p>
+    <button class="enter-btn" id="enterBtn">장막 열고 입장하기</button>
+    <div class="gate-foot">입춘·24절기 기준 정밀 만세력 · 22장 타로<br>본 서비스는 오락과 자기 성찰을 위한 것으로, 의료·법률·투자의 판단을 대신하지 않습니다.</div>
+  </div>
+</div>
+
+<!-- 메인 -->
+<main id="main">
+
+  <!-- 히어로 -->
+  <section class="hero">
+    <div class="hero-frame">
+      <img src="fortune-teller.png" alt="살풀이 : 천기의 무녀" class="hero-img" />
+      <div class="hero-vig"></div>
+      <div class="hero-glow"></div>
+      <div class="hero-text">
+        <div class="badge-master"><i></i> 살풀이 : 천기(天機) · 정밀 명리</div>
+        <div class="dialogue serif" id="dialogue"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 탭 -->
+  <nav class="tabs" role="tablist">
+    <button class="tab active" data-tab="saju" role="tab">사주 만세력<span>SAJU</span></button>
+    <button class="tab" data-tab="tarot" role="tab">신비 타로<span>TAROT</span></button>
+    <button class="tab" data-tab="premium" role="tab">부적·리포트<span>PREMIUM</span></button>
+  </nav>
+
+  <div class="wrap">
+
+    <!-- ========== 사주 ========== -->
+    <section class="panel active" id="panel-saju">
+      <div class="card" id="formCard">
+        <div class="section-head">
+          <h2 class="serif">명식(命式) 입력</h2><span class="en">BIRTH DATA</span>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="userName">성함 <b>선택</b></label>
+          <input id="userName" class="inp" type="text" placeholder="예: 남강진 (없어도 됩니다)" maxlength="12" autocomplete="name" />
+        </div>
+
+        <div class="field">
+          <label class="field-label">성별 <b>대운의 방향을 가릅니다</b></label>
+          <div class="seg seg-2" id="genderSeg">
+            <button type="button" class="seg-btn active" data-v="여">여성</button>
+            <button type="button" class="seg-btn" data-v="남">남성</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">달력 <b>음력은 윤달까지 지원</b></label>
+          <div class="seg seg-3" id="calSeg">
+            <button type="button" class="seg-btn active" data-v="양력">양력</button>
+            <button type="button" class="seg-btn" data-v="음력">음력</button>
+            <button type="button" class="seg-btn" data-v="음력윤달">음력(윤달)</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">생년월일</label>
+          <div class="date-row">
+            <select id="birthYear" class="inp" aria-label="출생 연도"></select>
+            <select id="birthMonth" class="inp" aria-label="출생 월"></select>
+            <select id="birthDay" class="inp" aria-label="출생 일"></select>
+          </div>
+          <div class="hint" id="lunarHint">1940년 ~ 2026년 출생 지원 · 음력 날짜는 존재하는 날만 선택됩니다.</div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">태어난 시간 <b>12시진</b></label>
+          <div class="time-grid" id="timeGrid"></div>
+          <div class="hint">※ 자시(23:00 이후)에 태어났다면 일주는 다음 날로 계산됩니다(자시 일주설).</div>
+        </div>
+
+        <button class="btn-gold" id="calcBtn">내 사주 명식 펼쳐보기</button>
+      </div>
+
+      <div class="loading" id="loadingPanel">
+        <div class="spin-ring"></div>
+        <p class="serif">절기와 천간의 기운을 모으는 중…</p>
+        <small>입춘·24절기 · 율리우스 적일로 원국을 세우고 있습니다</small>
+      </div>
+
+      <div id="resultPanel">
+
+        <!-- 명식 -->
+        <div class="card">
+          <div class="result-title">
+            <div class="result-brand serif">살풀이 : 천기(天機) · 정밀 만세력</div>
+            <h2 class="serif" id="resultName">사주 명식</h2>
+            <p id="resultSub"></p>
+          </div>
+
+          <div class="pillar-grid" id="pillarGrid"></div>
+          <div class="legend" id="pillarLegend"></div>
+          <div class="term-line" id="termLine"></div>
+
+          <div class="hr-gold"></div>
+
+          <div class="section-head"><h2 class="serif">오행의 균형</h2><span class="en">FIVE ELEMENTS</span></div>
+          <div class="oheng-wrap">
+            <div class="radar-box"><svg id="ohengRadar" viewBox="0 0 200 200" width="150" height="150" aria-label="오행 분포 레이더"></svg></div>
+            <div class="oheng-rows" id="ohengRows"></div>
+          </div>
+
+          <div class="hr-gold"></div>
+
+          <div class="section-head"><h2 class="serif">일간의 강약</h2><span class="en">STRENGTH</span></div>
+          <div class="gauge-box">
+            <svg id="strengthGauge" viewBox="0 0 240 128" width="100%" height="128" aria-label="신강신약 게이지"></svg>
+            <div class="gauge-meta"><span>신약</span><span>중화</span><span>신강</span></div>
+            <div class="gauge-verdict"><strong id="strengthLabel"></strong><span id="strengthDesc"></span></div>
+          </div>
+
+          <div class="yongshin" id="yongshinBox"></div>
+        </div>
+
+        <!-- 무료 풀이 -->
+        <div class="card">
+          <div class="section-head"><h2 class="serif">무료 풀이</h2><span class="en">SUMMARY</span></div>
+          <div class="free-read" id="freeReading"></div>
+        </div>
+
+        <!-- 세운 · 대운 -->
+        <div class="card">
+          <div class="section-head"><h2 class="serif">2026 병오년 세운</h2><span class="en">YEARLY</span></div>
+          <div class="saeun-line">
+            <div class="saeun-ganji" id="saeunGanji">丙午<small>2026</small></div>
+            <div class="saeun-text" id="saeunText"></div>
+          </div>
+          <div class="hr-gold"></div>
+          <div class="section-head"><h2 class="serif">대운의 흐름</h2><span class="en">10 YEARS</span></div>
+          <div class="dw-strip" id="dwStrip"></div>
+          <div class="small" id="dwNote"></div>
+        </div>
+
+        <!-- 잠금 -->
+        <div class="card">
+          <div class="lock-box">
+            <div class="lock-title">🔒 프리미엄 정밀 풀이 — 10개 장 리포트</div>
+            <ul class="blur-list">
+              <li>십성 지도 · 재물의 그릇과 새는 구멍</li>
+              <li>배우자궁과 인연이 열리는 시기</li>
+              <li>2026년 월별 길흉 12개월 캘린더</li>
+              <li>대운 9구간 · 개운 방위와 색</li>
+            </ul>
+            <button class="btn-gold lock-cta" id="unlockBtn">정밀 리포트 열기 (9,900원)</button>
+          </div>
+          <div class="center mt14"><button class="btn-ghost" id="resetBtn">다른 생년월일로 다시 보기</button></div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========== 타로 ========== -->
+    <section class="panel" id="panel-tarot">
+      <div class="card">
+        <div class="section-head">
+          <h2 class="serif">세 장의 카드</h2><span class="en">3 CARD SPREAD</span>
+        </div>
+        <p class="small">무엇이 궁금한지 먼저 정하십시오. 카드를 세 번 눌러 과거 · 현재 · 미래를 뽑습니다.</p>
+
+        <div class="cat-row mt14" id="catRow"></div>
+
+        <div class="deck-stage" id="deckStage">
+          <div class="deck-fan" id="deckFan"></div>
+        </div>
+        <div class="center small" id="deckHint">부채꼴 카드 22장 중 3장을 직접 고르세요</div>
+
+        <div class="slot-row mt20" id="slotRow"></div>
+
+        <div class="reading" id="readingBox"></div>
+        <div class="read-summary hidden" id="readSummary"></div>
+
+        <div class="center mt20">
+          <button class="btn-ghost" id="resetTarot">카드 다시 섞기</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 프리미엄 ========== -->
+    <section class="panel" id="panel-premium">
+      <div class="card">
+        <div class="section-head"><h2 class="serif">살풀이 : 천기 프리미엄</h2><span class="en">PREMIUM</span></div>
+        <p class="small">명식은 무료로 확인하시고, 깊은 풀이가 필요할 때만 선택하십시오.</p>
+        <div class="price-list mt14" id="priceList"></div>
+        <div class="pay-note">
+          · 결제 즉시 이 화면에서 프리미엄 리포트가 열립니다.<br>
+          · 부적 배경화면은 결제 후 48시간 내 제작되어 안내드립니다.<br>
+          · 리포트는 PDF로 저장하실 수 있습니다(인쇄 → PDF 저장).
+        </div>
+      </div>
+
+      <div class="card" id="reportCard">
+        <div class="section-head"><h2 class="serif">프리미엄 리포트</h2><span class="en">REPORT</span></div>
+        <div id="reportLocked" class="center">
+          <p class="small" style="line-height:1.9">아직 열람 권한이 없습니다.<br>명식을 먼저 조회하신 뒤, 위 상품에서 선택해 주세요.</p>
+          <button class="btn-ghost mt14" id="goSaju">사주 명식 먼저 보기</button>
+        </div>
+        <div id="reportBody" class="report-doc hidden"></div>
+        <div class="center mt20 hidden" id="printRow">
+          <button class="btn-ghost" id="printBtn">PDF로 저장 / 인쇄</button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <footer>
+    <div class="brand serif">살풀이 : 천기</div>
+    <p>살풀이 : 천기(天機) · 정밀 만세력 &amp; 타로<br>
+    입춘 기준 연주 · 24절기 월주 · JDN 일주 · 오호둔·오서둔 시간<br>
+    본 서비스는 오락 및 자기 성찰을 위한 콘텐츠이며, 의료·법률·금융 투자 판단의 근거로 사용할 수 없습니다.</p>
+  </footer>
+</main>
+
+<!-- 결제 모달 -->
+<div class="modal-bg" id="payModal">
+  <div class="modal" id="payModalBox"></div>
+</div>
+
+<div id="toast"></div>
+
+<script src="js/data-calendar.js"></script>
+<script src="js/saju-engine.js"></script>
+<script src="js/saju-text.js"></script>
+<script src="js/tarot.js"></script>
+<script src="js/payment.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
