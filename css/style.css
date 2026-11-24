@@ -2178,3 +2178,6 @@ body.tal-open { overflow: hidden; }
 @keyframes likePulse { 0% { transform: scale(1); } 32% { transform: scale(1.09); } 100% { transform: scale(1); } }
 @media (prefers-reduced-motion: reduce) { .like-btn.pulse { animation: none; } }
 #nmResult { scroll-margin-top: 140px; }
+/* 원격(조상운)은 참고용 — 흉수라도 눈에 덜 띄게 */
+.nm-gyeok .nm-gyeok-item:first-child { opacity: .62; }
+.nm-gyeok .nm-gyeok-item:first-child b { color: var(--muted); }
