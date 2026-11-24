@@ -495,7 +495,7 @@
     good.forEach((z, i) => { z.no = i + 1; });
     bad.forEach((z, i) => { z.no = good.length + i + 1; });
 
-    const summary = `살릴 점 ${good.length}곳과 뺄 점 ${bad.length}곳을 골랐습니다. ${el(yong)}의 기운이 약(藥)인 사주라 ${A(good[0])} 쪽 점이 먼저 살아나고, ${el(gi)}의 기운이 도는 자리는 재물과 인연이 함께 새는 자리입니다.`;
+    const summary = `살릴 점 ${good.length}곳과 뺄 점 ${bad.length}곳을 골랐습니다. ${el(yong)}의 기운이 약(弱)인 사주라 ${A(good[0])} 쪽 점이 먼저 살아나고, ${el(gi)}의 기운이 도는 자리는 재물과 인연이 함께 새는 자리입니다.`;
     function A(z) { return z ? `'${z.name}'` : '귀'; }
 
     return {
@@ -543,7 +543,7 @@
       pitch = '속도가 먼저 나갑니다. 한 문장을 말하고 한 박자 쉬십시오.';
       pitchWhy = `목(木)이 ${pct(p[0])}로 강해 말이 자라나는 속도로 나옵니다. 쉼이 없으면 좋은 말도 밀어내는 말이 됩니다.`;
     } else {
-      pitch = `톤은 ${el(yong)}(의) 결로 맞추십시오. ${el(yong)}이 약(藥)인 사주라, 그 기운의 색을 띤 낮고 따뜻한 톤이 사람을 붙입니다.`;
+      pitch = `톤은 ${el(yong)}(의) 결로 맞추십시오. ${el(yong)}이 약(弱)인 사주라, 그 기운의 색을 띤 낮고 따뜻한 톤이 사람을 붙입니다.`;
       pitchWhy = `오행이 고르게 놓인 사주입니다. 어느 하나로 치우치기보다 용신의 결을 목소리에 입히는 쪽이 오래 갑니다.`;
     }
     const speed = g.siksang >= 0.30
