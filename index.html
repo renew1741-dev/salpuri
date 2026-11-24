@@ -31,7 +31,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20261125-5" />
+<link rel="stylesheet" href="css/style.css?v=20261125-7" />
 </head>
 <body class="locked">
 
@@ -106,6 +106,7 @@
     <button class="tab" data-tab="wealth" role="tab">재물<span>MONEY</span></button>
     <button class="tab" data-tab="taekil" role="tab">택일<span>DATE</span></button>
     <button class="tab" data-tab="gaewun" role="tab">개운<span>STYLE</span></button>
+    <button class="tab" data-tab="naming" role="tab">작명<span>NAME</span></button>
     <button class="tab" data-tab="tarot" role="tab">타로<span>TAROT</span></button>
     <button class="tab" data-tab="premium" role="tab">부적<span>PREMIUM</span></button>
   </nav>
@@ -404,6 +405,61 @@
       <div id="gaewunBody"></div>
     </section>
 
+    <!-- ========== 개명 · 아기 작명 ========== -->
+    <section class="panel" id="panel-naming">
+      <div class="card" id="nmFormCard">
+        <div class="section-head"><h2 class="serif">개명 · 아기 작명</h2><span class="en">NAME</span></div>
+        <p class="small">이름은 사주를 채우는 마지막 한 칸입니다. 지금 쓰는 이름이 사주와 어긋나는지 진단하고, 어긋난다면 사주에 약이 되는 이름 다섯을 받아 보십시오.</p>
+
+        <div class="seg seg-2 mt14" id="nmModeSeg">
+          <button type="button" class="seg-btn active" data-v="reform">내 이름 감정 · 개명<small>RENAME</small></button>
+          <button type="button" class="seg-btn" data-v="baby">아기 작명<small>BABY</small></button>
+        </div>
+
+        <div class="nm-sur-row mt14">
+          <div class="field">
+            <label class="field-label" for="nmSurname">성씨 <b>한 글자</b></label>
+            <input id="nmSurname" class="inp" type="text" maxlength="2" placeholder="예: 김" autocomplete="off" />
+          </div>
+          <div class="field" id="nmGivenWrap">
+            <label class="field-label" for="nmGiven">현재 이름 <b>한글 2~3자</b></label>
+            <input id="nmGiven" class="inp" type="text" maxlength="3" placeholder="예: 서연" autocomplete="off" />
+          </div>
+        </div>
+
+        <div id="nmReformFields">
+          <div class="pf-slot" data-pf="naming"></div>
+          <p class="hint">사주 탭에서 입력한 생년월일·시간·성별을 그대로 이어받습니다. 이름을 비워 두면 개명 후보 5선만 보여 드립니다.</p>
+        </div>
+
+        <div id="nmBabyFields" class="hidden">
+          <div class="field">
+            <label class="field-label">성별</label>
+            <div class="seg seg-2" id="nmBabyGender">
+              <button type="button" class="seg-btn active" data-v="여">여아</button>
+              <button type="button" class="seg-btn" data-v="남">남아</button>
+            </div>
+          </div>
+          <div class="field">
+            <label class="field-label">출산 예정일 · 생년월일</label>
+            <div class="date-row">
+              <select id="nmYear" class="inp" aria-label="출생 연도"></select>
+              <select id="nmMonth" class="inp" aria-label="출생 월"></select>
+              <select id="nmDay" class="inp" aria-label="출생 일"></select>
+            </div>
+          </div>
+          <div class="field">
+            <label class="field-label" for="nmTime">태어난 시간 <b>모르면 그대로 두십시오</b></label>
+            <select id="nmTime" class="inp" aria-label="출생 시간"></select>
+          </div>
+          <p class="hint">출산 예정일로도 명식을 세울 수 있습니다. 실제 출생 후 시간을 넣으면 시주까지 다시 계산합니다.</p>
+        </div>
+
+        <button class="btn-gold" id="nmCalcBtn">이름 진단서 펼쳐보기</button>
+      </div>
+      <div id="nmResult"></div>
+    </section>
+
     <!-- ========== 타로 ========== -->
     <section class="panel" id="panel-tarot">
       <div class="card">
@@ -513,10 +569,12 @@
 <script src="js/gunghap-text.js?v=20261125-2"></script>
 <script src="js/plus-engine.js?v=20261125-2"></script>
 <script src="js/plus-text.js?v=20261125-2"></script>
-<script src="js/gaewun-engine.js?v=20261125-5"></script>
-<script src="js/gaewun-text.js?v=20261125-5"></script>
+<script src="js/gaewun-engine.js?v=20261125-7"></script>
+<script src="js/gaewun-text.js?v=20261125-7"></script>
+<script src="js/naming-engine.js?v=20261125-7"></script>
+<script src="js/naming-text.js?v=20261125-7"></script>
 <script src="js/tarot.js?v=20261125-2"></script>
-<script src="js/payment.js?v=20261125-2"></script>
-<script src="js/app.js?v=20261125-5"></script>
+<script src="js/payment.js?v=20261125-7"></script>
+<script src="js/app.js?v=20261125-7"></script>
 </body>
 </html>
