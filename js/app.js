@@ -313,7 +313,9 @@
       const speaks = speak && audio.on;
       if (speaks) {
         this.playNarr(n);
-        this.after((STORY[n].dur + 6) * 1000, () => this.next());   // 안전장치
+        // 안전장치 — 내레이션을 절대 자르지 않도록 실제 길이 + 9초 뒤에만 넘어간다.
+        // (정상 재생 시에는 'ended' 이벤트가 먼저 도착해 TAIL 여운 후 넘어간다)
+        this.after((STORY[n].dur + 9) * 1000, () => this.next());
       } else {
         this.after((STORY[n].dur + 1.5) * 1000, () => this.next());
       }
@@ -323,7 +325,12 @@
       if (!p) return;
       try { p.currentTime = 0; } catch (e) {}
       const pr = p.play();
-      if (pr && pr.catch) pr.catch(() => {});
+      if (pr && pr.catch) pr.catch(() => {
+        // 자동재생 차단·파일 오류 시: 소리 없이 같은 길이만큼 기다린 뒤 넘어간다
+        this.narrOn = false;
+        audio.duck(false);
+        this.after((STORY[n].dur + 1.5) * 1000, () => this.next());
+      });
       this.narrOn = true;
       audio.duck(true);
     },
@@ -344,7 +351,7 @@
     },
     toggleSound() {                              // 사운드 토글과 스토리 동기화
       if (audio.on) {
-        if (this.started) { this.clearTimers(); this.playNarr(this.i); this.after((STORY[this.i].dur + 6) * 1000, () => this.next()); }
+        if (this.started) { this.clearTimers(); this.playNarr(this.i); this.after((STORY[this.i].dur + 9) * 1000, () => this.next()); }
       } else {
         this.stopNarr();
         if (this.started) this.after((STORY[this.i].dur + 1.5) * 1000, () => this.next());
