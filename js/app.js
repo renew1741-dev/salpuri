@@ -15,6 +15,8 @@
   const PlusText = window.PlusText;
   const Gaewun = window.Gaewun;
   const GaewunText = window.GaewunText;
+  const Naming = window.Naming;
+  const NamingText = window.NamingText;
 
   const state = {
     gender: '여',
@@ -29,6 +31,10 @@
     yearly: 2026,
     tk: { purpose: 'move', range: 'month' },
     gw: { height: null, weight: null, shown: false },
+    nm: {
+      mode: 'reform', model: null, analysis: null, built: false,
+      baby: { gender: '여', year: 2026, month: 11, day: 25, sijin: null }
+    },
     last: {}
   };
 
@@ -442,6 +448,7 @@
     if (id === 'wealth') renderWealthPanel();
     if (id === 'taekil') renderTaekilPanel();
     if (id === 'gaewun') renderGaewunPanel();
+    if (id === 'naming') renderNamingPanel();
     if (id === 'gunghap') { syncGunghapA(); renderProfileBars(); }
     const panel = document.getElementById('panel-' + id);
     if (panel) panel.scrollIntoView({ block: 'start', behavior: 'smooth' });
@@ -578,6 +585,180 @@
     const x = Gaewun.build(a, { height: state.gw.height, weight: state.gw.weight });
     state.last.gaewun = { x, a };
     host.innerHTML = GaewunText.render(x, a);
+  }
+
+  /* ================= 개명 · 아기 작명 ================= */
+  function kstToday() {
+    const d = new Date(Date.now() + 9 * 3600e3);
+    return { y: d.getUTCFullYear(), m: d.getUTCMonth() + 1, d: d.getUTCDate() };
+  }
+
+  function nmDays(y, m) { return new Date(y, m, 0).getDate(); }
+
+  function nmSyncDay() {
+    const y = +$('#nmYear').value, m = +$('#nmMonth').value;
+    const dSel = $('#nmDay');
+    const cur = +dSel.value || 1;
+    const max = nmDays(y, m);
+    dSel.innerHTML = '';
+    for (let d = 1; d <= max; d++) dSel.add(new Option(d + '일', d));
+    dSel.value = Math.min(cur, max);
+  }
+
+  function namingPrice() {
+    const p = P.PRODUCTS.naming || { price: 29000, listPrice: 39000 };
+    return { sale: p.price, list: p.listPrice || p.price };
+  }
+
+  function initNamingForm() {
+    const ySel = $('#nmYear');
+    if (!ySel) return;
+    const t = kstToday();
+    const mSel = $('#nmMonth'), dSel = $('#nmDay'), tSel = $('#nmTime');
+    for (let y = 2027; y >= 1950; y--) ySel.add(new Option(y + '년', y));
+    for (let m = 1; m <= 12; m++) mSel.add(new Option(m + '월', m));
+    ySel.value = t.y; mSel.value = t.m;
+    nmSyncDay();
+    dSel.value = t.d;
+    tSel.innerHTML = '';
+    tSel.add(new Option('시간 모름', ''));
+    S.SIJIN.forEach((n, i) => tSel.add(new Option(`${n} · ${S.SIJIN_RANGE[i]}`, i)));
+    state.nm.baby.year = t.y; state.nm.baby.month = t.m; state.nm.baby.day = t.d;
+
+    $$('#nmModeSeg .seg-btn').forEach(b => b.onclick = () => {
+      state.nm.mode = b.dataset.v;
+      $$('#nmModeSeg .seg-btn').forEach(x => x.classList.toggle('active', x === b));
+      audio.tap();
+      syncNamingMode();
+    });
+    $$('#nmBabyGender .seg-btn').forEach(b => b.onclick = () => {
+      state.nm.baby.gender = b.dataset.v;
+      $$('#nmBabyGender .seg-btn').forEach(x => x.classList.toggle('active', x === b));
+      audio.tap();
+      softNaming();
+    });
+    [ySel, mSel].forEach(s => s.onchange = () => { nmSyncDay(); softNaming(); });
+    [dSel, tSel].forEach(s => s.onchange = () => softNaming());
+    ['nmSurname', 'nmGiven'].forEach(id => {
+      const el2 = document.getElementById(id);
+      if (!el2) return;
+      el2.addEventListener('input', () => {
+        clearTimeout(el2._nmt);
+        el2._nmt = setTimeout(softNaming, 520);
+      });
+      el2.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); runNaming(true); } });
+    });
+    $('#nmCalcBtn').onclick = () => { audio.tap(); runNaming(true); };
+
+    /* 오픈 특가 문구 — 상품 가격과 한 곳에서 관리 */
+    const pr = namingPrice();
+    const btn = $('#nmCalcBtn');
+    if (btn) btn.dataset.price = pr.sale;
+    syncNamingMode();
+  }
+
+  function syncNamingMode() {
+    const baby = state.nm.mode === 'baby';
+    const rf = $('#nmReformFields'), bf = $('#nmBabyFields'), gw = $('#nmGivenWrap');
+    if (rf) rf.classList.toggle('hidden', baby);
+    if (bf) bf.classList.toggle('hidden', !baby);
+    if (gw) gw.classList.toggle('hidden', baby);
+    const btn = $('#nmCalcBtn');
+    if (btn) btn.textContent = baby ? '이 사주에 맞는 이름 5선 받기' : '이름 진단서 펼쳐보기';
+    renderProfileBars();
+    softNaming();
+  }
+
+  function readNamingInput() {
+    return {
+      mode: state.nm.mode,
+      surname: (($('#nmSurname') || {}).value || '').trim(),
+      given: (($('#nmGiven') || {}).value || '').trim(),
+      gender: state.nm.mode === 'baby' ? state.nm.baby.gender : state.gender,
+      baby: {
+        year: +($('#nmYear') || {}).value, month: +($('#nmMonth') || {}).value,
+        day: +($('#nmDay') || {}).value,
+        sijin: ($('#nmTime') && $('#nmTime').value !== '') ? +$('#nmTime').value : null
+      }
+    };
+  }
+
+  function namingAnalysis(inp) {
+    if (inp.mode !== 'baby') return ensureAnalysis();
+    const b = inp.baby;
+    const res = S.analyze({
+      name: '', gender: inp.gender, year: b.year, month: b.month, day: b.day,
+      calendar: '양력', leap: false, sijin: b.sijin
+    });
+    if (!res || res.error) return res;
+    res.future = res.ts > Date.now();
+    return res;
+  }
+
+  function runNaming(scroll) {
+    const host = $('#nmResult');
+    if (!host) return;
+    const inp = readNamingInput();
+    if (inp.mode !== 'baby' && !state.analysis) {
+      host.innerHTML = panelError('사주 탭에서 생년월일과 시간을 넣고 명식을 먼저 펼쳐 주세요. 지금 이름을 그 사주에 견줘 봅니다.');
+      return;
+    }
+    if (!inp.surname) {
+      toast('성씨를 먼저 입력해 주세요. (예: 김)');
+      if ($('#nmSurname')) $('#nmSurname').focus();
+      return;
+    }
+    const res = namingAnalysis(inp);
+    if (!res || res.error || !res.ok) { host.innerHTML = panelError(res && res.error); return; }
+    const model = Naming.build(res, {
+      mode: inp.mode, surname: inp.surname, given: inp.given, gender: inp.gender
+    });
+    if (!model || model.error) { host.innerHTML = panelError(model && model.error); return; }
+    state.nm.model = model;
+    state.nm.analysis = res;
+    state.nm.built = true;
+    host.innerHTML = NamingText.render(model, res, { unlocked: P.has('naming'), price: namingPrice() });
+    mountLikes();
+    if (scroll) setTimeout(() => host.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+  }
+
+  function softNaming() {
+    if (!state.nm.built) return;
+    const inp = readNamingInput();
+    if (!inp.surname) return;
+    if (inp.mode === 'reform' && !inp.given && state.nm.model && state.nm.model.hasName) return;
+    runNaming(false);
+  }
+
+  function renderNamingPanel() {
+    const host = $('#nmResult');
+    if (!host) return;
+    /* 사주 탭에 이름을 넣어 두었다면 성/이름을 나눠 미리 채운다 */
+    const a = state.analysis;
+    if (a && a.name && $('#nmSurname') && !$('#nmSurname').value && !$('#nmGiven').value) {
+      const chars = [...a.name.trim()];
+      if (chars.length >= 2) {
+        $('#nmSurname').value = chars[0];
+        $('#nmGiven').value = chars.slice(1).join('');
+      }
+    }
+    renderProfileBars();
+    if (state.nm.built && state.nm.model) runNaming(false);
+    else if (!host.innerHTML.trim()) {
+      host.innerHTML = `<div class="card"><p class="small">성씨와 현재 이름(또는 아기 생년월일)을 넣고 <b>이름 진단서</b>를 펼쳐 보십시오. 진단은 무료이고, 사주에 맞춘 이름 후보 5선은 오픈 특가로 열립니다.</p></div>`;
+    }
+  }
+
+  async function namingDemo() {
+    if (P.has('naming')) { runNaming(true); return; }
+    if (P.CONFIG.provider !== 'demo') { openPay('naming'); return; }
+    const res = await P.pay('naming', { name: (state.nm.analysis && state.nm.analysis.name) || '', phone: '' });
+    if (res && res.ok) {
+      toast('데모 결제로 후보 5선을 열었습니다.');
+      runNaming(true);
+    } else {
+      toast((res && res.error) || '열지 못했습니다.');
+    }
   }
 
   /* ================= 폼 ================= */
@@ -1346,6 +1527,122 @@
     document.body.classList.remove('tal-open');
   }
 
+  /* ================= 🔥 소름 돋아요 (실시간 공감) ================= */
+  /* 정직한 카운터 — 실제 방문자가 누른 숫자만 올라갑니다.
+     1) 외부 무료 카운터(abacus.jasoncameron.dev, CORS 허용)로 전체 방문자 공유 숫자
+     2) 통신이 막히면 localStorage에만 기록하는 폴백
+     3) 한 브라우저당 1회 클릭 (localStorage 플래그) */
+  const Like = {
+    API: 'https://abacus.jasoncameron.dev',
+    NS: 'salpuri-cheongi',
+    KEY: 'sooreum-v1',
+    LS_DONE: 'salpuri_like_done_v1',
+    LS_CACHE: 'salpuri_like_cache_v1',
+    count: null, loaded: false, busy: false, offline: false,
+    done() { try { return localStorage.getItem(this.LS_DONE) === '1'; } catch (e) { return false; } },
+    cached() { try { return +(localStorage.getItem(this.LS_CACHE) || 0) || 0; } catch (e) { return 0; } },
+    set(n) {
+      this.count = n;
+      try { localStorage.setItem(this.LS_CACHE, String(n)); } catch (e) {}
+      this.paint();
+    },
+    async refresh() {
+      try {
+        const r = await fetch(`${this.API}/get/${this.NS}/${this.KEY}`, { cache: 'no-store' });
+        if (r.status === 404) { this.loaded = true; this.offline = false; this.set(this.count == null ? 0 : this.count); return; }
+        if (!r.ok) throw new Error('http ' + r.status);
+        const j = await r.json();
+        if (typeof j.value === 'number') { this.loaded = true; this.offline = false; this.set(j.value); return; }
+        throw new Error('bad payload');
+      } catch (e) {
+        this.offline = true;
+        if (this.count == null) this.set(this.cached());
+      }
+    },
+    async up() {
+      if (this.done()) { toast('이미 소름 돋으셨습니다. 한 사람당 한 번입니다.'); return; }
+      if (this.busy) return;
+      this.busy = true;
+      document.querySelectorAll('.like-btn').forEach(b => b.classList.add('pulse'));
+      let ok = false;
+      try {
+        const r = await fetch(`${this.API}/hit/${this.NS}/${this.KEY}`, { cache: 'no-store' });
+        if (!r.ok) throw new Error('http ' + r.status);
+        const j = await r.json();
+        if (typeof j.value !== 'number') throw new Error('bad payload');
+        this.set(j.value);
+        this.offline = false;
+        ok = true;
+      } catch (e) {
+        this.offline = true;
+        this.set((this.count == null ? this.cached() : this.count) + 1);
+      }
+      try { localStorage.setItem(this.LS_DONE, '1'); } catch (e) {}
+      this.busy = false;
+      this.paint();
+      toast(ok ? '🔥 소름 돋아요 — 한 표 남겼습니다.' : '집계 서버가 잠시 응답하지 않아 이 기기에만 기록했습니다.');
+      setTimeout(() => document.querySelectorAll('.like-btn').forEach(b => b.classList.remove('pulse')), 900);
+    },
+    paint() {
+      const txt = this.count == null ? '—' : this.count.toLocaleString('ko-KR');
+      const done = this.done();
+      document.querySelectorAll('.like-btn').forEach(b => {
+        b.classList.toggle('liked', done);
+        const n = b.querySelector('.like-num'); if (n) n.textContent = txt;
+        const t = b.querySelector('.like-txt'); if (t) t.textContent = done ? '소름 돋았습니다' : '소름 돋아요';
+      });
+    }
+  };
+
+  function likeHTML() {
+    return `<button type="button" class="like-btn" data-like="1" aria-label="소름 돋아요 — 실제 방문자 수">
+      <span class="like-fire" aria-hidden="true">🔥</span>
+      <span class="like-txt">소름 돋아요</span>
+      <b class="like-num">—</b>
+    </button>`;
+  }
+
+  let likeLoading = false;
+  function mountLikes() {
+    let added = false;
+    $$('.pl-share-row').forEach(row => {
+      if (row.querySelector('.like-btn')) return;
+      const wrap = document.createElement('div');
+      wrap.className = 'like-row';
+      wrap.innerHTML = likeHTML();
+      row.appendChild(wrap);
+      added = true;
+    });
+    ['#shareSaju', '#shareTarot'].forEach(sel => {
+      const btn = $(sel);
+      if (!btn || !btn.parentNode) return;
+      if (btn.parentNode.querySelector('.like-btn')) return;
+      const wrap = document.createElement('span');
+      wrap.className = 'like-inline';
+      wrap.innerHTML = likeHTML();
+      btn.parentNode.insertBefore(wrap, btn.nextSibling);
+      added = true;
+    });
+    if (added) {
+      Like.paint();
+      if (!Like.loaded && !likeLoading) {
+        likeLoading = true;
+        Like.refresh().then(() => { likeLoading = false; });
+      }
+    }
+  }
+
+  function watchLikes() {
+    const main = $('#main');
+    if (!main || !window.MutationObserver) return;
+    let t = null;
+    const obs = new MutationObserver(() => {
+      if (t) return;
+      t = setTimeout(() => { t = null; mountLikes(); }, 140);
+    });
+    obs.observe(main, { childList: true, subtree: true });
+  }
+
   /* ================= 공유 ================= */
   async function shareSite(text) {
     const url = location.origin + location.pathname;
@@ -1413,6 +1710,9 @@
       const last = state.last.gaewun;
       if (!last) { toast('개운 처방을 먼저 펼쳐 주세요.'); switchTab('gaewun'); return; }
       shareSite(GaewunText.shareText(last.x, last.a));
+    } else if (kind === 'naming') {
+      if (!state.nm.model) { toast('이름 진단서를 먼저 펼쳐 주세요.'); switchTab('naming'); return; }
+      shareSite(NamingText.shareText(state.nm.model));
     }
   }
 
@@ -1422,6 +1722,9 @@
     $('#priceList').innerHTML = ['report', 'talisman', 'vip'].map(id => {
       const p = P.PRODUCTS[id];
       const owned = p.unlock.every(k => un.has(k));
+      const priceHTML = p.listPrice
+        ? `<span class="num"><s>${p.listPrice.toLocaleString()}원</s> ${p.price.toLocaleString()}원</span>`
+        : `<span class="num">${p.price.toLocaleString()}원</span>`;
       return `<div class="price-item ${id === 'vip' ? 'featured' : ''} ${owned ? 'owned' : ''}">
         <div class="info">
           <span class="tagline">${p.badge}</span>
@@ -1429,7 +1732,7 @@
           <p>${p.desc}</p>
         </div>
         <div class="price">
-          <span class="num">${p.price.toLocaleString()}원</span>
+          ${priceHTML}
           <button data-buy="${id}">${owned ? '결제 완료' : '구매하기'}</button>
         </div>
       </div>`;
@@ -1442,7 +1745,7 @@
     if (!prod) return;
     const un = P.unlocked();
     if (prod.unlock.every(k => un.has(k))) { toast('이미 결제하신 상품입니다.'); return; }
-    if (productId !== 'talisman' && !state.analysis) {
+    if (productId !== 'talisman' && productId !== 'naming' && !state.analysis) {
       toast('사주 명식을 먼저 조회해 주세요.');
       switchTab('saju');
       $('#formCard').scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1561,6 +1864,19 @@
 
   function finishPaid(productId, order, demo) {
     const box = $('#payModalBox');
+    if (productId === 'naming') {
+      box.innerHTML = `
+        <div class="pay-step">
+          <div class="done-icon">✓</div>
+          <div class="big">이름 후보 5선이 열렸습니다</div>
+          <p>주문번호 <b style="color:#f6e3ad">${order.orderId}</b><br>
+          ${P.PRODUCTS[productId].name}${demo ? '<br><span class="demo-badge">테스트 결제</span>' : ''}</p>
+          <button class="btn-gold mt20" id="payDone" style="max-width:260px;margin:20px auto 0">후보 5선 보기</button>
+        </div>`;
+      $('#payDone').onclick = () => { closePay(); switchTab('naming'); runNaming(true); };
+      renderPriceList();
+      return;
+    }
     const ownTalisman = P.has('talisman');
     box.innerHTML = `
       <div class="pay-step">
@@ -1608,7 +1924,9 @@
     audio.init();          // BGM 미리 버퍼링(재생은 입장 클릭 때)
     story.init();          // 히어로 3컷 내레이션 프리로드
     initForm();
+    initNamingForm();
     initTarot();
+    watchLikes();
     buildGunghapForm();
     renderProfileBars();
     renderPriceList();
@@ -1687,6 +2005,12 @@
         switchTab(id);
         if (id === 'saju') setTimeout(() => { const f = $('#formCard'); if (f) f.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 320);
       }
+      const like = e.target.closest && e.target.closest('.like-btn');
+      if (like) { e.preventDefault(); Like.up(); return; }
+      const buyNm = e.target.closest && e.target.closest('[data-nm-buy]');
+      if (buyNm) { audio.tap(); openPay('naming'); return; }
+      const demoNm = e.target.closest && e.target.closest('[data-nm-demo]');
+      if (demoNm) { audio.tap(); namingDemo(); return; }
     });
 
     // 부적 라이트박스

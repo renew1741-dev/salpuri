@@ -44,6 +44,15 @@
       price: 29900,
       badge: '38% 할인',
       unlock: ['report', 'talisman', 'vip']
+    },
+    naming: {
+      id: 'naming',
+      name: '사주 맞춤 개명·아기 작명 후보 5선',
+      desc: '이름 진단서 + 후보 5선 · 발음오행 상생 · 한자 81수리 · 사주 보완 해설',
+      price: 29000,
+      listPrice: 39000,
+      badge: '오픈 특가',
+      unlock: ['naming']
     }
   };
 
@@ -59,7 +68,8 @@
     ctee: {
       report: '',               // 예: https://ctee.kr/place/salpuri/report
       talisman: '',
-      vip: ''
+      vip: '',
+      naming: ''
     },
     portone: {
       storeId: '',
