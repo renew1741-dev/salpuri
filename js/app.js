@@ -140,6 +140,10 @@
       const p = el.play();
       if (p && p.catch) p.catch(() => {});   // 자동재생 차단은 조용히 무시
     },
+    duck(on) {                                // 내레이션 동안 BGM 0.55 → 0.25
+      if (!this.on && !on) return;
+      this.fadeTo(on ? 0.25 : BGM_VOLUME, on ? 900 : 2000);
+    },
     start() {
       const el = this.init();
       this.on = true;
@@ -188,9 +192,129 @@
     }
   };
 
-  /* ================= 입장 ================= */
+  /* ================= 히어로 3컷 스토리 ================= */
+  const STORY = [
+    { caption: '잠깐, 발걸음을 멈추십시오. 요즘 유독 일이 어긋나고 마음이 무거우셨다면 — 그것은 우연이 아닐지 모릅니다.',
+      src: 'audio/narration-1.mp3', dur: 9.3 },
+    { caption: '타고난 사주 여덟 글자와 올해의 기운, 그리고 당신이 고른 타로 한 장에 그 답이 적혀 있습니다.',
+      src: 'audio/narration-2.mp3', dur: 7.7 },
+    { caption: '남들에게 차마 말하지 못한 고민의 실마리 — 지금 이 촛불 아래에서 조용히 풀어드리겠습니다.',
+      src: 'audio/narration-3.mp3', dur: 7.1 }
+  ];
+  const TAIL = 1500;                          // 내레이션 뒤 여운
+
+  const story = {
+    i: 0, cycle: 0, started: false, narrOn: false, timers: [], typer: null, players: [], imgs: [], dots: [],
+    init() {
+      this.imgs = $$('.hero-img');
+      this.dots = $$('.hero-dot');
+      this.line = $('#dialogue');
+      this.players = STORY.map((s, k) => {
+        const a = new Audio();
+        a.preload = 'auto';
+        a.src = s.src;
+        a.addEventListener('loadedmetadata', () => { if (isFinite(a.duration) && a.duration > 0) STORY[k].dur = a.duration; });
+        a.addEventListener('ended', () => this.onEnd());
+        a.addEventListener('error', () => {});     // 파일이 없어도 페이지 동작에는 영향 없음
+        return a;
+      });
+      this.dots.forEach(d => d.addEventListener('click', () => {
+        audio.tap();
+        this.cycle = 0;
+        this.show(+d.dataset.cut, true);
+      }));
+    },
+    start() {
+      this.started = true;
+      this.show(0, true);
+    },
+    show(n, speak) {
+      this.clearTimers();
+      this.stopNarr();
+      clearInterval(this.typer);
+      this.i = n;
+      this.imgs.forEach((im, k) => im.classList.toggle('on', k === n));
+      this.dots.forEach((d, k) => {
+        d.classList.toggle('on', k === n);
+        d.setAttribute('aria-selected', String(k === n));
+      });
+      this.line.classList.add('swap');
+      this.after(460, () => {                     // 페이지를 넘기듯 자막 페이드 전환
+        this.line.classList.remove('swap');
+        this.type(STORY[n].caption);
+      });
+      const speaks = speak && audio.on;
+      if (speaks) {
+        this.playNarr(n);
+        this.after((STORY[n].dur + 6) * 1000, () => this.next());   // 안전장치
+      } else {
+        this.after((STORY[n].dur + 1.5) * 1000, () => this.next());
+      }
+    },
+    playNarr(n) {
+      const p = this.players[n];
+      if (!p) return;
+      try { p.currentTime = 0; } catch (e) {}
+      const pr = p.play();
+      if (pr && pr.catch) pr.catch(() => {});
+      this.narrOn = true;
+      audio.duck(true);
+    },
+    onEnd() {
+      this.narrOn = false;
+      audio.duck(false);
+      this.after(TAIL, () => this.next());
+    },
+    next() {
+      const n = this.i + 1;
+      if (n >= STORY.length) { this.cycle++; this.show(0, this.cycle === 0); }   // 한 바퀴 뒤엔 조용히
+      else this.show(n, this.cycle === 0);
+    },
+    stopNarr() {
+      if (this.narrOn) audio.duck(false);
+      this.narrOn = false;
+      this.players.forEach(p => { try { p.pause(); } catch (e) {} });
+    },
+    toggleSound() {                              // 사운드 토글과 스토리 동기화
+      if (audio.on) {
+        if (this.started) { this.clearTimers(); this.playNarr(this.i); this.after((STORY[this.i].dur + 6) * 1000, () => this.next()); }
+      } else {
+        this.stopNarr();
+        if (this.started) this.after((STORY[this.i].dur + 1.5) * 1000, () => this.next());
+      }
+    },
+    halt() {                                     // 다른 대사가 나오면 스토리 정지
+      this.started = false;
+      this.clearTimers();
+      clearInterval(this.typer);
+      this.stopNarr();
+    },
+    type(text) {
+      const el = this.line;
+      clearInterval(this.typer);
+      el.textContent = '';
+      let i = 0;
+      this.typer = setInterval(() => {
+        el.textContent = text.slice(0, ++i);
+        if (i >= text.length) clearInterval(this.typer);
+      }, 52);
+    },
+    after(ms, fn) {
+      const t = setTimeout(() => {
+        this.timers = this.timers.filter(x => x !== t);
+        fn();
+      }, ms);
+      this.timers.push(t);
+    },
+    clearTimers() {
+      this.timers.forEach(clearTimeout);
+      this.timers = [];
+    }
+  };
+
   const typeDialogue = (text, speed = 55) => {
     const el = $('#dialogue');
+    if (story.started) story.halt();
     el.innerHTML = '';
     let i = 0;
     clearInterval(el._t);
@@ -200,6 +324,7 @@
     }, speed);
   };
 
+  /* ================= 입장 ================= */
   function enter() {
     const body = document.body;
     if (body.classList.contains('opened')) return;
@@ -208,7 +333,7 @@
     body.classList.add('opened');             // 구름 장막 분리 + 금박 커튼 걷힘
     body.classList.remove('locked');
     audio.start();                            // 0 -> 0.55 페이드인
-    setTimeout(() => typeDialogue('어서 오세요… 당신의 명(命)이 어떤 빛으로 타고났는지, 한번 들여다볼까요.'), 1150);
+    setTimeout(() => story.start(), 2000);    // BGM이 깔린 뒤 첫 컷 내레이션
     setTimeout(() => $('#main').scrollIntoView({ block: 'start' }), 3000);
   }
 
@@ -836,12 +961,13 @@
     initFog();
     initGrain();
     audio.init();          // BGM 미리 버퍼링(재생은 입장 클릭 때)
+    story.init();          // 히어로 3컷 내레이션 프리로드
     initForm();
     initTarot();
     renderPriceList();
 
     $('#enterBtn').onclick = enter;
-    $('#soundBtn').onclick = () => audio.toggle();
+    $('#soundBtn').onclick = () => { audio.toggle(); story.toggleSound(); };
     $$('.tab').forEach(t => t.onclick = () => switchTab(t.dataset.tab));
     $('#calcBtn').onclick = calc;
     $('#resetBtn').onclick = resetForm;
