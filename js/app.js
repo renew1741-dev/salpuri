@@ -220,12 +220,12 @@
     ySel.innerHTML = ''; mSel.innerHTML = ''; dSel.innerHTML = '';
     for (let y = 2026; y >= 1940; y--) {
       const o = new Option(y + '년', y);
-      if (y === 1983) o.selected = true;
+      if (y === 2000) o.selected = true;
       ySel.add(o);
     }
     for (let m = 1; m <= 12; m++) mSel.add(new Option(m + '월', m));
     for (let d = 1; d <= 31; d++) dSel.add(new Option(d + '일', d));
-    mSel.value = 7; dSel.value = 10;
+    mSel.value = 1; dSel.value = 1;
   }
 
   function leapMonthOf(y) {
