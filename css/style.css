@@ -142,24 +142,25 @@ body.opened .curtain { pointer-events: none; }
 }
 #cloudVeil .half span {
   position: absolute; inset: 0; display: block;
-  filter: blur(26px);
+  filter: blur(20px);
+  mix-blend-mode: screen;
   animation: veilDrift 17s ease-in-out infinite alternate;
 }
 #cloudVeil .left { left: -14%; }
 #cloudVeil .right { right: -14%; }
 #cloudVeil .left span {
   background:
-    radial-gradient(ellipse 42% 30% at 26% 24%, rgba(206, 199, 226, .44), transparent 66%),
-    radial-gradient(ellipse 46% 32% at 20% 60%, rgba(160, 152, 188, .40), transparent 68%),
-    radial-gradient(ellipse 52% 28% at 30% 86%, rgba(233, 228, 246, .32), transparent 70%),
-    radial-gradient(ellipse 34% 24% at 8% 44%, rgba(217, 185, 120, .13), transparent 70%);
+    radial-gradient(ellipse 46% 26% at 24% 20%, rgba(214, 208, 234, .62), transparent 64%),
+    radial-gradient(ellipse 52% 30% at 14% 52%, rgba(176, 168, 204, .55), transparent 66%),
+    radial-gradient(ellipse 56% 26% at 32% 84%, rgba(238, 234, 250, .5), transparent 68%),
+    radial-gradient(ellipse 40% 22% at 6% 34%, rgba(224, 196, 140, .22), transparent 68%);
 }
 #cloudVeil .right span {
   background:
-    radial-gradient(ellipse 42% 30% at 74% 28%, rgba(206, 199, 226, .42), transparent 66%),
-    radial-gradient(ellipse 46% 32% at 80% 62%, rgba(158, 150, 186, .38), transparent 68%),
-    radial-gradient(ellipse 50% 28% at 70% 88%, rgba(233, 228, 246, .30), transparent 70%),
-    radial-gradient(ellipse 34% 24% at 92% 48%, rgba(217, 185, 120, .12), transparent 70%);
+    radial-gradient(ellipse 46% 26% at 76% 24%, rgba(214, 208, 234, .6), transparent 64%),
+    radial-gradient(ellipse 52% 30% at 86% 56%, rgba(172, 164, 200, .54), transparent 66%),
+    radial-gradient(ellipse 54% 26% at 68% 88%, rgba(238, 234, 250, .48), transparent 68%),
+    radial-gradient(ellipse 40% 22% at 94% 40%, rgba(224, 196, 140, .2), transparent 68%);
   animation-direction: alternate-reverse;
   animation-duration: 20s;
 }
@@ -167,8 +168,8 @@ body.opened .curtain { pointer-events: none; }
   0% { transform: translate3d(0, 0, 0) scale(1); }
   100% { transform: translate3d(2.4%, -1.6%, 0) scale(1.07); }
 }
-body.opened #cloudVeil .left { transform: translateX(-120%) scale(1.04); opacity: 0; }
-body.opened #cloudVeil .right { transform: translateX(120%) scale(1.04); opacity: 0; }
+body.opened #cloudVeil .left { transform: translateX(-124%) scale(1.1, 1.18); opacity: 0; }
+body.opened #cloudVeil .right { transform: translateX(124%) scale(1.1, 1.18); opacity: 0; }
 body.opened #cloudVeil { visibility: hidden; transition: visibility 0s linear 1.3s; }
 
 /* ---------- 입장 게이트 ---------- */
@@ -253,7 +254,7 @@ body.opened #gate { opacity: 0; visibility: hidden; pointer-events: none; transi
 .enter-btn:focus-visible { outline: 2px solid #f6e3ad; outline-offset: 6px; }
 .enter-btn::after {
   content: ''; position: absolute; top: 0; left: -60%; width: 40%; height: 100%;
-  background: linear-gradient(100deg, transparent, rgba(255,255,255,.65), transparent);
+  background: linear-gradient(100deg, transparent, rgba(255, 246, 226, .3), transparent);
   animation: sheen 3.6s ease-in-out infinite;
 }
 @keyframes sheen { 0% { left: -60%; } 55%, 100% { left: 130%; } }
