@@ -664,7 +664,7 @@
         <div class="a">${S.TEN_GODS[S.tenGod(a.dayGan, d.gan)]}</div></div>`;
     }).join('');
     $('#dwNote').textContent = `${a.daewoon.forward ? '순행(順行)' : '역행(逆行)'} · 대운수 ${a.daewoon.startAge}세 ` +
-      `(절입까지 ${a.daewoon.days}일 ÷ 3) · ${a.gender}성 ${S.GAN_KO[a.yearPillar.gan]}년생`;
+      `(절입까지 ${a.daewoon.days}일 ÷ 3) · ${a.gender}성 ${S.GAN_KO[a.yearPillar.gan]}${S.JI_KO[a.yearPillar.ji]}년생`;
 
     // 잠금 문구
     if (P.has('report')) {
