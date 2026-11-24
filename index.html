@@ -31,7 +31,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=5" />
+<link rel="stylesheet" href="css/style.css?v=20261125" />
 </head>
 <body class="locked">
 
@@ -97,10 +97,16 @@
   </section>
 
   <!-- 탭 -->
-  <nav class="tabs" role="tablist">
-    <button class="tab active" data-tab="saju" role="tab">사주 만세력<span>SAJU</span></button>
-    <button class="tab" data-tab="tarot" role="tab">신비 타로<span>TAROT</span></button>
-    <button class="tab" data-tab="premium" role="tab">부적·리포트<span>PREMIUM</span></button>
+  <nav class="tabs" role="tablist" aria-label="살풀이 : 천기 메뉴">
+    <button class="tab active" data-tab="saju" role="tab">사주<span>SAJU</span></button>
+    <button class="tab" data-tab="gunghap" role="tab">궁합<span>MATCH</span></button>
+    <button class="tab" data-tab="today" role="tab">오늘<span>TODAY</span></button>
+    <button class="tab" data-tab="sinsal" role="tab">신살<span>SPIRIT</span></button>
+    <button class="tab" data-tab="yearly" role="tab">신년<span>YEAR</span></button>
+    <button class="tab" data-tab="wealth" role="tab">재물<span>MONEY</span></button>
+    <button class="tab" data-tab="taekil" role="tab">택일<span>DATE</span></button>
+    <button class="tab" data-tab="tarot" role="tab">타로<span>TAROT</span></button>
+    <button class="tab" data-tab="premium" role="tab">부적<span>PREMIUM</span></button>
   </nav>
 
   <div class="wrap">
@@ -236,6 +242,143 @@
       </div>
     </section>
 
+    <!-- ========== 궁합 ========== -->
+    <section class="panel" id="panel-gunghap">
+      <div class="card" id="ggFormCard">
+        <div class="section-head"><h2 class="serif">정밀 궁합</h2><span class="en">MATCH READING</span></div>
+        <p class="small">두 사람의 여덟 글자를 겹쳐 봅니다. 같은 명식이라도 어떤 사이인지에 따라 읽는 결이 달라집니다.</p>
+
+        <div class="field mt14">
+          <label class="field-label">관계 <b>관계에 따라 읽는 결이 달라집니다</b></label>
+          <div class="seg seg-rel" id="ggRelSeg">
+            <button type="button" class="seg-btn active" data-v="some">썸 · 연애<small>SOME</small></button>
+            <button type="button" class="seg-btn" data-v="couple">연인 · 커플<small>COUPLE</small></button>
+            <button type="button" class="seg-btn" data-v="married">부부 · 배우자<small>MARRIED</small></button>
+            <button type="button" class="seg-btn" data-v="friend">친구 · 동업<small>FRIEND</small></button>
+          </div>
+        </div>
+
+        <div class="gg-form-pair">
+          <div class="gg-person" data-who="a">
+            <div class="gg-p-head"><span class="gg-p-tag">A</span><b class="serif">본인</b><em>나</em></div>
+            <div class="field"><label class="field-label" for="ggNameA">이름 <b>선택</b></label>
+              <input id="ggNameA" class="inp" type="text" maxlength="8" placeholder="이름 (선택)" autocomplete="off" /></div>
+            <div class="field"><label class="field-label">성별</label>
+              <div class="seg seg-2" id="ggGenderA">
+                <button type="button" class="seg-btn active" data-v="여">여성</button>
+                <button type="button" class="seg-btn" data-v="남">남성</button>
+              </div></div>
+            <div class="field"><label class="field-label">달력</label>
+              <div class="seg seg-3" id="ggCalA">
+                <button type="button" class="seg-btn active" data-v="양력">양력</button>
+                <button type="button" class="seg-btn" data-v="음력">음력</button>
+                <button type="button" class="seg-btn" data-v="음력윤달">음력(윤달)</button>
+              </div></div>
+            <div class="field"><label class="field-label">생년월일</label>
+              <div class="date-row">
+                <select id="ggAYear" class="inp" aria-label="본인 출생 연도"></select>
+                <select id="ggAMonth" class="inp" aria-label="본인 출생 월"></select>
+                <select id="ggADay" class="inp" aria-label="본인 출생 일"></select>
+              </div></div>
+            <div class="field"><label class="field-label" for="ggTimeA">태어난 시간</label>
+              <select id="ggTimeA" class="inp" aria-label="본인 출생 시간"></select></div>
+          </div>
+
+          <div class="gg-person" data-who="b">
+            <div class="gg-p-head"><span class="gg-p-tag">B</span><b class="serif">상대방</b><em>그 사람</em></div>
+            <div class="field"><label class="field-label" for="ggNameB">이름 <b>선택</b></label>
+              <input id="ggNameB" class="inp" type="text" maxlength="8" placeholder="이름 (선택)" autocomplete="off" /></div>
+            <div class="field"><label class="field-label">성별</label>
+              <div class="seg seg-2" id="ggGenderB">
+                <button type="button" class="seg-btn" data-v="여">여성</button>
+                <button type="button" class="seg-btn active" data-v="남">남성</button>
+              </div></div>
+            <div class="field"><label class="field-label">달력</label>
+              <div class="seg seg-3" id="ggCalB">
+                <button type="button" class="seg-btn active" data-v="양력">양력</button>
+                <button type="button" class="seg-btn" data-v="음력">음력</button>
+                <button type="button" class="seg-btn" data-v="음력윤달">음력(윤달)</button>
+              </div></div>
+            <div class="field"><label class="field-label">생년월일</label>
+              <div class="date-row">
+                <select id="ggBYear" class="inp" aria-label="상대 출생 연도"></select>
+                <select id="ggBMonth" class="inp" aria-label="상대 출생 월"></select>
+                <select id="ggBDay" class="inp" aria-label="상대 출생 일"></select>
+              </div></div>
+            <div class="field"><label class="field-label" for="ggTimeB">태어난 시간</label>
+              <select id="ggTimeB" class="inp" aria-label="상대 출생 시간"></select></div>
+          </div>
+        </div>
+
+        <p class="hint">시간을 모르면 세 기둥으로 봅니다. 이름을 비워 두면 ‘본인 · 상대’로 표기합니다.</p>
+        <button class="btn-gold" id="ggCalcBtn">두 사람의 궁합 풀어보기</button>
+      </div>
+      <div id="ggResult"></div>
+    </section>
+
+    <!-- ========== 오늘의 운세 ========== -->
+    <section class="panel" id="panel-today">
+      <div class="pf-slot" data-pf="today"></div>
+      <div id="todayBody"></div>
+    </section>
+
+    <!-- ========== 신살 · 귀인 ========== -->
+    <section class="panel" id="panel-sinsal">
+      <div class="pf-slot" data-pf="sinsal"></div>
+      <div id="sinsalBody"></div>
+    </section>
+
+    <!-- ========== 신년 · 12개월 ========== -->
+    <section class="panel" id="panel-yearly">
+      <div class="card">
+        <div class="section-head"><h2 class="serif">신년운세 · 12개월</h2><span class="en">YEARLY</span></div>
+        <p class="small">절기 기준 월건으로 그해의 12개월을 내 사주와 대조합니다.</p>
+        <div class="seg seg-2 mt14" id="yrSeg">
+          <button type="button" class="seg-btn active" data-v="2026">2026 병오년</button>
+          <button type="button" class="seg-btn" data-v="2027">2027 정미년</button>
+        </div>
+      </div>
+      <div class="pf-slot" data-pf="yearly"></div>
+      <div id="yearlyBody"></div>
+    </section>
+
+    <!-- ========== 재물 · 적성 ========== -->
+    <section class="panel" id="panel-wealth">
+      <div class="pf-slot" data-pf="wealth"></div>
+      <div id="wealthBody"></div>
+    </section>
+
+    <!-- ========== 택일 ========== -->
+    <section class="panel" id="panel-taekil">
+      <div class="card">
+        <div class="section-head"><h2 class="serif">택일 — 길한 날 고르기</h2><span class="en">GOOD DAYS</span></div>
+        <p class="small">무엇을 하는 날인지 고르면, 그 기간의 일진을 내 사주와 대조해 가장 좋은 날을 뽑습니다.</p>
+
+        <div class="field mt14">
+          <label class="field-label">무엇을 하는 날인가요</label>
+          <div class="seg seg-rel" id="tkPurposeSeg">
+            <button type="button" class="seg-btn active" data-v="move">이사<small>MOVE</small></button>
+            <button type="button" class="seg-btn" data-v="open">개업 · 사업<small>OPEN</small></button>
+            <button type="button" class="seg-btn" data-v="contract">중요 계약<small>CONTRACT</small></button>
+            <button type="button" class="seg-btn" data-v="wedding">결혼 · 상견례<small>WEDDING</small></button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">언제쯤</label>
+          <div class="seg seg-3" id="tkRangeSeg">
+            <button type="button" class="seg-btn active" data-v="month">이번 달</button>
+            <button type="button" class="seg-btn" data-v="next">다음 달</button>
+            <button type="button" class="seg-btn" data-v="60">향후 60일</button>
+          </div>
+        </div>
+
+        <div class="pf-slot" data-pf="taekil"></div>
+        <button class="btn-gold" id="tkCalcBtn">길일 뽑기</button>
+      </div>
+      <div id="taekilBody"></div>
+    </section>
+
     <!-- ========== 타로 ========== -->
     <section class="panel" id="panel-tarot">
       <div class="card">
@@ -338,11 +481,15 @@
 
 <div id="toast"></div>
 
-<script src="js/data-calendar.js"></script>
-<script src="js/saju-engine.js"></script>
-<script src="js/saju-text.js"></script>
-<script src="js/tarot.js"></script>
-<script src="js/payment.js"></script>
-<script src="js/app.js?v=6"></script>
+<script src="js/data-calendar.js?v=20261125"></script>
+<script src="js/saju-engine.js?v=20261125"></script>
+<script src="js/saju-text.js?v=20261125"></script>
+<script src="js/gunghap-engine.js?v=20261125"></script>
+<script src="js/gunghap-text.js?v=20261125"></script>
+<script src="js/plus-engine.js?v=20261125"></script>
+<script src="js/plus-text.js?v=20261125"></script>
+<script src="js/tarot.js?v=20261125"></script>
+<script src="js/payment.js?v=20261125"></script>
+<script src="js/app.js?v=20261125"></script>
 </body>
 </html>
