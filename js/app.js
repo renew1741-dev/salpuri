@@ -239,7 +239,7 @@
         d.setAttribute('aria-selected', String(k === n));
       });
       this.line.classList.add('swap');
-      this.after(460, () => {                     // 페이지를 넘기듯 자막 페이드 전환
+      this.after(320, () => {                     // 페이지를 넘기듯 자막 페이드 전환
         this.line.classList.remove('swap');
         this.type(STORY[n].caption);
       });
@@ -297,7 +297,7 @@
       this.typer = setInterval(() => {
         el.textContent = text.slice(0, ++i);
         if (i >= text.length) clearInterval(this.typer);
-      }, 52);
+      }, 40);
     },
     after(ms, fn) {
       const t = setTimeout(() => {
