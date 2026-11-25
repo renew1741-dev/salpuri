@@ -1,37 +1,92 @@
 /* ============================================================
-   살풀이 : 천기 — 잠금 해제(공유 해금) 퍼널 v2
+   살풀이 : 천기 — 잠금 해제(공유 해금) 퍼널 v3
    ------------------------------------------------------------
    · 맛보기 아래의 핵심 풀이를 블러 + 자물쇠로 가립니다.
    · [친구에게 공유하고 무료로 열기] → OS 공유창 → 즉시 잠금 해제
    · OS 공유창이 없거나·안 뜨거나·무응답(pending)이면
      → 인앱 [공유 바텀시트]가 반드시 뜹니다 (카톡 / 문자 / 링크 복사)
    · 어떤 환경(데스크톱·인앱 웹뷰·구형 WebView)에서도 "아무 반응 없음"은 없습니다.
+   ------------------------------------------------------------
+   ★ v3 — 카테고리(섹션)별 독립 잠금
+     사주 · 아이사주 · 외모·점은 서로 다른 열쇠를 씁니다.
+       salpuri_unlock_saju_v2 / salpuri_unlock_baby_v2 / salpuri_unlock_gaewun_v2
+     예전 전역 키(salpuri_share_unlock_v1)는 읽지 않고 지웁니다 — 이전 테스트로
+     열려 있던 기기도 새 카테고리별 잠금 화면부터 보게 하기 위해서입니다.
    ============================================================ */
 (function (global) {
   'use strict';
 
-  const KEY = 'salpuri_share_unlock_v1';
+  const KEY_VER = 'v2';
+  const LEGACY_KEY = 'salpuri_share_unlock_v1';
   const URL_LIVE = 'https://renew1741-dev.github.io/salpuri/';
-  const state = { shared: false, at: null };
 
-  function load() {
+  /* data-vault 값이 곧 열쇠 이름입니다 (body/style → gaewun 별칭 허용) */
+  const ALIAS = { body: 'gaewun', style: 'gaewun', point: 'gaewun' };
+  const SECTION_LABEL = {
+    saju: '내 사주 풀이',
+    baby: '아이 사주 풀이',
+    gaewun: '외모·점 풀이',
+    naming: '작명 풀이'
+  };
+  const state = { shared: Object.create(null), at: Object.create(null), seen: Object.create(null) };
+
+  function keyOf(sec) { return 'salpuri_unlock_' + sec + '_' + KEY_VER; }
+  function secOf(x) {
+    const raw = String(x == null ? '' : x).trim().toLowerCase();
+    const s = ALIAS[raw] || raw || 'saju';
+    return /^[a-z][a-z0-9_-]{1,23}$/.test(s) ? s : 'saju';
+  }
+  function labelOf(sec) { return SECTION_LABEL[sec] || '이 풀이'; }
+
+  function readSection(sec) {
+    if (state.seen[sec]) return;
+    state.seen[sec] = true;
     try {
-      const o = JSON.parse(localStorage.getItem(KEY) || '{}');
-      state.shared = !!o.shared;
-      state.at = o.at || null;
-    } catch (e) { state.shared = false; }
+      const o = JSON.parse(localStorage.getItem(keyOf(sec)) || '{}');
+      state.shared[sec] = !!o.shared;
+      state.at[sec] = o.at || null;
+    } catch (e) { state.shared[sec] = false; }
   }
-  function save() {
-    try { localStorage.setItem(KEY, JSON.stringify({ shared: state.shared, at: state.at })); } catch (e) {}
+  function writeSection(sec) {
+    try {
+      localStorage.setItem(keyOf(sec), JSON.stringify({ shared: !!state.shared[sec], at: state.at[sec] || null }));
+    } catch (e) {}
+  }
+  function load() {
+    /* 예전 전역 키는 읽지 않습니다. 남아 있으면 지워서 새 잠금 화면부터 보이게 합니다. */
+    try { localStorage.removeItem(LEGACY_KEY); } catch (e) {}
+    ['saju', 'baby', 'gaewun'].forEach(readSection);
   }
 
-  function paid() {
+  /* 어떤 결제가 어떤 카테고리를 여는지 */
+  const PAID_SECTIONS = {
+    report: ['saju'],
+    talisman: ['saju'],
+    vip: ['saju', 'baby', 'gaewun', 'naming'],
+    naming: ['naming']
+  };
+
+  function paid(sec) {
     const P = global.Payment;
     if (!P) return false;
-    try { return !!(P.has('report') || P.has('vip') || P.has('talisman')); } catch (e) { return false; }
+    const list = Object.keys(PAID_SECTIONS);
+    for (let i = 0; i < list.length; i++) {
+      if (PAID_SECTIONS[list[i]].indexOf(sec) < 0) continue;
+      try { if (P.has(list[i])) return true; } catch (e) {}
+    }
+    return false;
   }
 
-  function isOpen() { return state.shared || paid(); }
+  function isOpen(section) {
+    const sec = secOf(section);
+    readSection(sec);
+    return !!state.shared[sec] || paid(sec);
+  }
+  function isShared(section) {
+    const sec = secOf(section);
+    readSection(sec);
+    return !!state.shared[sec];
+  }
 
   function toast(msg, ms) {
     const el = document.getElementById('toast');
@@ -86,7 +141,7 @@
           <button type="button" class="vl-mini" data-vault-buy="report">9,900원에 바로 열기</button>
           <button type="button" class="vl-mini" data-vault-copy="${kind}">링크 복사해서 열기</button>
         </div>
-        <p class="vl-fine">한 번 열면 이 기기에서는 계속 열려 있어요. 결제 없이도 전부 보실 수 있어요.</p>
+        <p class="vl-fine">한 번 열면 이 기기에서 이 풀이는 계속 열려 있어요. 다른 메뉴는 따로 열립니다.</p>
       </div>
     </div>`;
   }
@@ -102,10 +157,13 @@
     </div>`;
   }
 
-  /* ---------- 화면 반영 ---------- */
+  /* ---------- 화면 반영 (섹션별) ---------- */
   function apply() {
-    const open = isOpen();
+    let anyOpen = false;
     document.querySelectorAll('[data-vault]').forEach(v => {
+      const sec = secOf(v.getAttribute('data-vault'));
+      const open = isOpen(sec);
+      if (open) anyOpen = true;
       v.classList.toggle('is-locked', !open);
       v.classList.toggle('is-open', open);
       const inner = v.querySelector('.vault-inner');
@@ -116,42 +174,57 @@
       const lock = v.querySelector('.vault-lock');
       if (lock) lock.setAttribute('aria-hidden', open ? 'true' : 'false');
     });
-    document.body.classList.toggle('vault-open', open);
+    document.body.classList.toggle('vault-open', anyOpen);
   }
 
-  function refresh() {
-    if (typeof global.__salpuriOnUnlock === 'function' && isOpen()) {
-      try { global.__salpuriOnUnlock(); } catch (e) {}
-    }
+  function refresh(section) {
+    const fn = global.__salpuriOnUnlock;
+    if (typeof fn !== 'function') return;
+    try { fn(secOf(section)); } catch (e) {}
   }
 
-  function unlock(reason) {
-    state.shared = true;
-    state.at = new Date().toISOString();
-    save();
+  function unlock(section, reason) {
+    const sec = secOf(section);
+    state.shared[sec] = true;
+    state.at[sec] = new Date().toISOString();
+    writeSection(sec);
     apply();
-    refresh();
-    document.querySelectorAll('.vault.is-open').forEach(v => {
+    refresh(sec);
+    document.querySelectorAll('[data-vault]').forEach(v => {
+      if (secOf(v.getAttribute('data-vault')) !== sec) return;
+      if (!v.classList.contains('is-open')) return;
       v.classList.add('just-opened');
       setTimeout(() => v.classList.remove('just-opened'), 1400);
     });
-    global.dispatchEvent(new CustomEvent('salpuri:unlock', { detail: { reason: reason || 'share' } }));
+    global.dispatchEvent(new CustomEvent('salpuri:unlock', { detail: { section: sec, reason: reason || 'share' } }));
   }
 
-  function lock() {
-    state.shared = false;
-    save();
+  function lock(section) {
+    const sec = secOf(section);
+    state.shared[sec] = false;
+    writeSection(sec);
     apply();
+    refresh(sec);
   }
 
   /* ---------- 공유 문구 ---------- */
   function sharePayload(kind) {
     const a = global.__salpuriAnalysis;
     const baby = global.__salpuriBaby;
-    if (kind === 'baby' && baby) {
+    const gw = global.__salpuriGaewun;
+    const sec = secOf(kind);
+    if (sec === 'baby' && baby) {
       return {
         title: '살풀이 : 천기 — 아이 사주',
         text: `${baby.name || '우리 아이'}의 사주를 살풀이 : 천기에서 봤어요. 타고난 기질부터 재능·건강·양육 팁까지 아이 눈높이로 풀어줘요.`,
+        url: URL_LIVE
+      };
+    }
+    if (sec === 'gaewun') {
+      const who = a && a.name ? a.name + ' 님' : '내';
+      return {
+        title: '살풀이 : 천기 — 외모·점',
+        text: `${who} 사주 기운에 맞는 체형과 적정 몸무게, 어울리는 헤어, 복이 붙는 점(點)의 자리까지 살풀이 : 천기에서 봤어요.`,
         url: URL_LIVE
       };
     }
@@ -162,6 +235,13 @@
       return {
         title: '살풀이 : 천기 — 내 사주 풀이',
         text: `${a.name ? a.name + ' 님의' : '내'} 사주는 ${ganji}. 살풀이 : 천기에서 촛불 아래 풀어봤어요.`,
+        url: URL_LIVE
+      };
+    }
+    if (gw) {
+      return {
+        title: '살풀이 : 천기 — 외모·점',
+        text: '내 사주 기운에 맞는 체형과 적정 몸무게, 어울리는 헤어, 복이 붙는 점(點)의 자리까지. 살풀이 : 천기에서 봤어요.',
         url: URL_LIVE
       };
     }
@@ -274,19 +354,22 @@
     const el = ensureSheet();
     sheetPayload = payload || sharePayload('saju');
     sheetOpts = opts || {};
+    const sec = secOf(sheetOpts.section);
     const c = SHEET_COPY[mode] || SHEET_COPY.plain;
     el.querySelector('#ssTitle').textContent = c.title;
-    el.querySelector('#ssNote').textContent = c.note;
+    el.querySelector('#ssNote').textContent = mode === 'gate'
+      ? `공유하면 ${labelOf(sec)}가 바로 열려요`
+      : c.note;
     const rawWrap = el.querySelector('#ssRawWrap');
     rawWrap.hidden = true;
     el.querySelector('#ssRaw').value = fullText(sheetPayload);
     /* OS 공유창을 다시 시도할 수 있는 버튼은 지원될 때만 */
     const nativeBtn = el.querySelector('.ss-native');
     nativeBtn.hidden = !(typeof navigator.share === 'function');
-    /* 카카오 문구: 잠금 게이트면 '공유하면 잠금이 풀린다'를 앞세운다 */
+    /* 카카오 문구: 잠금 게이트면 '공유하면 이 풀이가 열린다'를 앞세운다 */
     el.querySelector('.ss-fine').textContent = sheetOpts.unlock === false
       ? '친구에게 보내면 오늘의 명(命)을 함께 나눌 수 있어요.'
-      : '보내 주시면 이 기기에서 핵심 풀이가 계속 열려 있어요.';
+      : `보내 주시면 이 기기에서 ${labelOf(sec)}가 계속 열려 있어요.`;
     el.classList.add('show');
     document.body.classList.add('ss-open');
     return el;
@@ -309,8 +392,9 @@
 
   function afterShare(reason) {
     if (sheetOpts.unlock !== false) {
-      unlock(reason || 'share');
-      toast('고마워요! 잠금이 풀렸어요. 아래로 내려서 확인해 보세요.', 3200);
+      const sec = secOf(sheetOpts.section);
+      unlock(sec, reason || 'share');
+      toast(`고마워요! ${labelOf(sec)}가 열렸어요. 아래로 내려서 확인해 보세요.`, 3200);
     } else {
       toast('공유 링크를 준비했어요. 친구에게 붙여넣어 보내 주세요.', 2800);
     }
@@ -342,7 +426,7 @@
       } else {
         flashRaw('복사가 막혀 있어요. 아래 문구를 길게 눌러 복사한 뒤 카카오톡에 붙여넣어 주세요.');
         toast('아래 문구를 길게 눌러 복사해 주세요.', 3200);
-        if (sheetOpts.unlock !== false) unlock('share');
+        if (sheetOpts.unlock !== false) unlock(sheetOpts.section, 'share');
       }
       return;
     }
@@ -351,7 +435,7 @@
       const ok = await copyText(body);
       const ua = navigator.userAgent || '';
       const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(ua);
-      if (sheetOpts.unlock !== false) unlock('share');
+      if (sheetOpts.unlock !== false) unlock(sheetOpts.section, 'share');
       closeSheet();
       if (!isMobile) {
         toast(ok ? '링크를 복사했어요. 문자는 휴대폰에서 보내 주세요.' : '문자는 휴대폰에서 보낼 수 있어요.', 3400);
@@ -373,15 +457,15 @@
       if (ok) {
         closeSheet();
         if (sheetOpts.unlock !== false) {
-          unlock('copy');
-          toast('링크를 복사했어요. 친구에게 붙여넣기로 보내 주세요. 잠금이 풀렸어요.', 3800);
+          unlock(sheetOpts.section, 'copy');
+          toast(`링크를 복사했어요. 친구에게 붙여넣기로 보내 주세요. ${labelOf(secOf(sheetOpts.section))}가 열렸어요.`, 3800);
         } else {
           toast('링크를 복사했어요. 친구에게 붙여넣기로 보내 주세요.', 3200);
         }
       } else {
         flashRaw('복사가 막혀 있어요. 아래 문구를 길게 눌러 복사해 주세요.');
         toast('아래 문구를 길게 눌러 복사해 주세요.', 3200);
-        if (sheetOpts.unlock !== false) unlock('copy');
+        if (sheetOpts.unlock !== false) unlock(sheetOpts.section, 'copy');
       }
       return;
     }
@@ -469,9 +553,10 @@
 
   function finishShare(o, reason, quiet) {
     if (o.unlock !== false) {
-      unlock(reason || 'share');
-      if (!quiet) toast('고마워요! 잠금이 풀렸어요. 아래로 내려서 확인해 보세요.', 3200);
-      else toast('공유했어요! 잠금이 풀렸어요.', 3000);
+      const sec = secOf(o.section);
+      unlock(sec, reason || 'share');
+      if (!quiet) toast(`고마워요! ${labelOf(sec)}가 열렸어요. 아래로 내려서 확인해 보세요.`, 3200);
+      else toast(`공유했어요! ${labelOf(sec)}가 열렸어요.`, 3000);
     } else if (!quiet) {
       toast('공유창을 열었어요. 친구에게 보내 주세요.', 2600);
     }
@@ -479,7 +564,8 @@
 
   /* ---------- 공개 API ---------- */
   function shareGate(kind) {
-    return shareFlow(sharePayload(kind), { unlock: true, mode: 'gate' });
+    const sec = secOf(kind);
+    return shareFlow(sharePayload(sec), { unlock: true, mode: 'gate', section: sec });
   }
 
   /* ---------- 클릭 위임 (캡처 단계 — 내부 stopPropagation에 영향받지 않음) ---------- */
@@ -499,19 +585,20 @@
     if (!onceGuard(t)) return;
     buzz(10);
     const kind = t.getAttribute('data-vault-share') || t.getAttribute('data-vault-copy') || 'saju';
+    const sec = secOf(kind);
     if (t.hasAttribute('data-vault-copy')) {
-      const p = sharePayload(kind);
+      const p = sharePayload(sec);
       copyText(fullText(p)).then(ok => {
         if (ok) {
-          unlock('copy');
-          toast('링크를 복사했어요. 붙여넣기로 보내 주시면 잠금이 풀립니다.', 3200);
+          unlock(sec, 'copy');
+          toast(`링크를 복사했어요. 붙여넣기로 보내 주시면 ${labelOf(sec)}가 열립니다.`, 3200);
         } else {
-          openSheet(p, { unlock: true }, 'failed');
+          openSheet(p, { unlock: true, section: sec }, 'failed');
         }
       });
       return;
     }
-    shareGate(kind);
+    shareGate(sec);
   }
 
   /* 캡처 단계 등록: 버튼 자체나 중간 DOM이 stopPropagation을 해도 항상 먼저 잡습니다 */
@@ -529,10 +616,16 @@
   load();
 
   global.Vault = {
-    isOpen, unlock, lock, apply, refresh, wrap, lockHTML, shareGate, sharePayload,
-    /* 새 공유 진입점: 상단·하단·결과 공유 버튼이 모두 이걸 씁니다 */
+    isOpen, isShared, unlock, lock, apply, refresh, wrap, lockHTML, shareGate, sharePayload,
+    /* 새 공유 진입점: 상단·하단·결과 공유 버튼이 모두 이걸 씁니다 (opts.section으로 카테고리 지정) */
     share: shareFlow,
     openSheet, closeSheet,
-    get shared() { return state.shared; }
+    sectionOf: secOf, labelOf, keyOf,
+    get shared() { return isShared('saju'); },
+    get sharedSections() {
+      const out = {};
+      ['saju', 'baby', 'gaewun', 'naming'].forEach(s => { out[s] = isShared(s); });
+      return out;
+    }
   };
 })(window);

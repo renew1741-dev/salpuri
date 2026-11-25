@@ -577,6 +577,7 @@
     readGw();
     const x = Gaewun.build(a, { height: state.gw.height, weight: state.gw.weight });
     state.last.gaewun = { x, a };
+    window.__salpuriGaewun = x;
     host.innerHTML = GaewunText.renderFree(x, a) + Vault.wrap(GaewunText.renderDeep(x, a), 'gaewun', { h: 520 });
     Vault.apply();
     state.gw.shown = true;
@@ -591,6 +592,7 @@
     readGw();
     const x = Gaewun.build(a, { height: state.gw.height, weight: state.gw.weight });
     state.last.gaewun = { x, a };
+    window.__salpuriGaewun = x;
     host.innerHTML = GaewunText.renderFree(x, a) + Vault.wrap(GaewunText.renderDeep(x, a), 'gaewun', { h: 520 });
     Vault.apply();
   }
@@ -1478,7 +1480,7 @@
       desc: '달빛 아래 솟은 봉우리와 두 마리 학. 자리와 이름이 올라가는 기운이에요.' }
   ];
 
-  const hasTalisman = () => P.has('talisman') || P.has('vip') || (Vault && Vault.isOpen());
+  const hasTalisman = () => P.has('talisman') || P.has('vip') || (Vault && Vault.isOpen('saju'));
 
   function renderTalismans() {
     const hosts = ['#talismanGrid', '#talismanGridVault'].map(h => $(h)).filter(Boolean);
@@ -1797,9 +1799,10 @@
     $$('#priceList [data-buy]').forEach(b => b.onclick = () => openPay(b.dataset.buy));
   }
 
-  function openPay(productId) {
+  function openPay(productId, section) {
     const prod = P.PRODUCTS[productId];
     if (!prod) return;
+    state.paySection = section ? (Vault && Vault.sectionOf ? Vault.sectionOf(section) : section) : null;
     const un = P.unlocked();
     if (prod.unlock.every(k => un.has(k))) { toast('이미 결제하신 상품이에요.'); return; }
     if (productId !== 'talisman' && productId !== 'naming' && !state.analysis) {
@@ -1854,6 +1857,7 @@
   }
 
   function closePay() {
+    state.paySection = null;
     $('#payModal').classList.remove('show');
   }
 
@@ -1920,6 +1924,10 @@
   }
 
   function finishPaid(productId, order, demo) {
+    /* 잠금 카드에서 바로 결제한 경우, 그 카테고리만 열어 줍니다 */
+    const paidSec = state.paySection;
+    state.paySection = null;
+    if (paidSec && window.Vault && !Vault.isOpen(paidSec)) Vault.unlock(paidSec, 'pay');
     const box = $('#payModalBox');
     if (productId === 'naming') {
       box.innerHTML = `
@@ -1962,7 +1970,7 @@
 
   function renderReport(a) {
     if (!a) return;
-    if (!P.has('report') && !P.has('vip') && !(Vault && Vault.isOpen())) {
+    if (!P.has('report') && !P.has('vip') && !(Vault && Vault.isOpen('saju'))) {
       $('#reportLocked').classList.remove('hidden');
       $('#reportBody').classList.add('hidden');
       $('#printRow').classList.add('hidden');
@@ -2162,10 +2170,10 @@
       if (lk && !lk.querySelector('.vault-lock-in')) lk.outerHTML = Vault.lockHTML(kind);
     });
     Vault.apply();
-    window.__salpuriOnUnlock = () => {
+    window.__salpuriOnUnlock = (section) => {
+      const sec = Vault.sectionOf ? Vault.sectionOf(section) : 'saju';
       renderTalismans();
-      if (state.analysis) renderReport(state.analysis);
-      if (state.baby.analysis) renderBaby();
+      if (sec === 'saju' && state.analysis) renderReport(state.analysis);
     };
 
     $('#enterBtn').onclick = enter;
@@ -2180,7 +2188,7 @@
     $('#printBtn').onclick = () => window.print();
     const vpdf = $('#vaultPdfBtn');
     if (vpdf) vpdf.onclick = () => {
-      if (!Vault.isOpen()) { toast('공유하면 8쪽 리포트가 바로 열려요. 위 버튼을 눌러 주세요.'); return; }
+      if (!Vault.isOpen('saju')) { toast('공유하면 8쪽 리포트가 바로 열려요. 위 버튼을 눌러 주세요.'); return; }
       if (!state.analysis) { toast('명식을 먼저 조회해 주세요.'); return; }
       renderReport(state.analysis);
       switchTab('premium');
@@ -2254,7 +2262,13 @@
       const like = e.target.closest && e.target.closest('.like-btn, .like-top-btn');
       if (like) { e.preventDefault(); Like.up(); return; }
       const buyV = e.target.closest && e.target.closest('[data-vault-buy]');
-      if (buyV) { audio.tap(); openPay(buyV.getAttribute('data-vault-buy') || 'report'); return; }
+      if (buyV) {
+        audio.tap();
+        const vw = buyV.closest('[data-vault]');
+        const sec = vw ? (vw.getAttribute('data-vault') || 'saju') : 'saju';
+        openPay(buyV.getAttribute('data-vault-buy') || 'report', sec);
+        return;
+      }
       const buyNm = e.target.closest && e.target.closest('[data-nm-buy]');
       if (buyNm) { audio.tap(); openPay('naming'); return; }
       const demoNm = e.target.closest && e.target.closest('[data-nm-demo]');
