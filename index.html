@@ -31,7 +31,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20261125-8" />
+<link rel="stylesheet" href="css/style.css?v=20261125-9" />
 </head>
 <body class="locked">
 
@@ -96,7 +96,8 @@
     </div>
   </section>
 
-  <!-- 탭 -->
+  <!-- 탭 + 소름 돋아요 상단 배지 (스크롤해도 고정) -->
+  <div class="topbar">
   <nav class="tabs" role="tablist" aria-label="살풀이 : 천기 메뉴">
     <button class="tab active" data-tab="saju" role="tab">사주<span>SAJU</span></button>
     <button class="tab" data-tab="gunghap" role="tab">궁합<span>MATCH</span></button>
@@ -105,11 +106,18 @@
     <button class="tab" data-tab="yearly" role="tab">신년<span>YEAR</span></button>
     <button class="tab" data-tab="wealth" role="tab">재물<span>MONEY</span></button>
     <button class="tab" data-tab="taekil" role="tab">택일<span>DATE</span></button>
-    <button class="tab" data-tab="gaewun" role="tab">개운<span>STYLE</span></button>
+    <button class="tab" data-tab="gaewun" role="tab">외모·점<span>BODY·DOT</span></button>
     <button class="tab" data-tab="naming" role="tab">작명<span>NAME</span></button>
     <button class="tab" data-tab="tarot" role="tab">타로<span>TAROT</span></button>
     <button class="tab" data-tab="premium" role="tab">부적<span>PREMIUM</span></button>
   </nav>
+  <div class="like-top-bar" id="likeTopBar">
+    <button type="button" class="like-top-btn" data-like="1" aria-label="소름 돋아요 — 실제 방문자 수">
+      <span class="like-fire" aria-hidden="true">🔥</span>
+      <span class="lt-text"><span class="like-lead">지금까지</span> <b class="like-num">—</b><span class="like-tail">명이 소름 돋아요</span></span>
+    </button>
+  </div>
+  </div>
 
   <div class="wrap">
 
@@ -239,6 +247,17 @@
             <button class="btn-gold lock-cta" id="unlockBtn">정밀 리포트 열기 (9,900원)</button>
           </div>
           <div class="center mt14"><button class="btn-ghost" id="resetBtn">다른 생년월일로 다시 보기</button></div>
+        </div>
+
+        <!-- 결과 마지막 · 소름 돋아요 -->
+        <div class="card end-like-card">
+          <p class="end-like-lead serif">여기까지 읽으셨다면, 이 명식이 얼마나 맞았는지 한 표 남겨 주세요.</p>
+          <div class="pl-share-row">
+            <button class="share-btn" data-share="saju">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v11M12 3 8.5 6.5M12 3l3.5 3.5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              내 점사 공유하기
+            </button>
+          </div>
         </div>
 
       </div>
@@ -381,13 +400,10 @@
       <div id="taekilBody"></div>
     </section>
 
-    <!-- ========== 개운 처방 ========== -->
+    <!-- ========== 외모 · 점 (체형·몸무게·점 위치) ========== -->
     <section class="panel" id="panel-gaewun">
-      <div class="card" id="gwFormCard">
-        <div class="section-head"><h2 class="serif">개운 처방 — 몸 · 인상 · 점 · 말투</h2><span class="en">STYLE</span></div>
-        <p class="small">사주는 얼굴과 몸에도 그대로 적혀 있습니다. 찌워야 트이는 사주인지, 덜어내야 도는 사주인지 — 키와 몸무게를 넣으면 당신 사주의 kg 수치까지 짚어 드립니다.</p>
-
-        <div class="gw-inputs mt14">
+      <div class="gw-quick" id="gwFormCard">
+        <div class="gw-inputs">
           <div class="field">
             <label class="field-label" for="gwHeight">키 <b>cm</b></label>
             <input id="gwHeight" class="inp" type="number" inputmode="numeric" min="130" max="210" step="1" placeholder="예: 165" autocomplete="off" />
@@ -397,10 +413,8 @@
             <input id="gwWeight" class="inp" type="number" inputmode="decimal" min="30" max="160" step="0.1" placeholder="예: 62" autocomplete="off" />
           </div>
         </div>
-        <p class="hint">비워 두면 성별 평균 신장(여 160cm · 남 173cm)으로 계산합니다. 입력하시면 즉시 개인화된 kg 수치가 나옵니다.</p>
-
+        <p class="hint">키·몸무게를 넣으면 0.4초 만에 다시 계산됩니다. 비워 두면 평균 신장(여 160 · 남 173cm) 기준입니다.</p>
         <div class="pf-slot" data-pf="gaewun"></div>
-        <button class="btn-gold" id="gwCalcBtn">내 개운 처방 펼쳐보기</button>
       </div>
       <div id="gaewunBody"></div>
     </section>
@@ -570,11 +584,11 @@
 <script src="js/plus-engine.js?v=20261125-2"></script>
 <script src="js/plus-text.js?v=20261125-2"></script>
 <script src="js/gaewun-engine.js?v=20261125-8"></script>
-<script src="js/gaewun-text.js?v=20261125-7"></script>
+<script src="js/gaewun-text.js?v=20261125-9"></script>
 <script src="js/naming-engine.js?v=20261125-7"></script>
 <script src="js/naming-text.js?v=20261125-8"></script>
 <script src="js/tarot.js?v=20261125-2"></script>
 <script src="js/payment.js?v=20261125-7"></script>
-<script src="js/app.js?v=20261125-7"></script>
+<script src="js/app.js?v=20261125-9"></script>
 </body>
 </html>
