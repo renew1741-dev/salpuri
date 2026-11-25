@@ -31,7 +31,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20261125-20" />
+<link rel="stylesheet" href="css/style.css?v=20261125-21" />
 <link rel="stylesheet" href="css/pdf.css?v=20261125-1" />
 </head>
 <body class="locked">
@@ -822,6 +822,22 @@
   <div class="modal" id="payModalBox"></div>
 </div>
 
+<!-- 오픈 기념 한정 이벤트 (11/28 토요일까지) -->
+<div class="promo-bg" id="promoModal" role="dialog" aria-modal="true" aria-labelledby="promoTitle" aria-describedby="promoBody" hidden>
+  <div class="promo-card">
+    <button class="promo-x" id="promoClose" type="button" aria-label="팝업 닫기">✕</button>
+    <div class="promo-glow" aria-hidden="true"></div>
+  <div class="promo-badge" role="note" aria-label="오픈 기념 한정 이벤트, 11월 28일 토요일까지">🎁 오픈 기념 한정 이벤트 · 11월 28일(토)까지</div>
+    <h3 class="promo-title serif" id="promoTitle">이번 주 토요일까지만<br>무료로 열어드려요</h3>
+    <div class="promo-seal serif" aria-hidden="true">緣</div>
+    <p class="promo-body" id="promoBody">
+      원래 <b>9,900원</b>인 <b>정밀 사주 · 아이사주 · 외모·점</b> 핵심 풀이를 이번 주 토요일(<b>11/28</b>)까지만 <b>친구·지인에게 한 번 공유</b>하시면 <b>무료로</b> 바로 열어드립니다.
+    </p>
+    <button class="btn-gold promo-cta" id="promoCta" type="button">확인 · 내 사주 보러가기</button>
+    <p class="promo-note">공유 버튼 한 번이면 잠금이 바로 풀려요 · 기간이 지나면 정상 판매가로 돌아갑니다.</p>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script src="js/data-calendar.js?v=20261125-2"></script>
@@ -841,6 +857,6 @@
 <script src="js/analytics.js?v=20261125-1"></script>
 <script src="js/baby-text.js?v=20261125-1"></script>
 <script src="js/pdf.js?v=20261125-1"></script>
-<script src="js/app.js?v=20261125-17"></script>
+<script src="js/app.js?v=20261125-18"></script>
 </body>
 </html>
