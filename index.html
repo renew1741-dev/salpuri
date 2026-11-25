@@ -31,7 +31,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20261125-22" />
+<link rel="stylesheet" href="css/style.css?v=20261125-23" />
 <link rel="stylesheet" href="css/pdf.css?v=20261125-2" />
 </head>
 <body class="locked">
@@ -195,6 +195,9 @@
           <div class="free-read" id="freeReading"></div>
           <div class="taste-next"><i></i><b>아래로 내리면 이어서 깊은 풀이가 나와요</b><i></i></div>
         </div>
+
+        <!-- 👯 2인 패키지 — 세 번째 명식 안내 -->
+        <div class="duo-notice" id="duoNotice" hidden></div>
 
         <!-- 🔒 잠금 구역 : 블러 + 자물쇠 -->
         <div class="vault is-locked" data-vault="saju" id="sajuVault" style="--vault-h:600px">
@@ -750,9 +753,13 @@
 
       <div class="card" id="reportCard">
         <div class="section-head"><h2 class="serif">프리미엄 리포트</h2><span class="en">REPORT</span></div>
+        <div class="duo-status" id="duoStatus" hidden></div>
         <div id="reportLocked" class="center">
-          <p class="small" style="line-height:1.9">아직 열람 권한이 없어요.<br>명식을 먼저 조회한 뒤, 위에서 골라 주세요.</p>
-          <button class="btn-ghost mt14" id="goSaju">사주 명식 먼저 보기</button>
+          <div id="reportLockedDefault">
+            <p class="small" style="line-height:1.9">아직 열람 권한이 없어요.<br>명식을 먼저 조회한 뒤, 위에서 골라 주세요.</p>
+            <button class="btn-ghost mt14" id="goSaju">사주 명식 먼저 보기</button>
+          </div>
+          <div id="reportLockedDuo" class="hidden"></div>
         </div>
         <div id="reportBody" class="report-doc hidden"></div>
         <div class="center mt20 hidden" id="printRow">
@@ -863,11 +870,11 @@
 <script src="js/naming-engine.js?v=20261125-7"></script>
 <script src="js/naming-text.js?v=20261125-8"></script>
 <script src="js/tarot.js?v=20261125-2"></script>
-<script src="js/payment.js?v=20261125-7"></script>
-<script src="js/vault.js?v=20261125-8"></script>
-<script src="js/analytics.js?v=20261125-1"></script>
+<script src="js/payment.js?v=20261125-8"></script>
+<script src="js/vault.js?v=20261125-9"></script>
+<script src="js/analytics.js?v=20261125-2"></script>
 <script src="js/baby-text.js?v=20261125-1"></script>
 <script src="js/pdf.js?v=20261125-2"></script>
-<script src="js/app.js?v=20261125-19"></script>
+<script src="js/app.js?v=20261125-20"></script>
 </body>
 </html>
