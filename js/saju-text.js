@@ -709,7 +709,7 @@
     out.push(P('CHAPTER 2 · 겉과 속', '② 사람들이 모르는 당신',
       `<p>${dm.surface}</p>
        <p>${dm.shadow}</p>
-       <p>배우자 자리(일지)가 <strong>${stageEasy(dp.stage)}(${STAGE_NAMES[dp.stage]})</strong> 자리라서 이 간극이 더 커져요. ${STAGE_TEXT[dp.stage]} 그래서 사람들은 이 자리만 보고 판단하는데, 정작 결단을 내리는 순간은 그 반대편에서 와요.</p>
+       <p>배우자 자리(일지)가 <strong>${STAGE_NAMES[dp.stage]}</strong>${ra(STAGE_NAMES[dp.stage])} 자리라서 이 간극이 더 커져요. ${STAGE_TEXT[dp.stage]} 그래서 사람들은 이 자리만 보고 판단하는데, 정작 결단을 내리는 순간은 그 반대편에서 와요.</p>
        <p><strong>가장 자주 반복되는 장면</strong>은 이래요. ${dm.pattern} 상대는 이미 마음을 정리한 걸 모르고, 나는 상대가 눈치 못 챈 것에 서운해하죠. 이 고리를 끊는 건 감정이 아니라 <strong>한 문장의 통보</strong>예요. “나는 지금 이런 상태야”를 말하는 연습이 사람 사이의 운을 바꿔요.</p>
        ${missing.length ? `<p>또 하나, 원국에 <strong>${missing.map(i => godFull(i)).join('·')}</strong> 같은 기운이 뚜렷하게 안 보여요. 이 자리는 타고난 재주가 아니라 나중에 사람으로 채우는 자리예요. ${missing.includes(2) || missing.includes(3) ? '특히 표현하고 결과물을 만드는 자리가 비어 있어서, 머릿속으로만 완성하고 밖으로 못 꺼내는 일이 생겨요. ' : ''}${missing.includes(4) || missing.includes(5) ? '돈을 관리하는 자리도 비어 있어서, 버는 힘에 비해 남기는 힘이 약해요. ' : ''}${missing.includes(6) || missing.includes(7) ? '규율과 책임의 자리가 비어 있어서 조직의 규칙이 답답하게 느껴져요. ' : ''}비어 있는 기운은 사람으로 채우면 돼요. 그 기운을 타고난 배우자·동료·후원자를 곁에 두세요.</p>` : ''}
        <p><strong>사람들이 오해하는 세 가지</strong><br>
@@ -753,7 +753,7 @@
     const dayJi = dp.ji;
     const dohwa = a.sals.some(s => s.name === '도화살');
     out.push(P('CHAPTER 5 · 인연', '⑤ 배우자 자리와 반복되는 패턴',
-      `<p>배우자 자리인 일지가 <strong>${JI[dayJi]}(${JI_KO[dayJi]})</strong>이고, 뜻으로는 <strong>${godFull(dp.jiTenGod)}</strong>, 기세로는 <strong>${stageEasy(dp.stage)}(${STAGE_NAMES[dp.stage]})</strong>이에요. ${STAGE_TEXT[dp.stage]}</p>
+      `<p>배우자 자리인 일지가 <strong>${JI[dayJi]}(${JI_KO[dayJi]})</strong>이고, 뜻으로는 <strong>${godFull(dp.jiTenGod)}</strong>, 기세로는 <strong>${STAGE_NAMES[dp.stage]}</strong>이에요. ${STAGE_TEXT[dp.stage]}</p>
        <p>${['子', '午', '卯', '酉'].includes(JI[dayJi]) ? '사람을 끄는 자리라 인연이 끊이지 않고 상대가 먼저 다가오는 일이 많아요. 다만 선택의 폭이 넓은 것과 좋은 선택은 다른 문제예요.'
         : ['寅', '申', '巳', '亥'].includes(JI[dayJi]) ? '움직이는 자리라 멀리서 인연이 오거나 이동·여행·타지에서 만남이 이뤄져요. 한곳에 머무는 관계보다 함께 움직이는 관계가 오래가요.'
           : ['辰', '戌', '丑', '未'].includes(JI[dayJi]) ? '흙의 자리라 인연이 늦게, 그러나 단단하게 와요. 서두르면 흔들리니까 신뢰가 쌓이는 속도를 존중하세요.'
