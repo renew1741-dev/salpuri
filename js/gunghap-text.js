@@ -256,8 +256,11 @@
         : '기다리는 방식과 표현하는 방식이 달라서, 그 차이를 말로 옮기는 순간 관계가 한 단계 깊어져요.') +
       ` 그래서 이 관계에서는 <b>${stronger}</b>${iGa(stronger)} 먼저 문을 열고, <b>${weaker}</b>${iGa(weaker)} 그 문을 닫지 않는 게 시작이에요. 두 사람이 가까워지는 순간은 대개 말을 잘했을 때가 아니라, 한 사람이 말없이 기다려 줬을 때예요.</p>`);
 
-    const tgA = TEN_GODS[x.tenA], tgB = TEN_GODS[x.tenB];
-    out.push(`<p>십성으로 보면 더 분명해요. ${nameA}${iGa(nameA)} 본 ${nameB}${eun(nameB)} <b>${TX.godFull(x.tenA)}</b> — ${TEN_SHORT[x.tenA]}. 반대로 ${nameB}${iGa(nameB)} 본 ${nameA}${eun(nameA)} <b>${TX.godFull(x.tenB)}</b> — ${TEN_SHORT[x.tenB]}. 이 두 문장이 두 사람이 서로를 대하는 방식의 뿌리예요.</p>`);
+    if (x.tenA === x.tenB) {
+      out.push(`<p>십성으로 보면 더 분명해요. 두 사람이 서로를 <b>${TX.godFull(x.tenA)}</b>으로 봐요 — ${TEN_SHORT[x.tenA]}. 서로를 보는 눈이 같다는 건, 좋을 때도 힘들 때도 같은 자리에서 같은 걸 느낀다는 뜻이에요. 이 한 문장이 두 사람이 서로를 대하는 방식의 뿌리예요.</p>`);
+    } else {
+      out.push(`<p>십성으로 보면 더 분명해요. ${nameA}${iGa(nameA)} 본 ${nameB}${eun(nameB)} <b>${TX.godFull(x.tenA)}</b> — ${TEN_SHORT[x.tenA]}. 반대로 ${nameB}${iGa(nameB)} 본 ${nameA}${eun(nameA)} <b>${TX.godFull(x.tenB)}</b> — ${TEN_SHORT[x.tenB]}. 이 두 문장이 두 사람이 서로를 대하는 방식의 뿌리예요.</p>`);
+    }
 
     const tA = `${GAN_KO[dpA.gan]}${ELEM_KO[eA]}`, tB = `${GAN_KO[dpB.gan]}${ELEM_KO[eB]}`;
     return { title: `끌림의 정체 — ${tA}${wa(tA)} ${tB}${iGa(tB)} 만났을 때`, paras: out };  }
