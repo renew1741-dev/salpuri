@@ -371,23 +371,23 @@
 
   /* ---------- 격국(格局) ---------- */
   const GYEOKGUK = {
-    0: { name: '건록격', hanja: '建祿格', gist: '내 이름으로 서는 사람', strength: '자기 힘으로 판을 만들고, 남이 세운 판에 얹혀 살지 않습니다.', shadow: '도움을 청하는 순간을 놓쳐 혼자 다 짊어집니다.', advice: '동업·공동명의는 처음부터 문서로 몫을 나누십시오.' },
-    1: { name: '양인격', hanja: '羊刃格', gist: '칼날을 품은 추진력', strength: '결정적인 순간에 남이 못 하는 결단을 대신 내립니다.', shadow: '날이 서 있어 가까운 사람을 베고 나서 후회합니다.', advice: '결정을 말로 옮기기 전에 하루를 두십시오.' },
-    2: { name: '식신격', hanja: '食神格', gist: '꾸준히 먹고사는 그릇', strength: '손으로 결과물을 내는 일에서 오래 먹고삽니다.', shadow: '편안함에 기대어 판을 키우는 타이밍을 놓칩니다.', advice: '한 가지를 10년 굴릴 구조로 만들어 두십시오.' },
-    3: { name: '상관격', hanja: '傷官格', gist: '틀을 뒤집는 재주', strength: '남들이 당연하게 여긴 것을 의심하는 눈이 있습니다.', shadow: '옳은 말도 위계를 건드려 적을 만듭니다.', advice: '상사에게는 결론보다 순서를 먼저 말하십시오.' },
-    4: { name: '편재격', hanja: '偏財格', gist: '돈이 흐르는 자리를 아는 눈', strength: '유통·영업·투자에서 남보다 한 발 먼저 움직입니다.', shadow: '들어오는 속도만큼 새는 구멍도 큽니다.', advice: '수입의 20%는 손대지 않는 통장으로 먼저 보내십시오.' },
-    5: { name: '정재격', hanja: '正財格', gist: '차곡차곡 쌓는 성실', strength: '반복되는 수입을 안정적으로 굴리는 힘이 있습니다.', shadow: '큰 기회 앞에서 계산이 앞서 놓칩니다.', advice: '한 번은 계산을 접고 작게 시험해 보십시오.' },
-    6: { name: '편관격', hanja: '偏官格', gist: '압박을 이기는 사람', strength: '경쟁·규제·위기 관리에서 존재감이 커집니다.', shadow: '스스로를 벼려 몸이 먼저 신호를 보냅니다.', advice: '잠을 줄여 일을 늘리는 방식을 가장 먼저 끊으십시오.' },
-    7: { name: '정관격', hanja: '正官格', gist: '반듯한 자리와 명예', strength: '직함·자격·공식 절차를 갖출수록 운이 열립니다.', shadow: '체면 때문에 손해를 알면서도 물러서지 못합니다.', advice: '체면이 걸린 자리일수록 숫자로 따져 보십시오.' },
-    8: { name: '편인격', hanja: '偏印格', gist: '남다른 공부의 눈', strength: '남이 안 보는 분야를 파고들어 전문성이 됩니다.', shadow: '생각이 실행을 앞질러 시작을 미룹니다.', advice: '완벽한 준비 대신 이번 주에 한 번 공개하십시오.' },
-    9: { name: '정인격', hanja: '正印格', gist: '배움과 보호의 그릇', strength: '문서·자격·후원이 사람을 살립니다.', shadow: '보호받는 자리에 오래 머물러 스스로 서는 때를 놓칩니다.', advice: '후원에 기대는 일 하나를 내 힘으로 바꾸십시오.' }
+    0: { name: '건록격', hanja: '建祿格', gist: '내 이름으로 서는 사람', strength: '자기 힘으로 판을 만들고, 남이 세운 판에 얹혀 살지 않아요.', shadow: '도움을 청할 순간을 놓쳐서 혼자 다 짊어지죠.', advice: '동업이나 공동명의는 처음부터 문서로 몫을 나누세요.' },
+    1: { name: '양인격', hanja: '羊刃格', gist: '칼날을 품은 추진력', strength: '결정적인 순간에 남이 못 내리는 결단을 대신 내요.', shadow: '날이 서 있어서 가까운 사람을 베고 나서 후회하죠.', advice: '결정을 말로 옮기기 전에 하루만 두세요.' },
+    2: { name: '식신격', hanja: '食神格', gist: '꾸준히 먹고사는 그릇', strength: '손으로 결과물을 내는 일에서 오래 먹고살아요.', shadow: '편안함에 기대다가 판을 키울 타이밍을 놓치죠.', advice: '한 가지를 10년 굴릴 구조로 만들어 두세요.' },
+    3: { name: '상관격', hanja: '傷官格', gist: '틀을 뒤집는 재주', strength: '남들이 당연하게 여긴 걸 의심하는 눈이 있어요.', shadow: '옳은 말도 서열을 건드려서 적을 만들어요.', advice: '윗사람에게는 결론보다 순서를 먼저 말하세요.' },
+    4: { name: '편재격', hanja: '偏財格', gist: '돈이 흐르는 자리를 아는 눈', strength: '유통·영업·투자에서 남보다 한 발 먼저 움직여요.', shadow: '들어오는 속도만큼 새는 구멍도 커요.', advice: '수입의 20%는 손대지 않는 통장으로 먼저 보내세요.' },
+    5: { name: '정재격', hanja: '正財格', gist: '차곡차곡 쌓는 성실', strength: '반복되는 수입을 안정적으로 굴리는 힘이 있어요.', shadow: '큰 기회 앞에서 계산이 앞서서 놓쳐요.', advice: '한 번은 계산을 접고 작게 시험해 보세요.' },
+    6: { name: '편관격', hanja: '偏官格', gist: '압박을 이기는 사람', strength: '경쟁·규제·위기 관리에서 존재감이 커져요.', shadow: '스스로를 몰아서 몸이 먼저 신호를 보내요.', advice: '잠을 줄여 일을 늘리는 방식부터 끊으세요.' },
+    7: { name: '정관격', hanja: '正官格', gist: '반듯한 자리와 명예', strength: '직함·자격·공식 절차를 갖출수록 운이 열려요.', shadow: '체면 때문에 손해인 걸 알면서도 못 물러서죠.', advice: '체면이 걸린 자리일수록 숫자로 따져 보세요.' },
+    8: { name: '편인격', hanja: '偏印格', gist: '남다른 공부의 눈', strength: '남이 안 보는 분야를 파고들어 전문성이 돼요.', shadow: '생각이 실행을 앞질러서 시작을 미뤄요.', advice: '완벽한 준비 대신 이번 주에 한 번 공개해 보세요.' },
+    9: { name: '정인격', hanja: '正印格', gist: '배움과 보호의 그릇', strength: '문서·자격·후원이 사람을 살려요.', shadow: '보호받는 자리에 오래 머물러서 혼자 설 때를 놓쳐요.', advice: '후원에 기대는 일 하나를 내 힘으로 바꿔 보세요.' }
   };
 
   const GYEOKGUK_WOLGEOB = {
     name: '월겁격', hanja: '月劫格', gist: '내 힘을 이웃과 나누는 사람',
-    strength: '사람을 모으고 함께 판을 키우는 힘이 있습니다.',
-    shadow: '내가 세운 판을 남이 가져가도 말하지 못합니다.',
-    advice: '처음부터 몫과 기한을 문서로 남기십시오.'
+    strength: '사람을 모으고 함께 판을 키우는 힘이 있어요.',
+    shadow: '내가 세운 판을 남이 가져가도 말을 못 해요.',
+    advice: '처음부터 몫과 기한을 문서로 남기세요.'
   };
 
   function gyeokgukOf(pillars, dayGan, monthJi) {
@@ -424,22 +424,22 @@
     (CHEONEUL[dayGan] || []).forEach(ji => {
       if (branches.has(ji)) list.push({ name: '천을귀인', hanja: '天乙貴人', desc: '막힐 때마다 나를 끌어주는 사람이 나타납니다.' });
     });
-    if (branches.has(MUNCHANG[dayGan])) list.push({ name: '문창귀인', hanja: '文昌貴人', desc: '글과 말, 공부로 이름을 얻는 총명함이 있습니다.' });
+    if (branches.has(MUNCHANG[dayGan])) list.push({ name: '문창귀인', hanja: '文昌貴人', desc: '글과 말, 공부로 이름을 얻는 총명함이 있어요.' });
 
     const samhapBase = jis[0]; // 년지 기준
     const dayBase = pillars.find(p => p && p.pos === '일') ? pillars.find(p => p.pos === '일').ji : samhapBase;
     [samhapBase, dayBase].forEach(base => {
       const g = SAMHAP.find(s => s.group.includes(base));
       if (!g) return;
-      if (branches.has(g.dohwa)) list.push({ name: '도화살', hanja: '桃花煞', desc: '이성과 대중의 시선을 끄는 매력이 있습니다.' });
-      if (branches.has(g.yeokma)) list.push({ name: '역마살', hanja: '驛馬煞', desc: '한곳에 머물기보다 움직이며 기회를 잡습니다.' });
-      if (branches.has(g.hwagae)) list.push({ name: '화개살', hanja: '華蓋煞', desc: '예술·종교·탐구에 깊이 빠지는 기질이 있습니다.' });
+      if (branches.has(g.dohwa)) list.push({ name: '도화살', hanja: '桃花煞', desc: '이성과 대중의 시선을 끄는 매력이 있어요.' });
+      if (branches.has(g.yeokma)) list.push({ name: '역마살', hanja: '驛馬煞', desc: '한곳에 머물기보다 움직이며 기회를 잡아요.' });
+      if (branches.has(g.hwagae)) list.push({ name: '화개살', hanja: '華蓋煞', desc: '예술·종교·탐구에 깊이 빠지는 기질이 있어요.' });
     });
     // 일주 기준 특수 신살 — 괴강(魁罡)·백호(白虎)
     const day = pillars.find(p => p && p.pos === '일');
     if (day) {
       if ([[6, 4], [6, 10], [8, 4], [4, 10]].some(([g, j]) => g === day.gan && j === day.ji))
-        list.push({ name: '괴강살', hanja: '魁罡煞', desc: '한 번 마음먹으면 물러서지 않는 강한 기세가 있습니다.' });
+        list.push({ name: '괴강살', hanja: '魁罡煞', desc: '한 번 마음먹으면 물러서지 않는 강한 기세가 있어요.' });
       if ([[0, 4], [1, 7], [2, 10], [3, 1], [4, 4], [8, 10], [9, 1]].some(([g, j]) => g === day.gan && j === day.ji))
         list.push({ name: '백호살', hanja: '白虎煞', desc: '급한 성질과 강한 생명력이 함께 있어, 다스리면 큰 힘이 됩니다.' });
     }
@@ -560,7 +560,7 @@
     if (calendar === '음력') {
       const conv = lunarToSolar(year, month, day, !!leap);
       if (!conv) {
-        return { error: '음력 ' + year + '년 ' + month + '월 ' + day + '일' + (leap ? '(윤달)' : '') + '은 존재하지 않는 날짜입니다.' };
+        return { error: '음력 ' + year + '년 ' + month + '월 ' + day + '일' + (leap ? '(윤달)' : '') + '은 없는 날짜예요.' };
       }
       solar = conv;
       lunarInfo = { y: year, m: month, d: day, leap: !!leap };
