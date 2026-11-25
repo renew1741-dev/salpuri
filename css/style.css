@@ -2570,6 +2570,7 @@ body.ss-open { overflow: hidden; }
 }
 .ss-item:active { transform: scale(.985); }
 .ss-item:hover { border-color: rgba(217,185,120,.55); background: linear-gradient(150deg, rgba(217,185,120,.13), rgba(255,255,255,.02)); }
+.ss-item[hidden] { display: none !important; }
 .ss-item.busy { opacity: .6; pointer-events: none; }
 .ss-ico { flex: 0 0 38px; width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; font-size: 18px;
   border: 1px solid rgba(217,185,120,.28); background: rgba(217,185,120,.09); }
