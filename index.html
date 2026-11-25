@@ -5,19 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="theme-color" content="#06050a" />
 <title>살풀이 : 천기(天機) — 정밀 만세력 사주 · 신비 타로</title>
-<meta name="description" content="입춘·24절기와 율리우스 적일로 계산하는 정밀 만세력, 22장 메이저 아르카나 타로, 그리고 2026 병오년 세운 리포트. 살풀이 : 천기에서 당신의 명(命)을 읽습니다." />
+<meta name="description" content="입춘·24절기와 율리우스 적일로 계산하는 정밀 만세력, 22장 메이저 아르카나 타로, 그리고 올해·내년 세운 리포트. 살풀이 : 천기에서 당신의 명(命)을 읽습니다." />
 
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="살풀이 : 천기" />
 <meta property="og:title" content="살풀이 : 천기 — 내 명(命)을 촛불 아래에서 읽다" />
-<meta property="og:description" content="입춘·24절기 정밀 만세력과 22장 타로. 격국·신살·2026 월별 길흉까지, 13년 숨은 실력자의 시선으로 짚어 드립니다." />
+<meta property="og:description" content="입춘·24절기 정밀 만세력과 22장 타로. 격국·신살·올해·내년 월별 길흉까지, 13년 숨은 실력자의 시선으로 짚어 드립니다." />
 <meta property="og:image" content="https://renew1741-dev.github.io/salpuri/og-image.jpg" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
 <meta property="og:url" content="https://renew1741-dev.github.io/salpuri/" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="살풀이 : 천기 — 내 명(命)을 촛불 아래에서 읽다" />
-<meta name="twitter:description" content="입춘·24절기 정밀 만세력과 22장 타로. 2026 병오년 세운까지 한 번에." />
+<meta name="twitter:description" content="입춘·24절기 정밀 만세력과 22장 타로. 올해·내년 세운까지 한 번에." />
 <meta name="twitter:image" content="https://renew1741-dev.github.io/salpuri/og-image.jpg" />
 
 <link rel="manifest" href="manifest.webmanifest" />
@@ -31,8 +31,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20261125-24" />
-<link rel="stylesheet" href="css/pdf.css?v=20261125-2" />
+<link rel="stylesheet" href="css/style.css?v=20261125-25" />
+<link rel="stylesheet" href="css/pdf.css?v=20261125-3" />
 </head>
 <body class="locked">
 
@@ -159,7 +159,7 @@
             <select id="birthMonth" class="inp" aria-label="출생 월"></select>
             <select id="birthDay" class="inp" aria-label="출생 일"></select>
           </div>
-          <div class="hint" id="lunarHint">1940년 ~ 2026년 출생 지원 · 음력 날짜는 존재하는 날만 선택됩니다.</div>
+          <div class="hint" id="lunarHint">1940년 ~ 올해 출생 지원 · 음력 날짜는 존재하는 날만 선택됩니다.</div>
         </div>
 
         <div class="field">
@@ -169,15 +169,15 @@
         </div>
 
         <div class="field" id="mainBodyField">
-          <label class="field-label" for="mainHeight">키 · 몸무게 <b>선택 입력 · 키가 클수록 적정 운세 체중이 달라져요</b></label>
+          <label class="field-label" for="mainHeight"><span class="fl-main">키 · 체중</span><b>선택 입력 · 키가 클수록 적정 체중이 달라져요</b></label>
           <div class="gw-inputs body-pair">
             <div class="body-cell">
               <span class="body-cell-k">키 <b>cm</b></span>
               <input id="mainHeight" class="inp" type="number" inputmode="numeric" min="130" max="210" step="1" placeholder="예: 165" autocomplete="off" aria-label="키(cm)" />
             </div>
             <div class="body-cell">
-              <span class="body-cell-k">현재 몸무게 <b>kg</b></span>
-              <input id="mainWeight" class="inp" type="number" inputmode="decimal" min="25" max="200" step="0.1" placeholder="예: 62" autocomplete="off" aria-label="현재 몸무게(kg)" />
+              <span class="body-cell-k">체중 <b>kg</b></span>
+              <input id="mainWeight" class="inp" type="number" inputmode="decimal" min="25" max="200" step="0.1" placeholder="예: 62" autocomplete="off" aria-label="체중(kg)" />
             </div>
           </div>
           <div class="hint">비워 두어도 사주는 그대로 나와요. 넣어 두면 <b>외모·점</b> 탭에서 내 키에 맞는 적정 체중이 바로 계산됩니다.</div>
@@ -202,6 +202,7 @@
 
           <div class="pillar-grid" id="pillarGrid"></div>
           <div class="legend" id="pillarLegend"></div>
+          <p class="pillar-hint">※ 칸 안의 <b>비견·편관·정재</b> 같은 작은 글씨는 기운의 이름이에요. <b>비견 = 내 편·자존심</b>, <b>편관 = 나를 벼리는 압박</b>처럼 읽으시면 돼요. 아래 ‘쉬운 사주 말’ 사전에 전부 풀어 뒀어요.</p>
           <div class="term-line" id="termLine"></div>
 
           <div class="hr-gold"></div>
@@ -239,9 +240,9 @@
             </div>
 
             <div class="card">
-              <div class="section-head"><h2 class="serif">2026 병오년 — 잡을 달, 피할 달</h2><span class="en">YEARLY</span></div>
+              <div class="section-head"><h2 class="serif">올해 세운 — 잡을 달, 피할 달</h2><span class="en">YEARLY</span></div>
               <div class="saeun-line">
-                <div class="saeun-ganji" id="saeunGanji">丙午<small>2026</small></div>
+                <div class="saeun-ganji" id="saeunGanji">—<small>올해</small></div>
                 <div class="saeun-text" id="saeunText"></div>
               </div>
               <div class="saeun-months" id="saeunMonths"></div>
@@ -265,15 +266,15 @@
             <div class="card pdf-card">
               <div class="pdf-ico">📄</div>
               <div class="pdf-txt">
-                <b>9쪽 정밀 리포트 (PDF)</b>
-                <span>이 명식만을 위해 계산한 재물·인연·월별 길흉·대운·살풀이 처방을 9쪽으로 묶었어요. 저장해서 두고두고 보세요.</span>
+                <b>10쪽 정밀 리포트 (PDF)</b>
+                <span>이 명식만을 위해 계산한 재물·인연·올해·내년 월별 길흉·대운·살풀이 처방을 10쪽으로 묶었어요. 저장해서 두고두고 보세요.</span>
               </div>
               <button class="btn-ghost" id="vaultPdfBtn">PDF로 받기</button>
             </div>
 
             <div class="card">
               <div class="section-head"><h2 class="serif">스마트폰 부적 4종</h2><span class="en">TALISMAN · 4</span></div>
-              <p class="small">용신(用神)의 기운을 화면에 두는 게 가장 쉬운 개운법이에요. 1080×1920 PNG로 바로 내려받아 잠금화면에 두세요.</p>
+              <p class="small">나를 살리는 행운 기운(용신)을 화면에 두는 게 가장 쉬운 개운법이에요. 1080×1920 PNG로 바로 내려받아 잠금화면에 두세요.</p>
               <div class="talisman-grid" id="talismanGridVault"></div>
             </div>
 
@@ -301,7 +302,7 @@
             </button>
             <button type="button" class="up-card" data-goto="yearly">
               <span class="up-ico">🔮</span>
-              <span class="up-txt"><b>신년 15장 대운 풀패키지</b><span>2026·2027 12개월을 한 장에</span></span>
+              <span class="up-txt"><b>신년 15장 대운 풀패키지</b><span>올해·내년 12개월을 한 장에</span></span>
               <span class="up-price">29,800원</span>
             </button>
           </div>
@@ -372,7 +373,7 @@
             <select id="babyMonth" class="inp" aria-label="아이 출생 월"></select>
             <select id="babyDay" class="inp" aria-label="아이 출생 일"></select>
           </div>
-          <div class="hint">2026년 출생아부터 1940년생까지 볼 수 있어요.</div>
+          <div class="hint">올해 출생아부터 1940년생까지 볼 수 있어요.</div>
         </div>
 
         <div class="field">
@@ -523,17 +524,17 @@
           <span class="ci-emoji" aria-hidden="true">🔮</span>
           <span class="ci-titles">
             <span class="ci-kicker">YEAR · 신년 12개월</span>
-            <b class="ci-title serif">2026 병오년, 열두 달을 미리 펼쳐 봐요</b>
+            <b class="ci-title serif">올해·내년 두 해, 열두 달을 한눈에</b>
           </span>
         </div>
-        <p class="ci-desc">절기 기준 열두 달을 내 사주와 대조해, 잡아야 할 달과 피할 달, 분기마다의 흐름을 한 장에 정리해 드려요.</p>
-        <div class="ci-chips"><span>12개월 흐름</span><span>잡을 달</span><span>피할 달</span><span>분기 조언</span></div>
+        <p class="ci-desc">올해와 내년, 두 해의 달마다를 내 사주와 대조해 <b>대박 좋은 달·조심할 달</b>을 배지 하나로 보여 드려요. 이 달엔 뭘 챙기고 뭘 피할지도 한 줄로요.</p>
+        <div class="ci-chips"><span>올해·내년 달력</span><span>좋은 달·조심할 달</span><span>챙길 것·피할 것</span><span>분기 조언</span></div>
       </div>
       <div class="card">
         <div class="section-head"><h2 class="serif">볼 해 고르기</h2><span class="en">YEARLY</span></div>
         <div class="seg seg-2 mt14" id="yrSeg">
-          <button type="button" class="seg-btn active" data-v="2026">2026 병오년</button>
-          <button type="button" class="seg-btn" data-v="2027">2027 정미년</button>
+          <button type="button" class="seg-btn active" data-v="2026">올해</button>
+          <button type="button" class="seg-btn" data-v="2027">내년</button>
         </div>
       </div>
       <div class="pf-slot" data-pf="yearly"></div>
@@ -614,11 +615,11 @@
       <div class="gw-quick" id="gwFormCard">
         <div class="gw-inputs">
           <div class="field">
-            <label class="field-label" for="gwHeight">키 <b>cm</b></label>
+            <label class="field-label" for="gwHeight"><span class="fl-main">키</span><b>cm</b></label>
             <input id="gwHeight" class="inp" type="number" inputmode="numeric" min="130" max="210" step="1" placeholder="예: 165" autocomplete="off" />
           </div>
           <div class="field">
-            <label class="field-label" for="gwWeight">현재 몸무게 <b>kg</b></label>
+            <label class="field-label" for="gwWeight"><span class="fl-main">현재 체중</span><b>kg</b></label>
             <input id="gwWeight" class="inp" type="number" inputmode="decimal" min="30" max="160" step="0.1" placeholder="예: 62" autocomplete="off" />
           </div>
         </div>
@@ -746,8 +747,8 @@
             <b class="ci-title serif">깊이 남기고 싶은 한 사람을 위한 것</b>
           </span>
         </div>
-        <p class="ci-desc">9쪽 정밀 리포트는 PDF로 저장해 두고두고 볼 수 있고, 용신 기운을 담은 부적 배경화면 네 장은 결제 즉시 내려받아요.</p>
-        <div class="ci-chips"><span>9쪽 리포트</span><span>PDF 저장</span><span>부적 4종</span><span>즉시 다운로드</span></div>
+        <p class="ci-desc">10쪽 정밀 리포트는 PDF로 저장해 두고두고 볼 수 있고, 나를 살리는 기운(용신)을 담은 부적 배경화면 네 장은 결제 즉시 내려받아요.</p>
+        <div class="ci-chips"><span>10쪽 리포트</span><span>PDF 저장</span><span>부적 4종</span><span>즉시 다운로드</span></div>
       </div>
       <div class="card">
         <div class="section-head"><h2 class="serif">살풀이 : 천기 프리미엄</h2><span class="en">PREMIUM</span></div>
@@ -762,7 +763,7 @@
 
       <div class="card" id="talismanCard">
         <div class="section-head"><h2 class="serif">개운 부적 배경화면</h2><span class="en">TALISMAN · 4</span></div>
-        <p class="small">용신(用神)의 기운을 화면에 두는 것이 가장 쉬운 개운법입니다. 1080×1920 PNG로 바로 내려받아 잠금화면에 두십시오.</p>
+        <p class="small">나를 살리는 행운 기운(용신)을 화면에 두는 것이 가장 쉬운 개운법입니다. 1080×1920 PNG로 바로 내려받아 잠금화면에 두십시오.</p>
         <div class="talisman-grid" id="talismanGrid"></div>
       </div>
 
@@ -783,7 +784,7 @@
               <span class="pdf-btn-ico" aria-hidden="true">📄</span>
               PDF 파일 바로 저장
             </button>
-            <p class="pdf-hint">누르면 실제 <b>.pdf</b> 파일로 내려받아요 · 9쪽 · 인쇄창이 뜨지 않아요</p>
+            <p class="pdf-hint">누르면 실제 <b>.pdf</b> 파일로 내려받아요 · 10쪽(올해·내년 달력) · 인쇄창이 뜨지 않아요</p>
             <button class="btn-ghost pdf-print-btn" id="printBtn" type="button">🖨️ 인쇄로 PDF 저장</button>
           </div>
         </div>
@@ -875,21 +876,21 @@
 
 <script src="js/data-calendar.js?v=20261125-2"></script>
 <script src="js/saju-engine.js?v=20261125-2"></script>
-<script src="js/saju-text.js?v=20261125-4"></script>
-<script src="js/gunghap-engine.js?v=20261125-2"></script>
-<script src="js/gunghap-text.js?v=20261125-2"></script>
-<script src="js/plus-engine.js?v=20261125-2"></script>
-<script src="js/plus-text.js?v=20261125-2"></script>
-<script src="js/gaewun-engine.js?v=20261125-9"></script>
-<script src="js/gaewun-text.js?v=20261125-10"></script>
-<script src="js/naming-engine.js?v=20261125-7"></script>
-<script src="js/naming-text.js?v=20261125-8"></script>
+<script src="js/saju-text.js?v=20261125-5"></script>
+<script src="js/gunghap-engine.js?v=20261125-3"></script>
+<script src="js/gunghap-text.js?v=20261125-3"></script>
+<script src="js/plus-engine.js?v=20261125-3"></script>
+<script src="js/plus-text.js?v=20261125-3"></script>
+<script src="js/gaewun-engine.js?v=20261125-10"></script>
+<script src="js/gaewun-text.js?v=20261125-11"></script>
+<script src="js/naming-engine.js?v=20261125-8"></script>
+<script src="js/naming-text.js?v=20261125-9"></script>
 <script src="js/tarot.js?v=20261125-2"></script>
 <script src="js/payment.js?v=20261125-8"></script>
 <script src="js/vault.js?v=20261125-9"></script>
 <script src="js/analytics.js?v=20261125-2"></script>
 <script src="js/baby-text.js?v=20261125-1"></script>
 <script src="js/pdf.js?v=20261125-2"></script>
-<script src="js/app.js?v=20261125-23"></script>
+<script src="js/app.js?v=20261125-24"></script>
 </body>
 </html>
