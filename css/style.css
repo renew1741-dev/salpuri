@@ -902,7 +902,7 @@ select.inp option { background: #16111f; color: #fff; }
 .price-list { display: grid; gap: 12px; }
 .price-item {
   position: relative; overflow: hidden;
-  display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center;
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: center;
   padding: 16px 16px; border-radius: 16px;
   background: linear-gradient(170deg, rgba(28, 21, 38, .9), rgba(13, 10, 20, .95));
   border: 1px solid rgba(217, 185, 120, .2);
@@ -925,6 +925,24 @@ select.inp option { background: #16111f; color: #fff; }
   font-size: 12px; font-weight: 700; white-space: nowrap;
 }
 .price-item.owned .price button { background: rgba(122,201,164,.18); color: var(--ok); border: 1px solid rgba(122,201,164,.35); }
+/* 👯 2인 동반 패키지 */
+.price-item.duo { border-color: rgba(217,185,120,.48); background: linear-gradient(165deg, rgba(58,33,20,.55), rgba(13,10,20,.96) 62%); }
+.price-item.duo::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  background: linear-gradient(180deg, #f6e3ad, #cba75e 60%, rgba(203,167,94,0));
+}
+.price-item.duo .info h3 { color: #fff3d6; }
+.price-item.duo .price .num { font-size: 17.5px; }
+.price-item .duo-unit { margin-top: 6px; font-size: 11px; color: #d6b97a; line-height: 1.5; }
+.price-item .duo-used { margin-top: 6px; font-size: 11px; color: #9fd6b8; line-height: 1.55; word-break: keep-all; }
+.price-item .duo-used b { color: #c8efd9; }
+@media (max-width: 430px) {
+  .price-item { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .price-item .price { display: flex; align-items: center; justify-content: space-between; gap: 10px; text-align: left; }
+  .price-item .price .num { font-size: 17px; }
+  .price-item .price button { margin-top: 0; padding: 8px 13px; }
+  .price-item.duo .price .num { font-size: 16px; }
+}
 
 /* 프리미엄 리포트 문서 */
 .report-doc { margin-top: 18px; }
@@ -999,6 +1017,62 @@ select.inp option { background: #16111f; color: #fff; }
 .pay-methods { display: grid; grid-template-columns: repeat(2, 1fr); gap: 7px; }
 .pay-note { font-size: 10.5px; color: #6f685e; line-height: 1.7; margin-top: 12px; }
 .demo-badge { display: inline-block; font-size: 10px; color: var(--warn); border: 1px solid rgba(226,163,94,.4); border-radius: 6px; padding: 1px 6px; margin-left: 6px; vertical-align: 1px; }
+/* 💡 결제 모달 1클릭 업셀 (1인 9,900원 → 2인 17,900원) */
+.pay-upsell {
+  display: flex; align-items: center; gap: 9px; width: 100%; text-align: left; cursor: pointer;
+  padding: 11px 12px; margin: 0 0 14px; border-radius: 12px;
+  border: 1px solid rgba(217,185,120,.5);
+  background: linear-gradient(120deg, rgba(224,141,60,.2), rgba(217,185,120,.08));
+  font-family: inherit;
+}
+.pay-upsell:hover { border-color: rgba(246,227,173,.75); }
+.pu-ico { font-size: 17px; line-height: 1; flex: 0 0 auto; }
+.pu-tx { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1 1 auto; }
+.pu-tx b { font-size: 12.5px; color: #ffe9c6; line-height: 1.4; word-break: keep-all; }
+.pu-tx i { font-style: normal; font-size: 10.5px; color: #d6cbb6; line-height: 1.45; word-break: keep-all; }
+.pu-go { flex: 0 0 auto; font-size: 11px; font-weight: 700; color: #1b1206; background: linear-gradient(135deg, #cba75e, #f6e3ad); border-radius: 999px; padding: 5px 9px; white-space: nowrap; }
+.pay-downsell {
+  display: block; width: 100%; margin: -6px 0 12px; padding: 7px 6px; cursor: pointer;
+  background: none; border: none; font-size: 11px; color: var(--muted); text-decoration: underline; text-underline-offset: 3px;
+}
+.pay-downsell:hover { color: var(--gold-2); }
+/* 👯 이용 현황 배지 (프리미엄 리포트 카드) */
+.duo-status {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 6px 8px;
+  margin: 10px 0 4px; padding: 9px 11px; border-radius: 11px;
+  border: 1px solid rgba(122,201,164,.32); background: rgba(122,201,164,.08);
+  font-size: 11.5px; line-height: 1.5; word-break: keep-all;
+}
+.duo-status[hidden] { display: none; }
+.ds-tag { font-size: 10px; font-weight: 700; color: #0d1a13; background: linear-gradient(135deg, #8fd8b4, #d7f4e3); border-radius: 999px; padding: 2px 8px; }
+.ds-count { color: #d9fbec; font-size: 12px; }
+.ds-names { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 4px; color: #a9beaf; font-size: 11px; }
+.ds-x {
+  margin-left: 3px; padding: 0 4px; border: 1px solid rgba(255,255,255,.16); border-radius: 6px;
+  background: none; color: #9c9488; font-size: 9.5px; line-height: 1.5; cursor: pointer;
+}
+.ds-x:hover { color: var(--bad); border-color: rgba(217,117,110,.5); }
+/* 👯 사주 화면 3번째 명식 안내 */
+.duo-notice {
+  display: grid; grid-template-columns: auto 1fr; gap: 6px 10px; align-items: start;
+  margin: 14px 0 0; padding: 13px 14px; border-radius: 14px;
+  border: 1px solid rgba(224,141,60,.5);
+  background: linear-gradient(150deg, rgba(224,141,60,.16), rgba(20,14,22,.9));
+}
+.duo-notice[hidden] { display: none; }
+.dn-ico { font-size: 19px; line-height: 1.2; }
+.dn-tx { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.dn-tx b { font-size: 13px; color: #ffe9c6; word-break: keep-all; }
+.dn-tx span { font-size: 11.5px; color: #d6cbb6; line-height: 1.55; word-break: keep-all; }
+.dn-acts { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 7px; margin-top: 4px; }
+.dn-btn {
+  flex: 1 1 140px; padding: 9px 11px; border-radius: 10px; cursor: pointer;
+  border: 1px solid rgba(255,255,255,.16); background: none;
+  color: #d6cbb6; font-size: 11.5px; font-weight: 600; line-height: 1.35;
+}
+.dn-btn.gold { border: none; background: linear-gradient(135deg, #cba75e, #f6e3ad); color: #171004; }
+.dn-btn:hover { border-color: rgba(217,185,120,.5); color: var(--gold-2); }
+.dn-btn.gold:hover { color: #171004; }
 .pay-step { text-align: center; padding: 26px 10px; }
 .pay-step .big { font-family: var(--serif); font-size: 19px; color: var(--gold-2); margin-bottom: 8px; }
 .pay-step p { font-size: 12.5px; color: var(--muted); line-height: 1.7; }
@@ -2471,6 +2545,34 @@ body.tal-open { overflow: hidden; }
 }
 .vl-mini:hover { color: var(--gold-2); border-color: rgba(217,185,120,.4); }
 .vl-fine { margin-top: 11px; font-size: 10.5px; color: #8b8378; line-height: 1.6; }
+/* 👯 잠금 카드 안 2인 동반 패키지 */
+.vl-duo {
+  margin: 14px auto 0; max-width: 440px; padding: 12px 13px 13px; text-align: left;
+  border-radius: 13px; border: 1px solid rgba(217,185,120,.42);
+  background: linear-gradient(150deg, rgba(58,33,20,.55), rgba(20,14,22,.9));
+}
+.vl-duo[hidden] { display: none; }
+.vl-duo-head { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 8px; }
+.vl-duo-tag {
+  font-size: 9.5px; letter-spacing: .06em; color: #1b1206; font-weight: 700;
+  background: linear-gradient(135deg, #cba75e, #f6e3ad); border-radius: 999px; padding: 2px 8px;
+}
+.vl-duo-title { font-size: 13px; color: #fff3d6; font-weight: 700; }
+.vl-duo-price { margin-left: auto; font-size: 13px; color: var(--gold-2); font-family: var(--serif); white-space: nowrap; }
+.vl-duo-price s { font-size: 10.5px; color: #8a8276; margin-right: 4px; }
+.vl-duo-desc { margin-top: 6px; font-size: 11px; color: #d6cbb6; line-height: 1.6; word-break: keep-all; }
+.vl-duo-btn {
+  width: 100%; margin-top: 9px; padding: 11px 10px; border: none; border-radius: 10px; cursor: pointer;
+  background: linear-gradient(135deg, #cba75e, #f6e3ad); color: #171004;
+  font-size: 12.5px; font-weight: 700; line-height: 1.35;
+}
+.vl-duo-btn:hover { filter: brightness(1.05); }
+.vl-duo-note { margin-top: 8px; font-size: 10.5px; color: #ffcf8f; line-height: 1.55; }
+@media (max-width: 420px) {
+  .vl-duo-price { margin-left: 0; width: 100%; font-size: 12px; }
+  .vl-duo-title { font-size: 12.5px; }
+}
+.vl-duo-note[hidden] { display: none; }
 .vault.just-opened .vault-inner { animation: vaultOpen .9s ease both; }
 @keyframes vaultOpen {
   0% { filter: blur(7px); opacity: .6; }
