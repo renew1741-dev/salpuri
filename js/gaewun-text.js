@@ -480,8 +480,8 @@
     const m = x.meta;
     return `<div class="card gw-hero">
       <div class="result-title">
-        <div class="result-brand serif">살풀이 : 천기(天機) · 개운 처방</div>
-        <h2 class="serif">${who(a)}의 개운 처방</h2>
+        <div class="result-brand serif">살풀이 : 천기(天機) · 외모 · 점 처방</div>
+        <h2 class="serif">${who(a)}의 외모 · 점 처방</h2>
         <p>${m.pillars} · ${m.sijin} · ${m.strengthLevel} · 용신 ${m.yongName}</p>
       </div>
       <div class="gw-hero-tags">
@@ -489,14 +489,14 @@
         <span class="gw-tag">${x.hair.title}</span>
         <span class="gw-tag">${x.speech.dominantKo} 우세</span>
       </div>
-      <p class="gw-lead serif">${x.body.headline}</p>
-      <p class="gw-hero-num">${x.body.numLine}</p>
       <div class="gw-hero-keys">
         <div><span>목표 체중</span><b>${kgTxt(x.body.kg.lo)}~${kgTxt(x.body.kg.hi)}<small>kg</small></b></div>
         <div><span>살릴 점</span><b>${x.dots.good.length}<small>곳</small></b></div>
         <div><span>뺄 점</span><b>${x.dots.bad.length}<small>곳</small></b></div>
         <div><span>말버릇 처방</span><b>${x.speech.habits.length}<small>개</small></b></div>
       </div>
+      <p class="gw-lead serif">${x.body.headline}</p>
+      <p class="gw-hero-num">${x.body.numLine}</p>
     </div>
 
     ${cardBody(x.body)}
@@ -507,7 +507,7 @@
 
     <div class="card">
       <p class="gw-note">이 처방은 사주의 오행·십성 배치에서 나온 상징적 조언입니다. 병의 진단이나 치료를 대신하지 않으며, 몸에 이상이 있으면 의료진의 판단이 먼저입니다.</p>
-      ${shareRow('gaewun', '내 개운 처방 보내기')}
+      ${shareRow('gaewun', '내 외모·점 처방 보내기')}
       <div class="center mt14"><button class="btn-ghost" data-goto="saju">생년월일 다시 입력하기</button></div>
     </div>`;
   }

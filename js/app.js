@@ -423,6 +423,7 @@
   };
 
   /* ================= 입장 ================= */
+  let enterScrollT = null;                    // 입장 직후 히어로로 되돌리는 타이머(탭을 누르면 취소)
   function enter() {
     const body = document.body;
     if (body.classList.contains('opened')) return;
@@ -432,12 +433,13 @@
     body.classList.remove('locked');
     audio.start();                            // 0 -> 0.55 페이드인
     setTimeout(() => story.start(), 2000);    // BGM이 깔린 뒤 첫 컷 내레이션
-    setTimeout(() => $('#main').scrollIntoView({ block: 'start' }), 3000);
+    enterScrollT = setTimeout(() => $('#main').scrollIntoView({ block: 'start' }), 3000);
   }
 
   /* ================= 탭 ================= */
   function switchTab(id) {
     state.tab = id;
+    if (enterScrollT) { clearTimeout(enterScrollT); enterScrollT = null; }
     $$('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === id));
     $$('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + id));
     if (id === 'tarot') requestAnimationFrame(layoutFan);
@@ -699,9 +701,10 @@
     const host = $('#nmResult');
     if (!host) return;
     const inp = readNamingInput();
-    if (inp.mode !== 'baby' && !state.analysis) {
-      host.innerHTML = panelError('사주 탭에서 생년월일과 시간을 넣고 명식을 먼저 펼쳐 주세요. 지금 이름을 그 사주에 견줘 봅니다.');
-      return;
+    if (inp.mode !== 'baby') {
+      /* 사주 탭을 먼저 돌리지 않았어도 지금 입력된 기본 명식으로 바로 진단한다 */
+      const base = ensureAnalysis();
+      if (!base || base.error || !base.ok) { host.innerHTML = panelError(base && base.error); return; }
     }
     if (!inp.surname) {
       toast('성씨를 먼저 입력해 주세요. (예: 김)');
@@ -1535,9 +1538,9 @@
   const Like = {
     API: 'https://abacus.jasoncameron.dev',
     NS: 'salpuri-cheongi',
-    KEY: 'sooreum-v1',
-    LS_DONE: 'salpuri_like_done_v1',
-    LS_CACHE: 'salpuri_like_cache_v1',
+    KEY: 'sooreum-v2',
+    LS_DONE: 'salpuri_like_done_v2',
+    LS_CACHE: 'salpuri_like_cache_v2',
     count: null, loaded: false, busy: false, offline: false,
     done() { try { return localStorage.getItem(this.LS_DONE) === '1'; } catch (e) { return false; } },
     cached() { try { return +(localStorage.getItem(this.LS_CACHE) || 0) || 0; } catch (e) { return 0; } },
@@ -1584,12 +1587,29 @@
       setTimeout(() => document.querySelectorAll('.like-btn').forEach(b => b.classList.remove('pulse')), 900);
     },
     paint() {
-      const txt = this.count == null ? '—' : this.count.toLocaleString('ko-KR');
       const done = this.done();
+      const known = this.count != null;
+      const txt = known ? this.count.toLocaleString('ko-KR') : '—';
+      document.querySelectorAll('.like-num').forEach(n => { n.textContent = txt; });
+      /* 결과 맨 마지막 버튼 — 🔥 소름 돋아요 · N */
       document.querySelectorAll('.like-btn').forEach(b => {
         b.classList.toggle('liked', done);
-        const n = b.querySelector('.like-num'); if (n) n.textContent = txt;
-        const t = b.querySelector('.like-txt'); if (t) t.textContent = done ? '소름 돋았습니다' : '소름 돋아요';
+        const t = b.querySelector('.like-txt');
+        if (t) t.textContent = done ? '소름 돋았습니다' : '소름 돋아요';
+        b.setAttribute('aria-label', `소름 돋아요 — 실제 방문자 ${known ? txt : '확인 중'}명`);
+      });
+      /* 상단 고정 배지 — 지금까지 N명이 소름 돋아요 */
+      document.querySelectorAll('.like-top-btn').forEach(b => {
+        b.classList.toggle('liked', done);
+        const lead = b.querySelector('.like-lead'), tail = b.querySelector('.like-tail');
+        if (lead) lead.textContent = done ? '나까지' : (known && this.count > 0 ? '지금까지' : '아직');
+        if (tail) {
+          if (!known) tail.textContent = ' 소름 돋아요';
+          else if (done) tail.textContent = '명이 소름 돋았습니다';
+          else if (this.count > 0) tail.textContent = '명이 소름 돋아요';
+          else tail.textContent = '명 · 첫 번째로 눌러 보세요';
+        }
+        b.setAttribute('aria-label', `소름 돋아요 — 실제 방문자 ${known ? txt : '확인 중'}명`);
       });
     }
   };
@@ -1598,6 +1618,7 @@
     return `<button type="button" class="like-btn" data-like="1" aria-label="소름 돋아요 — 실제 방문자 수">
       <span class="like-fire" aria-hidden="true">🔥</span>
       <span class="like-txt">소름 돋아요</span>
+      <span class="like-sep" aria-hidden="true">·</span>
       <b class="like-num">—</b>
     </button>`;
   }
@@ -1613,7 +1634,7 @@
       row.appendChild(wrap);
       added = true;
     });
-    ['#shareSaju', '#shareTarot'].forEach(sel => {
+    ['#shareTarot', '#shareGunghap'].forEach(sel => {
       const btn = $(sel);
       if (!btn || !btn.parentNode) return;
       if (btn.parentNode.querySelector('.like-btn')) return;
@@ -1629,6 +1650,12 @@
         likeLoading = true;
         Like.refresh().then(() => { likeLoading = false; });
       }
+    }
+    /* 상단 배지는 결과와 무관하게 항상 떠 있으므로 여기서도 숫자를 맞춘다 */
+    Like.paint();
+    if (!Like.loaded && !likeLoading) {
+      likeLoading = true;
+      Like.refresh().then(() => { likeLoading = false; });
     }
   }
 
@@ -1686,6 +1713,7 @@
   }
 
   function shareExtended(kind) {
+    if (kind === 'saju') { shareSaju(); return; }
     const a = state.analysis;
     if (!a) { toast('명식을 먼저 조회해 주세요.'); switchTab('saju'); return; }
     if (kind === 'today') {
@@ -1927,6 +1955,7 @@
     initNamingForm();
     initTarot();
     watchLikes();
+    mountLikes();
     buildGunghapForm();
     renderProfileBars();
     renderPriceList();
