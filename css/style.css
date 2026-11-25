@@ -2700,3 +2700,16 @@ body.ss-open { overflow: hidden; }
 body.admin-mode .vault-lock { display: none !important; }
 body.admin-mode .vault.is-locked .vault-fade { display: none !important; }
 body.admin-mode .vault.is-locked .vault-inner { filter: none !important; }
+
+/* ============================================================
+   인쇄(PDF) 정리 — 관리자 뱃지·상점 영역은 종이에 찍히지 않게
+   ============================================================ */
+@media print {
+  .admin-badge,
+  .cat-intro,
+  #priceList,
+  .pay-note,
+  #talismanCard,
+  #upsellReport,
+  #talismanGridVault { display: none !important; }
+}
