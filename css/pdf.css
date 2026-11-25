@@ -335,3 +335,18 @@
 .pdf-ui-help b { color: #f6e3ad; }
 .pdf-ui-help ol { margin: 8px 0 0; padding-left: 20px; display: grid; gap: 7px; }
 .pdf-ui-help li { list-style: decimal outside; padding-left: 3px; }
+
+/* ------------------------------------------------------------
+   2026 월별 운세 표 (9쪽)
+   ------------------------------------------------------------ */
+.pdf-sheet .month-table { font-size: 9.4px; line-height: 1.42; margin: 4px 0 10px; }
+.pdf-sheet .month-table th { padding: 6px 5px; font-size: 9.2px; }
+.pdf-sheet .month-table td { padding: 4px 5px; vertical-align: top; }
+.pdf-sheet .month-table .mo-when { width: 74px; white-space: nowrap; }
+.pdf-sheet .month-table .mo-when b { display: inline; font-size: 10.2px; color: #6b4d12; font-weight: 700; }
+.pdf-sheet .month-table .mo-when span { font-size: 8.6px; color: #8a7f6c; }
+.pdf-sheet .month-table .mo-flow { width: 88px; }
+.pdf-sheet .month-table .mo-tg { font-size: 8.6px; color: #6f6553; }
+.pdf-sheet .month-table .mo-vibe { color: #2b2419; }
+.pdf-sheet .month-table .mo-watch { color: #94452f; }
+.pdf-sheet .m-note { font-size: 9.4px; line-height: 1.7; color: #7d7364; margin-top: 6px; }

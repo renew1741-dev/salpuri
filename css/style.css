@@ -2869,3 +2869,34 @@ body.admin-mode .vault.is-locked .vault-inner { filter: none !important; }
   .promo-title { font-size: 20px; }
   .promo-body { font-size: 12.4px; }
 }
+
+/* ---------- 💬 내 카톡에 저장해 두기 (재방문 유도) ---------- */
+.save-kakao-btn {
+  border-color: rgba(247, 203, 86, .45);
+  color: #f7d98a;
+}
+.save-kakao-btn:hover { border-color: rgba(247, 203, 86, .8); background: rgba(247, 203, 86, .1); }
+.save-kakao-note {
+  margin-top: 10px;
+  font-size: 11px; line-height: 1.7;
+  color: var(--muted); text-align: center; word-break: keep-all;
+}
+.foot-actions { display: grid; gap: 8px; justify-items: center; margin-top: 10px; }
+
+/* ---------- 2026 월별 운세 표 (리포트 9쪽) ---------- */
+.month-table { font-size: 11px; }
+.month-table td { vertical-align: top; line-height: 1.6; padding: 7px 5px; }
+.month-table .mo-when { width: 64px; white-space: nowrap; }
+.month-table .mo-when b { font-size: 11.5px; color: var(--gold-2); font-weight: 500; }
+.month-table .mo-when span { font-size: 9.5px; color: var(--muted); }
+.month-table .mo-flow { width: 66px; white-space: nowrap; }
+.month-table .mo-tg { font-size: 9.5px; color: var(--muted); }
+.month-table .mo-vibe { color: #ded6c8; }
+.month-table .mo-watch { color: #e4b7ab; }
+.m-note { font-size: 10.5px; line-height: 1.75; color: var(--muted); margin-top: 8px; }
+@media (max-width: 430px) {
+  .month-table { font-size: 10px; }
+  .month-table td { padding: 6px 3px; }
+  .month-table .mo-when { width: 52px; }
+  .month-table .mo-flow { width: 54px; }
+}
