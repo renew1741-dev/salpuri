@@ -62,9 +62,9 @@
     const f = `${EK[r.from.e]}(${EH[r.from.e]})`, t = `${EK[r.to.e]}(${EH[r.to.e]})`;
     if (r.rel === 'geuk') return `‘${r.from.ch}’의 ${f}이 ‘${r.to.ch}’의 ${t}를 거스릅니다`;
     if (r.rel === 'yeok') return `‘${r.to.ch}’의 ${t}가 ‘${r.from.ch}’의 ${f}을 거스릅니다`;
-    if (r.rel === 'sangRev') return `‘${r.to.ch}’의 ${t}가 ‘${r.from.ch}’의 ${f}을 생하는 역생입니다`;
-    if (r.rel === 'sang') return `‘${r.from.ch}’의 ${f}이 ‘${r.to.ch}’의 ${t}를 생합니다`;
-    return `‘${r.from.ch}’의 ${f}과 ‘${r.to.ch}’의 ${t}가 같은 기운(비화)입니다`;
+    if (r.rel === 'sangRev') return `‘${r.to.ch}’의 ${t}가 ‘${r.from.ch}’의 ${f}을 생하는 역생이에요`;
+    if (r.rel === 'sang') return `‘${r.from.ch}’의 ${f}이 ‘${r.to.ch}’의 ${t}를 생해요`;
+    return `‘${r.from.ch}’의 ${f}과 ‘${r.to.ch}’의 ${t}가 같은 기운(비화)이에요`;
   }
 
   /* 조사 — 마지막 글자의 받침 유무로 이/가 · 을/를 · 과/와 */
@@ -536,7 +536,7 @@
     if (hasHee) bits.push(`희신 ${elSubj(need.hee)} 받쳐 주어 ${el(need.yong)}의 기운이 끊기지 않고 돌아갑니다`);
     if (hasLow && need.low !== need.yong && need.low !== need.hee) bits.push(`${elSubj(need.low)} ${pctTxt(need.lowPct)}로 거의 비어 있었는데 그 자리를 채웁니다`);
     if (!hasGi) bits.push(`기신인 ${elObj(need.gi)} 이름에서 비켜 세웁니다`);
-    if (hasTop) bits.push(`${elSubj(need.top)} ${pctTxt(need.topPct)}로 두꺼운데 이름에도 한 자 들어가 조금 과합니다`);
+    if (hasTop) bits.push(`${elSubj(need.top)} ${pctTxt(need.topPct)}로 두꺼운데 이름에도 한 자 들어가서 조금 과해요`);
     if (!bits.length) bits.push(`넘치는 ${elObj(need.top)} 더 밀지 않고, 빈 ${el(need.low)} 쪽으로 기운을 돌립니다`);
     out.push(bits.join('. ') + '.');
 
@@ -545,12 +545,12 @@
     const goodTxt = g.filter(x => x.grade >= 2).map(x => `${x.label} ${x.n}수 ${x.name}·${x.gradeKo}`);
     const badTxt = g.filter(x => x.grade === 0).map(x => `${x.label} ${x.n}수 ${x.name}`);
     const gLine = goodTxt.length
-      ? `한자 획수로 본 사격은 ${goodTxt.join(', ')} — ${badTxt.length ? `${badTxt.join(', ')}은 흉수라 아쉽습니다` : '형·이·정 세 격이 모두 길합니다'}`
-      : `한자 획수로 본 사격에서 ${badTxt.join(', ') || '길수가 드물고'} 흉수를 피하지 못했습니다`;
+      ? `한자 획수로 본 사격은 ${goodTxt.join(', ')} — ${badTxt.length ? `${badTxt.join(', ')}은 흉수라 아쉬워요` : '형·이·정 세 격이 모두 길해요'}`
+      : `한자 획수로 본 사격에서 ${badTxt.join(', ') || '길수가 드물고'} 흉수를 피하지 못했어요`;
     out.push(gLine + '.');
 
     /* 글자 뜻 */
-    out.push(`${hanjaDesc(c)} — ${c.nameElems.map(e => `${e.hanja[0]}${josaEnd(e.ch, '은', '는')} ‘${e.hanja[1]}’`).join(', ')}의 뜻을 가진 글자입니다.`);
+    out.push(`${hanjaDesc(c)} — ${c.nameElems.map(e => `${e.hanja[0]}${josaEnd(e.ch, '은', '는')} ‘${e.hanja[1]}’`).join(', ')}의 뜻을 가진 글자예요.`);
     return out;
   }
 
@@ -583,44 +583,44 @@
     const gan = S.GAN_KO[a.dayGan];
     const paras = [];
 
-    paras.push(`사주는 일간 ${gan}(${EH[a.dayElem]})을 축으로 서 있습니다. 여덟 글자에서 ${elSubj(need.top)} ${pctTxt(need.topPct)}로 가장 두껍고, ${elSubj(need.low)} ${pctTxt(need.lowPct)}로 거의 마릅니다. 용신은 ${el(need.yong)}, 희신은 ${el(need.hee)}, 기신은 ${el(need.gi)}입니다 — 이름으로 채워야 할 칸은 ${elConj(need.yong)} ${el(need.hee)}입니다.`);
+    paras.push(`사주는 일간 ${gan}(${EH[a.dayElem]})을 축으로 서 있어요. 여덟 글자에서 ${elSubj(need.top)} ${pctTxt(need.topPct)}로 가장 두껍고, ${elSubj(need.low)} ${pctTxt(need.lowPct)}로 거의 말라요. 용신은 ${el(need.yong)}, 희신은 ${el(need.hee)}, 기신은 ${el(need.gi)}이에요 — 이름으로 채워야 할 칸은 ${elConj(need.yong)} ${el(need.hee)}이에요.`);
 
     const nameDesc = cur.elems.map((x) => {
       const e = x.e == null ? '한글 아님' : `초성 ${allCho(x.ch)} → ${el(x.e)}`;
       return `${x.role} ‘${x.ch}’의 ${e}`;
     });
-    paras.push(`지금 이름 ‘${cur.full}’을 발음오행으로 풀면 이렇습니다. ${nameDesc.join(', ')}.`);
+    paras.push(`지금 이름 ‘${cur.full}’을 발음오행으로 풀면 이래요. ${nameDesc.join(', ')}.`);
 
     /* 어긋난 지점 */
     const issues = [];
     const giCount = cur.nameElems.filter(x => x.e === need.gi).length;
     if (giCount) {
-      issues.push(`기신인 ${elSubj(need.gi)} 이름에 ${giCount}자 들어 있습니다. 사주에서 이미 눌러야 할 기운을 이름이 한 번 더 얹은 구조라, 결정의 순간마다 같은 자리에서 미끄러지는 일이 반복됩니다.`);
+      issues.push(`기신인 ${elSubj(need.gi)} 이름에 ${giCount}자 들어 있어요. 사주에서 이미 눌러야 할 기운을 이름이 한 번 더 얹은 구조라, 결정할 때마다 같은 자리에서 미끄러지는 일이 반복돼요.`);
     }
     if (!cur.nameElems.some(x => x.e === need.yong)) {
-      issues.push(`용신 ${elSubj(need.yong)} 이름에는 한 번도 나오지 않습니다. 사주가 가장 필요로 하는 기운을 이름이 받쳐 주지 못하고 있는 셈입니다.`);
+      issues.push(`용신 ${elSubj(need.yong)} 이름에는 한 번도 안 나와요. 사주가 가장 필요로 하는 기운을 이름이 받쳐 주지 못하는 셈이에요.`);
     }
     const topCount = cur.nameElems.filter(x => x.e === need.top).length;
     if (topCount && need.topPct > 0.28 && need.top !== need.gi) {
       issues.push(`${elSubj(need.top)} 사주에 ${pctTxt(need.topPct)}로 이미 넘치는데 이름에도 ${topCount}자가 겹칩니다. 넘치는 기운을 더 미는 이름은 재물이 새고 사람이 지치는 자리를 만듭니다.`);
     }
     if (need.lowPct < 0.12 && !cur.nameElems.some(x => x.e === need.low)) {
-      issues.push(`${elSubj(need.low)} ${pctTxt(need.lowPct)}로 비어 있는데 이름이 그 칸을 메우지 못합니다.`);
+      issues.push(`${elSubj(need.low)} ${pctTxt(need.lowPct)}로 비어 있는데 이름이 그 칸을 못 메워요.`);
     }
     cur.relations.forEach(r => {
       if (r.rel === 'geuk' || r.rel === 'yeok') {
-        issues.push(`발음오행에서 ${REL_TXT(r)}. 이름 안에서 기운이 꺾이면 성과 이름 사이에 늘 한 박자 어긋난 감각이 남습니다.`);
+        issues.push(`발음오행에서 ${REL_TXT(r)}. 이름 안에서 기운이 꺾이면 성과 이름 사이에 늘 한 박자 어긋난 느낌이 남아요.`);
       }
     });
     const badG = cur.gyeok.filter(g => ['won', 'hyeong', 'i', 'jeong'].indexOf(g.key) >= 0 && g.grade === 0);
     if (badG.length) {
       const list = badG.map(g => `${g.label} ${g.n}수 ${g.name}`).join(', ');
-      issues.push(`한글 획수로 본 ${list}${'이'} 흉수입니다. ${badG[0].sub}처럼 그 수리가 놓인 구간에서는 같은 노력에도 남는 것이 적고, 사람과 돈이 끊기는 일이 겹칩니다.`);
+      issues.push(`한글 획수로 본 ${list}${'이'} 흉수예요. ${badG[0].sub}처럼 그 수리가 놓인 구간에서는 같은 노력에도 남는 게 적고, 사람과 돈이 끊기는 일이 겹쳐요.`);
     }
 
     const goods = [];
     if (cur.nameElems.some(x => x.e === need.hee)) goods.push(`희신 ${elSubj(need.hee)} 이름에 있어 사주를 부드럽게 받쳐 줍니다.`);
-    if (cur.relations.every(r => r.rel === 'sang' || r.rel === 'sangRev' || r.rel === 'bi')) goods.push('성과 이름의 발음오행이 상생·비화로 이어져 소리가 거스르지 않습니다.');
+    if (cur.relations.every(r => r.rel === 'sang' || r.rel === 'sangRev' || r.rel === 'bi')) goods.push('성과 이름의 발음오행이 상생·비화로 이어져서 소리가 거스르지 않아요.');
     const goodG = cur.gyeok.filter(g => ['won', 'hyeong', 'i', 'jeong'].indexOf(g.key) >= 0 && g.grade >= 2);
     if (goodG.length) goods.push(`${goodG.map(g => `${g.label} ${g.n}수 ${g.name}`).join(', ')}의 길수가 받쳐 줍니다.`);
 
@@ -685,11 +685,11 @@
       mark: e === need.yong ? '용신' : e === need.hee ? '희신' : e === need.gi ? '기신' : e === need.top ? '과다' : e === need.low ? '부족' : ''
     }));
 
-    model.hook = '13년간 명리를 보며 가장 안타까웠던 건, 좋은 사주를 타고나고도 이름의 오행이 사주와 어긋나 복(福)을 깎아먹는 경우입니다. 사주의 빈 칸을 채우는 이름 하나가 평생의 운을 받칩니다.';
+    model.hook = '명리를 13년 보면서 제일 안타까웠던 건, 좋은 사주를 타고나고도 이름의 오행이 어긋나서 복을 깎아먹는 경우였어요. 사주의 빈 칸을 채우는 이름 하나가 평생의 운을 받쳐 줘요.';
 
     model.needLine = need.hee !== need.yong
-      ? `이 사주에 이름으로 채워야 할 글자는 ${elConj(need.yong)} ${el(need.hee)}, 피해야 할 글자는 ${el(need.gi)}입니다.`
-      : `이 사주에 이름으로 채워야 할 글자는 ${el(need.yong)}, 피해야 할 글자는 ${el(need.gi)}입니다.`;
+      ? `이 사주에 이름으로 채워야 할 글자는 ${elConj(need.yong)} ${el(need.hee)}, 피해야 할 글자는 ${el(need.gi)}이에요.`
+      : `이 사주에 이름으로 채워야 할 글자는 ${el(need.yong)}, 피해야 할 글자는 ${el(need.gi)}이에요.`;
     return model;
   }
 
