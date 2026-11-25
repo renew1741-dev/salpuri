@@ -2181,3 +2181,121 @@ body.tal-open { overflow: hidden; }
 /* 원격(조상운)은 참고용 — 흉수라도 눈에 덜 띄게 */
 .nm-gyeok .nm-gyeok-item:first-child { opacity: .62; }
 .nm-gyeok .nm-gyeok-item:first-child b { color: var(--muted); }
+
+/* ============================================================
+   v9 — 소름 돋아요(상단 고정 배지 + 결과 맨 끝 강조) · 외모·점
+   ============================================================ */
+
+/* ---------- 상단 고정 바 (탭 + 소름 돋아요 배지) ---------- */
+.topbar {
+  position: sticky; top: 0; z-index: 30;
+  margin: 22px auto 0;
+  background: linear-gradient(180deg, rgba(6,5,10,.975) 0%, rgba(6,5,10,.92) 58%, rgba(6,5,10,.72) 100%);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(217,185,120,.12);
+  padding-bottom: 2px;
+}
+.topbar .tabs {
+  position: static; top: auto; z-index: auto;
+  margin: 0 auto;
+  background: none; -webkit-backdrop-filter: none; backdrop-filter: none;
+  border-bottom: 0;
+}
+.like-top-bar { display: flex; justify-content: center; padding: 3px 12px 9px; }
+.like-top-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  width: 100%; max-width: 560px; padding: 9px 14px; border-radius: 999px;
+  border: 1.4px solid transparent; cursor: pointer;
+  background:
+    linear-gradient(rgba(30,17,9,.96), rgba(22,12,7,.96)) padding-box,
+    linear-gradient(118deg, #f6e3ad 0%, #e08d3c 42%, #d9b978 72%, #fff0c8 100%) border-box;
+  color: #ffe9c6; font-family: inherit; font-size: 13px; font-weight: 600;
+  letter-spacing: .01em; line-height: 1.25; text-align: center;
+  box-shadow: 0 8px 24px rgba(224,141,60,.20), inset 0 0 22px rgba(224,141,60,.10);
+  animation: likeTopGlow 3.4s ease-in-out infinite;
+  transition: transform .18s ease;
+}
+.like-top-btn:active { transform: scale(.985); }
+.like-top-btn .like-fire { font-size: 16px; line-height: 1; filter: drop-shadow(0 0 7px rgba(255,150,60,.8)); }
+.like-top-btn .like-lead { color: #f0cfa0; opacity: .85; font-weight: 500; }
+.like-top-btn .like-num {
+  font-size: 15px; font-weight: 800; color: #ffd79a;
+  font-variant-numeric: tabular-nums; margin: 0 1px;
+  text-shadow: 0 0 12px rgba(255,190,110,.55);
+}
+.like-top-btn .like-tail { color: #ffe9c6; }
+.like-top-btn.liked { animation: none; border-color: rgba(246,227,173,.62); }
+.like-top-btn.liked .like-fire { filter: drop-shadow(0 0 11px rgba(255,196,96,.95)); }
+@keyframes likeTopGlow {
+  0%, 100% { box-shadow: 0 8px 24px rgba(224,141,60,.18), inset 0 0 22px rgba(224,141,60,.08); }
+  50% { box-shadow: 0 11px 32px rgba(224,141,60,.36), inset 0 0 28px rgba(224,141,60,.17); }
+}
+@media (prefers-reduced-motion: reduce) { .like-top-btn { animation: none; } }
+
+/* ---------- 결과 맨 끝 소름 돋아요 — 크고 선명하게 ---------- */
+.like-row { margin-top: 16px; display: flex; justify-content: center; }
+.like-inline { display: inline-block; margin-top: 14px; vertical-align: bottom; }
+.like-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+  min-width: 258px; padding: 16px 30px; border-radius: 999px; cursor: pointer;
+  border: 1px solid rgba(255,238,196,.6);
+  background: linear-gradient(135deg, #e08d3c 0%, #f0b56a 40%, #f6e3ad 100%);
+  color: #2b1708; font-size: 16.5px; font-weight: 700; font-family: inherit;
+  letter-spacing: .015em; line-height: 1.1;
+  box-shadow: 0 12px 30px rgba(224,141,60,.36),
+              0 0 0 1px rgba(255,240,200,.30) inset,
+              0 0 26px rgba(240,181,106,.24);
+  transition: transform .18s ease, box-shadow .22s ease, filter .22s ease;
+}
+.like-btn:hover {
+  filter: brightness(1.07); transform: translateY(-1px);
+  box-shadow: 0 15px 36px rgba(224,141,60,.48), 0 0 0 1px rgba(255,240,200,.38) inset;
+}
+.like-btn .like-fire { font-size: 19px; line-height: 1; filter: drop-shadow(0 1px 2px rgba(120,50,0,.35)); }
+.like-btn .like-txt { white-space: nowrap; }
+.like-btn .like-sep { opacity: .5; font-weight: 800; }
+.like-btn .like-num { font-size: 18px; font-weight: 800; color: #241303; font-variant-numeric: tabular-nums; }
+.like-btn.liked {
+  cursor: default;
+  background: linear-gradient(135deg, #f6e3ad 0%, #e8c382 52%, #e0b878 100%);
+  border-color: rgba(255,246,220,.8);
+  box-shadow: 0 10px 26px rgba(217,185,120,.34), 0 0 0 1px rgba(255,244,210,.4) inset;
+}
+.like-btn.liked:hover { transform: none; filter: none; }
+.like-btn.liked .like-fire { filter: drop-shadow(0 0 8px rgba(214,110,20,.7)); }
+@media (max-width: 400px) {
+  .like-btn { min-width: 0; width: 100%; max-width: 300px; padding: 15px 22px; font-size: 15.5px; gap: 8px; }
+  .like-btn .like-num { font-size: 17px; }
+  .like-inline { display: block; margin: 14px auto 0; }
+  .like-inline .like-btn { width: 100%; max-width: 300px; }
+}
+
+/* ---------- 결과 맨 끝 카드(사주) ---------- */
+.end-like-card { text-align: center; margin-top: 16px; }
+.end-like-lead {
+  font-size: 13.5px; line-height: 1.8; color: #f0e2c0;
+  word-break: keep-all; margin: 0 auto 2px; max-width: 460px;
+}
+
+/* ---------- 외모 · 점 입력 바 (첫 화면에 결과까지 보이게 압축) ---------- */
+.gw-quick { padding: 0 2px; margin-bottom: 4px; }
+.gw-quick .gw-inputs { margin-top: 0; }
+.gw-quick .hint { margin-top: 6px; font-size: 10.5px; line-height: 1.55; }
+.gw-quick .pf-slot { margin: 9px 0 4px; }
+.gw-quick .pf-bar { padding: 7px 10px; gap: 8px; border-radius: 11px; }
+.gw-quick .pf-seal { flex: 0 0 24px; width: 24px; height: 24px; font-size: 12px; border-radius: 6px; }
+.gw-quick .pf-txt b { font-size: 11.5px; }
+.gw-quick .pf-txt small { display: none; }
+.gw-quick .pf-edit { font-size: 10.5px; padding: 4px 8px; }
+@media (max-width: 400px) {
+  .gw-quick .gw-inputs { gap: 9px; }
+  .gw-quick .gw-inputs .inp { font-size: 15px; padding: 10px 8px; }
+}
+
+/* 탭바 + 배지가 같이 고정되므로 스크롤 여백을 늘린다 */
+.panel, .card, #resultPanel { scroll-margin-top: 132px; }
+@media (max-width: 840px) {
+  .panel, .card, #resultPanel { scroll-margin-top: 176px; }
+  #nmResult { scroll-margin-top: 176px; }
+}
