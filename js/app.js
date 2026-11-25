@@ -469,7 +469,7 @@
     $$('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === id));
     $$('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + id));
     if (id === 'tarot') requestAnimationFrame(layoutFan);
-    if (id === 'premium') renderPriceList();
+    if (id === 'premium') { renderPriceList(); if (state.analysis) renderReport(state.analysis); }
     if (id === 'today') renderTodayPanel();
     if (id === 'sinsal') renderSinsalPanel();
     if (id === 'yearly') renderYearPanel();
@@ -938,7 +938,7 @@
       typeDialogue(`${label}의 사주에는 ${S.ELEM_KO[res.yongsin.yong]}(${S.ELEM_HANJA[res.yongsin.yong]})의 기운이 약(藥)으로 쓰이는구나. 아래에서 확인해 보세요.`);
       const top = $('#resultPanel');
       top.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      if (P.unlocked().size) renderReport(res);
+      if (P.unlocked().size || (window.Vault && Vault.isOpen('saju'))) renderReport(res);
       renderPriceList();
     });
   }
@@ -2047,6 +2047,11 @@
     $('#reportBody').classList.remove('hidden');
     $('#printRow').classList.remove('hidden');
     $('#reportBody').innerHTML = TX.buildPremium(a);
+    /* PDF 생성 라이브러리(html2canvas·jsPDF)를 미리 받아 둠 — 첫 탭이 빠르게 동작 */
+    if (window.SalpuriPDF && !window.__salpuriPdfPreloaded) {
+      window.__salpuriPdfPreloaded = true;
+      setTimeout(() => { try { SalpuriPDF.preload(); } catch (e) {} }, 1800);
+    }
   }
 
   /* ================= 👶 아이 사주 ================= */
@@ -2282,14 +2287,27 @@
     $('#goSaju').onclick = () => switchTab('saju');
     $('#payModal').onclick = (e) => { if (e.target.id === 'payModal') closePay(); };
     $('#printBtn').onclick = () => window.print();
+    /* [PDF 파일 바로 저장] — 인쇄창 없이 진짜 .pdf 다운로드 */
+    const pdfBtn = $('#pdfSaveBtn');
+    if (pdfBtn) pdfBtn.onclick = () => {
+      if (!state.analysis) { toast('명식을 먼저 조회해 주세요.'); return; }
+      if (!P.has('report') && !P.has('vip') && !(Vault && Vault.isOpen('saju'))) {
+        toast('리포트 열람 권한이 있어야 PDF를 받을 수 있어요.');
+        return;
+      }
+      audio.tap();
+      logEvent('pdf_save', { category: '사주', detail: 'PDF 바로 저장 시도' });
+      if (window.SalpuriPDF) window.SalpuriPDF.saveReport(state.analysis);
+      else toast('PDF 모듈을 불러오지 못했어요. [인쇄로 PDF 저장]을 이용해 주세요.');
+    };
     const vpdf = $('#vaultPdfBtn');
     if (vpdf) vpdf.onclick = () => {
       if (!Vault.isOpen('saju')) { toast('공유하면 8쪽 리포트가 바로 열려요. 위 버튼을 눌러 주세요.'); return; }
       if (!state.analysis) { toast('명식을 먼저 조회해 주세요.'); return; }
       renderReport(state.analysis);
       switchTab('premium');
-      toast('아래 [PDF로 저장 / 인쇄]를 누르면 8쪽 리포트가 저장돼요.', 3200);
-      setTimeout(() => { const b = $('#printBtn'); if (b) b.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 320);
+      toast('아래 [PDF 파일 바로 저장]을 누르면 .pdf 파일로 바로 받아요.', 3200);
+      setTimeout(() => { const b = $('#pdfSaveBtn'); if (b) b.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 320);
     };
 
     // 공유
