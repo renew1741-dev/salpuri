@@ -1112,6 +1112,7 @@
 
     renderTalismans();
     if (Vault) Vault.apply();
+    refreshDuoUI();
   }
 
   function renderTenGodMap(a) {
@@ -1860,33 +1861,122 @@
   /* ================= 상품 · 결제 ================= */
   function renderPriceList() {
     const un = P.unlocked();
-    $('#priceList').innerHTML = ['report', 'talisman', 'vip'].map(id => {
+    const di = P.duo ? P.duo.info() : null;
+    $('#priceList').innerHTML = ['report', 'duo', 'talisman', 'vip'].map(id => {
       const p = P.PRODUCTS[id];
-      const owned = p.unlock.every(k => un.has(k));
+      if (!p) return '';
+      const ownedAll = p.unlock.every(k => un.has(k));
+      /* 2인 패키지만 산 경우, 1인권은 아직 살 수 있는 상품이다 */
+      const owned = ownedAll && !(id === 'report' && di && di.active && !di.unlimited);
       const priceHTML = p.listPrice
         ? `<span class="num"><s>${p.listPrice.toLocaleString()}원</s> ${p.price.toLocaleString()}원</span>`
         : `<span class="num">${p.price.toLocaleString()}원</span>`;
-      return `<div class="price-item ${id === 'vip' ? 'featured' : ''} ${owned ? 'owned' : ''}">
+      const duoLine = id === 'duo' && di && di.active
+        ? `<p class="duo-used">👯 2인 패키지 이용 중 · <b>${di.used}/${di.limit}명 등록</b>${di.charts.length ? ' · ' + di.charts.map(c => c.name || '이름 없음').join(' · ') : ''}</p>`
+        : '';
+      return `<div class="price-item ${id === 'duo' ? 'featured duo' : id === 'vip' ? 'featured' : ''} ${owned ? 'owned' : ''}">
         <div class="info">
           <span class="tagline">${p.badge}</span>
           <h3>${p.name}</h3>
           <p>${p.desc}</p>
+          ${duoLine}
         </div>
         <div class="price">
           ${priceHTML}
-          <button data-buy="${id}">${owned ? '결제 완료' : '구매하기'}</button>
+          <button data-buy="${id}">${owned ? '결제 완료' : (id === 'duo' ? '2인 패키지 구매' : '구매하기')}</button>
         </div>
       </div>`;
     }).join('');
     $$('#priceList [data-buy]').forEach(b => b.onclick = () => openPay(b.dataset.buy));
   }
 
+  /* ================= 👯 2인 동반 패키지 상태 ================= */
+  /** 리포트·PDF 열람 권한 확인 — 2인 패키지는 등록된 명식(최대 2개)에만 */
+  function reportAccess(a) {
+    if (Vault && Vault.isAdmin()) return { ok: true, unlimited: true };
+    const di = P.duo ? P.duo.info() : null;
+    if (di && di.active && !di.unlimited) {
+      if (!a) return { ok: false, locked: true };
+      return P.duo.access(a);
+    }
+    if (P.has('report') || P.has('vip')) return { ok: true, unlimited: true };
+    if (Vault && Vault.isOpen('saju')) return { ok: true };
+    return { ok: false, locked: true };
+  }
+
+  let duoLogged = '';
+  function logDuoRegistration(a, index, limit) {
+    const key = P.duo.key(a);
+    if (!key || key === duoLogged) return;
+    duoLogged = key;
+    logEvent('duo_profile', {
+      category: '사주',
+      name: (a && a.name) || '',
+      birth: birthOf(a),
+      product: P.PRODUCTS.duo.name,
+      amount: P.PRODUCTS.duo.price,
+      detail: `2인 패키지 명식 ${index || 1}/${limit || 2} 등록`
+    });
+  }
+  function refreshDuoUI(acc) {
+    const di = P.duo ? P.duo.info() : null;
+    const active = !!(di && di.active && !di.unlimited);
+    const a = state.analysis;
+    const pk = active && a ? P.duo.peek(a) : null;
+
+    /* 결제 완료 후 새로 등록된 명식 → analytics 에 상품·금액과 함께 기록 */
+    if (acc && acc.justRegistered) logDuoRegistration(a, acc.index, acc.limit);
+
+    /* 잠금 카드 안내 — 이미 결제한 사람에게는 패키지 버튼을 다시 권하지 않음 */
+    $$('[data-duo-strip]').forEach(strip => { strip.hidden = !!(di && di.active); });
+    $$('[data-duo-note]').forEach(n => {
+      const show = !!(active && pk && pk.blocked);
+      n.hidden = !show;
+      if (show) n.textContent = '이 명식은 2인 패키지의 두 명을 넘어요. 9,900원 1인권으로 열거나, 등록된 명식을 바꿔 주세요.';
+    });
+
+    /* 프리미엄 리포트 카드 상단 이용 현황 */
+    const st = $('#duoStatus');
+    if (st) {
+      st.hidden = !active;
+      if (active) {
+        st.innerHTML = `<span class="ds-tag">👯 2인 패키지 이용 중</span>`
+          + `<b class="ds-count">${di.used}/${di.limit}명 등록</b>`
+          + (di.charts.length
+            ? `<span class="ds-names">${di.charts.map(c => `${c.name || '이름 없음'}${c.birth ? ' ' + c.birth.slice(2).replace(/-/g, '.') : ''}<button type="button" class="ds-x" data-duo-release="${encodeURIComponent(c.key)}" aria-label="${(c.name || '이 명식')} 등록 해제">✕</button>`).join('')}</span>`
+            : '<span class="ds-names">사주 탭에서 명식을 펼치면 여기에 등록돼요</span>');
+      }
+    }
+
+    /* 사주 화면 3번째 명식 안내 */
+    const nt = $('#duoNotice');
+    if (nt) {
+      const show = !!(active && pk && pk.blocked);
+      nt.hidden = !show;
+      if (show) {
+        nt.innerHTML = `<span class="dn-ico" aria-hidden="true">👯</span>
+          <div class="dn-tx"><b>2인 패키지의 두 명식이 이미 등록됐어요</b>
+          <span>이 명식은 9,900원 1인권으로 열거나, 등록된 명식을 바꿔 주세요.</span></div>
+          <div class="dn-acts">
+            <button type="button" class="dn-btn gold" data-vault-buy="report">9,900원으로 열기</button>
+            <button type="button" class="dn-btn" data-duo-manage="1">등록 명식 바꾸기</button>
+          </div>`;
+      }
+    }
+  }
+
   function openPay(productId, section) {
     const prod = P.PRODUCTS[productId];
     if (!prod) return;
-    state.paySection = section ? (Vault && Vault.sectionOf ? Vault.sectionOf(section) : section) : null;
+    const secArg = section || state.paySection || '';
+    state.paySection = secArg ? (Vault && Vault.sectionOf ? Vault.sectionOf(secArg) : secArg) : null;
     const un = P.unlocked();
-    if (prod.unlock.every(k => un.has(k))) { toast('이미 결제하신 상품이에요.'); return; }
+    const duoOwned = !!(P.duo && P.duo.info().active && !P.duo.info().unlimited);
+    /* 2인 패키지 보유자는 1인권(9,900원)을 추가로 살 수 있다 — 세 번째 명식용 */
+    if (prod.unlock.every(k => un.has(k)) && !(productId === 'report' && duoOwned)) {
+      toast('이미 결제하신 상품이에요.');
+      return;
+    }
     if (productId !== 'talisman' && productId !== 'naming' && !state.analysis) {
       toast('사주 명식을 먼저 조회해 주세요.');
       switchTab('saju');
@@ -1909,6 +1999,14 @@
         <button class="modal-x" id="mClose" aria-label="닫기">✕</button>
       </div>
       <div class="modal-prod">${prod.desc}${demo ? '<span class="demo-badge">테스트 결제</span>' : ''}</div>
+      ${productId === 'report' && !(P.duo && P.duo.info().active) ? `
+      <button type="button" class="pay-upsell" id="payUpsell">
+        <span class="pu-ico" aria-hidden="true">💡</span>
+        <span class="pu-tx"><b>+8,000원 추가하고 친구·가족 1명 더!</b><i>2인 동반 패키지 17,900원 · 1,900원 할인 · 명식 2개</i></span>
+        <span class="pu-go" aria-hidden="true">업그레이드 ›</span>
+      </button>` : ''}
+      ${productId === 'duo' ? `
+      <button type="button" class="pay-downsell" id="payDownsell">혼자만 볼래요 · 1인 리포트 9,900원으로</button>` : ''}
       ${provider === 'ctee' ? '' : `
       <div class="field">
         <label class="field-label" for="payName">성함</label>
@@ -1931,6 +2029,19 @@
       <div class="pay-note">${methodNote}</div>`;
     const mClose = $('#mClose'); if (mClose) mClose.onclick = closePay;
     const payGo = $('#payGo'); if (payGo) payGo.onclick = () => doPay(productId);
+    const upsell = $('#payUpsell');
+    if (upsell) upsell.onclick = () => {
+      audio.tap();
+      state.payProduct = 'duo';
+      openPay('duo', state.paySection || '');
+      toast('👯 2인 동반 패키지로 바꿨어요 · 17,900원', 2600);
+    };
+    const downsell = $('#payDownsell');
+    if (downsell) downsell.onclick = () => {
+      audio.tap();
+      state.payProduct = 'report';
+      openPay('report', state.paySection || '');
+    };
     const payName = $('#payName');
     const depView = $('#depNameView');
     if (payName && depView) payName.addEventListener('input', () => { depView.textContent = payName.value.trim() || '-'; });
@@ -2026,7 +2137,34 @@
       detail: demo ? '테스트(데모) 결제' : '결제 완료'
     });
     if (paidSec && window.Vault && !Vault.isOpen(paidSec)) Vault.unlock(paidSec, 'pay');
+    /* 결제로 권한이 생긴 직후에는 잠금 카드가 열린 상태로 다시 그려져야 한다 */
+    if (window.Vault) Vault.apply();
     const box = $('#payModalBox');
+    if (productId === 'duo') {
+      box.innerHTML = `
+        <div class="pay-step">
+          <div class="done-icon">👯</div>
+          <div class="big">2인 동반 패키지가 열렸어요</div>
+          <p>주문번호 <b style="color:#f6e3ad">${order.orderId}</b><br>
+          ${P.PRODUCTS.duo.name}${demo ? '<br><span class="demo-badge">테스트 결제</span>' : ''}</p>
+          <p class="small mt14">이제 <b style="color:#f6e3ad">서로 다른 명식 2개</b>까지 각각 9쪽 리포트·PDF가 열립니다.<br>
+          사주 탭에서 나를 먼저 보시고, 생년월일을 바꿔 다시 계산하면 두 번째 명식이 등록돼요.</p>
+          <button class="btn-gold mt20" id="payDone" style="max-width:260px;margin:20px auto 0">첫 번째 명식 보러 가기</button>
+        </div>`;
+      $('#payDone').onclick = () => {
+        closePay();
+        switchTab('saju');
+        setTimeout(() => { const f = $('#formCard'); if (f) f.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 260);
+      };
+      renderPriceList();
+      /* 결제 직전에 펼쳐 둔 명식을 첫 번째 명식으로 바로 등록한다 */
+      if (state.analysis) {
+        if (Vault) Vault.apply();
+        renderReport(state.analysis);
+      }
+      refreshDuoUI();
+      return;
+    }
     if (productId === 'naming') {
       box.innerHTML = `
         <div class="pay-step">
@@ -2068,12 +2206,30 @@
 
   function renderReport(a) {
     if (!a) return;
-    if (!P.has('report') && !P.has('vip') && !(Vault && Vault.isOpen('saju'))) {
+    const acc = reportAccess(a);
+    if (!acc.ok) {
       $('#reportLocked').classList.remove('hidden');
       $('#reportBody').classList.add('hidden');
       $('#printRow').classList.add('hidden');
+      const dft = $('#reportLockedDefault');
+      const duoBox = $('#reportLockedDuo');
+      if (dft) dft.classList.toggle('hidden', !!acc.blocked);
+      if (duoBox) {
+        duoBox.classList.toggle('hidden', !acc.blocked);
+        if (acc.blocked) {
+          duoBox.innerHTML = `<p class="small" style="line-height:1.9"><b style="color:#f6e3ad">👯 2인 패키지의 두 명식이 이미 등록됐어요.</b><br>
+            이 명식은 9,900원 1인권으로 열거나, 등록된 명식을 바꿔 주세요.</p>
+            <button class="btn-gold mt14" type="button" data-vault-buy="report" style="max-width:240px;margin:14px auto 0">9,900원으로 이 명식 열기</button>
+            <button class="btn-ghost mt14" type="button" data-duo-manage="1">등록된 명식 바꾸기</button>`;
+        }
+      }
+      refreshDuoUI(acc);
       return;
     }
+    const dftEl = $('#reportLockedDefault');
+    if (dftEl) dftEl.classList.remove('hidden');
+    const dbEl = $('#reportLockedDuo');
+    if (dbEl) dbEl.classList.add('hidden');
     $('#reportLocked').classList.add('hidden');
     $('#reportBody').classList.remove('hidden');
     $('#printRow').classList.remove('hidden');
@@ -2083,6 +2239,7 @@
       window.__salpuriPdfPreloaded = true;
       setTimeout(() => { try { SalpuriPDF.preload(); } catch (e) {} }, 1800);
     }
+    refreshDuoUI(acc);
   }
 
   /* ================= 👶 아이 사주 ================= */
@@ -2297,6 +2454,10 @@
         detail: d.reason === 'copy' ? '링크 복사로 해금' : '친구에게 공유로 해금'
       });
     });
+    document.addEventListener('salpuri:duo', e => {
+      const d = (e && e.detail) || {};
+      if (d.chart) logDuoRegistration(d.chart, d.index, d.limit);
+    });
     document.addEventListener('salpuri:admin', e => {
       const on = !!(e && e.detail && e.detail.admin);
       try {
@@ -2344,8 +2505,11 @@
     const pdfBtn = $('#pdfSaveBtn');
     if (pdfBtn) pdfBtn.onclick = () => {
       if (!state.analysis) { toast('명식을 먼저 조회해 주세요.'); return; }
-      if (!P.has('report') && !P.has('vip') && !(Vault && Vault.isOpen('saju'))) {
-        toast('리포트 열람 권한이 있어야 PDF를 받을 수 있어요.');
+      const acc = reportAccess(state.analysis);
+      if (!acc.ok) {
+        toast(acc.blocked
+          ? '2인 패키지의 두 명식이 모두 등록됐어요. 9,900원 1인권으로 이 명식을 열면 PDF도 받을 수 있어요.'
+          : '리포트 열람 권한이 있어야 PDF를 받을 수 있어요.', 3400);
         return;
       }
       audio.tap();
@@ -2444,6 +2608,28 @@
         const vw = buyV.closest('[data-vault]');
         const sec = vw ? (vw.getAttribute('data-vault') || 'saju') : 'saju';
         openPay(buyV.getAttribute('data-vault-buy') || 'report', sec);
+        return;
+      }
+      const rel = e.target.closest && e.target.closest('[data-duo-release]');
+      if (rel) {
+        const key = decodeURIComponent(rel.getAttribute('data-duo-release') || '');
+        const info = P.duo.release(key);
+        toast(`등록을 해제했어요. 이제 ${info.used}/${info.limit}명 등록 — 다른 명식을 넣어 주세요.`, 3000);
+        logEvent('duo_release', { category: '사주', product: P.PRODUCTS.duo.name, detail: `남은 등록 ${info.used}/${info.limit}명` });
+        renderPriceList();
+        if (state.analysis) renderReport(state.analysis);
+        if (Vault) Vault.apply();
+        refreshDuoUI();
+        return;
+      }
+      const dm = e.target.closest && e.target.closest('[data-duo-manage]');
+      if (dm) {
+        audio.tap();
+        switchTab('premium');
+        setTimeout(() => {
+          const s = $('#duoStatus');
+          if (s) s.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 260);
         return;
       }
       const buyNm = e.target.closest && e.target.closest('[data-nm-buy]');

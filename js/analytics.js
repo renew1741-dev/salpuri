@@ -104,6 +104,23 @@
     }).catch(() => { flushing = false; });
   }
 
+  /* 상품 금액 기준표 — 결제 로그에 금액이 빠져 있을 때 채워 넣습니다
+     (2인 동반 패키지 = 17,900원 · 정가 19,800원) */
+  const PRODUCT_PRICE = [
+    { re: /2인\s*동반/, price: 17900 },
+    { re: /VIP/i, price: 29900 },
+    { re: /작명/, price: 29000 },
+    { re: /부적/, price: 14900 },
+    { re: /리포트/, price: 9900 }
+  ];
+  function priceOf(product) {
+    const p = String(product || '');
+    for (let i = 0; i < PRODUCT_PRICE.length; i++) {
+      if (PRODUCT_PRICE[i].re.test(p)) return PRODUCT_PRICE[i].price;
+    }
+    return '';
+  }
+
   /** 이벤트 1건 기록 */
   function log(type, data) {
     const d = data || {};
@@ -115,7 +132,7 @@
       name: d.name || '',
       birth: d.birth || '',
       product: d.product || '',
-      amount: d.amount == null ? '' : d.amount,
+      amount: d.amount == null || d.amount === '' ? priceOf(d.product) : d.amount,
       method: d.method || '',
       detail: d.detail || '',
       orderId: d.orderId || '',
@@ -171,7 +188,7 @@
     });
   }
 
-  global.SalpuriLog = { log, logReading, visit, flush, kstNow, adminOn, deviceLabel, ENDPOINT };
+  global.SalpuriLog = { log, logReading, visit, flush, kstNow, adminOn, deviceLabel, priceOf, ENDPOINT };
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);

@@ -136,6 +136,7 @@
   /* 어떤 결제가 어떤 카테고리를 여는지 */
   const PAID_SECTIONS = {
     report: ['saju'],
+    duo: ['saju'],
     talisman: ['saju'],
     vip: ['saju', 'baby', 'gaewun', 'naming'],
     naming: ['naming']
@@ -152,11 +153,38 @@
     return false;
   }
 
+  /** 👯 2인 패키지 전용 — 1인권·VIP·부적 결제자는 제한 없음 */
+  function duoLimited() {
+    const P = global.Payment;
+    if (!P || !P.duo) return false;
+    try {
+      const info = P.duo.info();
+      return !!info.active && !info.unlimited;
+    } catch (e) { return false; }
+  }
+
   function isOpen(section) {
     const sec = secOf(section);
     if (isAdmin()) return true;              /* 👑 관리자 프리패스 — 모든 가림막·결제 잠금 해제 */
     readSection(sec);
-    return !!state.shared[sec] || paid(sec);
+    if (state.shared[sec]) return true;
+    if (!paid(sec)) return false;
+    /* 2인 패키지는 등록된 명식(최대 2명)에만 리포트·PDF를 열어 줍니다 */
+    if (sec === 'saju' && duoLimited()) {
+      const P = global.Payment;
+      const a = global.__salpuriAnalysis;
+      if (!a) return false;
+      try {
+        const r = P.duo.access(a);
+        if (r.ok && r.justRegistered) {
+          document.dispatchEvent(new CustomEvent('salpuri:duo', {
+            detail: { chart: a, index: r.index, limit: r.limit }
+          }));
+        }
+        return !!r.ok;
+      } catch (e) { return false; }
+    }
+    return true;
   }
   function isShared(section) {
     const sec = secOf(section);
@@ -216,6 +244,16 @@
         <div class="vl-sub">
           <button type="button" class="vl-mini" data-vault-buy="report">9,900원에 바로 열기</button>
           <button type="button" class="vl-mini" data-vault-copy="${kind}">링크 복사해서 열기</button>
+        </div>
+        <div class="vl-duo" data-duo-strip>
+          <div class="vl-duo-head">
+            <span class="vl-duo-tag">👯 추천 · 인기</span>
+            <b class="vl-duo-title">2인 동반 패키지</b>
+            <span class="vl-duo-price"><s>19,800원</s> 17,900원</span>
+          </div>
+          <p class="vl-duo-desc">나 + 지인 1명 · 서로 다른 명식 2개의 9쪽 리포트·PDF까지 · 1인당 8,950원</p>
+          <button type="button" class="vl-duo-btn" data-vault-buy="duo">2인 패키지로 두 사람 보기 · 17,900원</button>
+          <p class="vl-duo-note" data-duo-note hidden></p>
         </div>
         <p class="vl-fine">한 번 열면 이 기기에서 이 풀이는 계속 열려 있어요. 다른 메뉴는 따로 열립니다.</p>
       </div>
@@ -722,6 +760,7 @@
 
   global.Vault = {
     isOpen, isShared, unlock, lock, apply, refresh, wrap, lockHTML, shareGate, sharePayload,
+    duoLimited,
     /* 👑 관리자 프리패스 */
     isAdmin: isAdmin,
     setAdmin: setAdmin,

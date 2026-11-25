@@ -23,11 +23,21 @@
   const PRODUCTS = {
     report: {
       id: 'report',
-      name: '살풀이 : 천기 2026 정밀 사주 리포트 (8쪽)',
-      desc: '8쪽 리포트 · 기질·재물·인연·2026 월별 길흉·대운·살풀이 처방 · PDF 저장',
+      name: '살풀이 : 천기 2026 정밀 사주 리포트 (9쪽)',
+      desc: '9쪽 리포트 · 기질·재물·인연·2026 월별 길흉·대운·살풀이 처방 · PDF 저장',
       price: 9900,
       badge: '인기',
       unlock: ['report']
+    },
+    duo: {
+      id: 'duo',
+      name: '👯 2인 동반 정밀 사주 패키지',
+      desc: '나 + 지인 1명 · 서로 다른 명식 2개 · 각 9쪽 정밀 리포트 + PDF 저장 · 1인당 8,950원',
+      price: 17900,
+      listPrice: 19800,
+      badge: '👯 추천 · 인기',
+      unlock: ['report', 'duo'],
+      slots: 2
     },
     talisman: {
       id: 'talisman',
@@ -67,6 +77,7 @@
     },
     ctee: {
       report: '',               // 예: https://ctee.kr/place/salpuri/report
+      duo: '',
       talisman: '',
       vip: '',
       naming: ''
@@ -83,6 +94,8 @@
   };
 
   const ORDER_KEY = 'salpuri_orders_v1';
+  const DUO_KEY = 'salpuri_duo_charts_v1';
+  const DUO_LIMIT = 2;
 
   function loadScript(src) {
     return new Promise((resolve, reject) => {
@@ -244,8 +257,118 @@
   }
   const has = key => unlocked().has(key);
 
+  /* ============================================================
+     👯 2인 동반 패키지 — 명식 슬롯(최대 2개)
+     ------------------------------------------------------------
+     · duo 결제자는 서로 다른 명식 2개까지 리포트·PDF를 열 수 있습니다.
+     · 1인권(report)·부적·VIP 결제자와 관리자 프리패스는 인원 제한이 없습니다.
+     · 명식 지문 = 이름 + 양력 생년월일 + 성별
+     ============================================================ */
+  const pad2 = n => String(n).padStart(2, '0');
+
+  function readDuo() {
+    try {
+      const v = JSON.parse(localStorage.getItem(DUO_KEY) || '[]');
+      return Array.isArray(v) ? v.filter(x => x && x.key).slice(0, 8) : [];
+    } catch (e) { return []; }
+  }
+  function writeDuo(list) {
+    try { localStorage.setItem(DUO_KEY, JSON.stringify((list || []).slice(0, 8))); } catch (e) {}
+  }
+
+  function chartKey(a) {
+    if (!a || !a.solar) return '';
+    const nm = String(a.name || '').replace(/\s+/g, '').slice(0, 12);
+    const b = `${a.solar.y}-${pad2(a.solar.m)}-${pad2(a.solar.d)}`;
+    return `${nm}|${b}|${a.gender || ''}`;
+  }
+
+  function adminOn() {
+    try { return !!(global.Vault && typeof global.Vault.isAdmin === 'function' && global.Vault.isAdmin()); } catch (e) { return false; }
+  }
+
+  /** 1인권·부적·VIP 결제자 — 명식 수 제한 없음 */
+  function fullChartAccess() {
+    return getOrders().some(o => o.status === 'paid' && ['report', 'talisman', 'vip'].indexOf(o.productId) >= 0);
+  }
+
+  function duoInfo() {
+    const charts = readDuo().map(c => ({
+      key: c.key, name: c.name || '', birth: c.birth || '', gender: c.gender || '', at: c.at || ''
+    }));
+    return {
+      active: has('duo'),
+      unlimited: fullChartAccess() || adminOn(),
+      limit: DUO_LIMIT,
+      used: charts.length,
+      remaining: Math.max(0, DUO_LIMIT - charts.length),
+      charts
+    };
+  }
+
+  /** 등록하지 않고 현재 명식의 상태만 확인 */
+  function duoPeek(a) {
+    const info = duoInfo();
+    const key = chartKey(a);
+    const idx = key ? info.charts.findIndex(c => c.key === key) : -1;
+    const blocked = !!info.active && !info.unlimited && idx < 0 && info.used >= DUO_LIMIT;
+    return Object.assign({}, info, {
+      key,
+      registered: idx >= 0,
+      index: idx >= 0 ? idx + 1 : 0,
+      full: blocked,
+      blocked
+    });
+  }
+
+  /** 현재 명식을 슬롯에 등록하고 열람 가능 여부를 돌려준다 (이미 있으면 그대로 통과) */
+  function duoAccess(a) {
+    const p = duoPeek(a);
+    if (!p.active) return Object.assign(p, { ok: false, inactive: true });
+    if (p.unlimited) return Object.assign(p, { ok: true });
+    if (p.registered) return Object.assign(p, { ok: true });
+    if (p.used >= DUO_LIMIT) return Object.assign(p, { ok: false });
+    if (!p.key) return Object.assign(p, { ok: false, noKey: true });
+    const list = readDuo();
+    list.push({
+      key: p.key,
+      name: (a && a.name) || '',
+      birth: a && a.solar ? `${a.solar.y}-${pad2(a.solar.m)}-${pad2(a.solar.d)}` : '',
+      gender: (a && a.gender) || '',
+      at: new Date().toISOString()
+    });
+    writeDuo(list);
+    const info = duoInfo();
+    return Object.assign({}, info, {
+      key: p.key,
+      registered: true,
+      index: info.used,
+      ok: true,
+      justRegistered: true
+    });
+  }
+
+  /** 등록한 명식 한 칸을 비운다 (다른 사람으로 바꿀 때) */
+  function duoRelease(key) {
+    writeDuo(readDuo().filter(c => c.key !== key));
+    return duoInfo();
+  }
+  function duoReset() {
+    writeDuo([]);
+    return duoInfo();
+  }
+
   global.Payment = {
     PRODUCTS, CONFIG, pay, confirmTransfer, unlocked, has,
-    getOrders, findLatest, makeOrderId
+    getOrders, findLatest, makeOrderId,
+    duo: {
+      info: duoInfo,
+      peek: duoPeek,
+      access: duoAccess,
+      release: duoRelease,
+      reset: duoReset,
+      key: chartKey,
+      limit: DUO_LIMIT
+    }
   };
 })(window);
