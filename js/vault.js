@@ -349,11 +349,17 @@
 
     if (act === 'sms') {
       const ok = await copyText(body);
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-      const sep = isIOS ? '&' : '?';
-      const smsUrl = `sms:${sep}body=${encodeURIComponent(p.text ? p.text + '\n' + p.url : p.url)}`;
+      const ua = navigator.userAgent || '';
+      const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(ua);
       if (sheetOpts.unlock !== false) unlock('share');
       closeSheet();
+      if (!isMobile) {
+        toast(ok ? '링크를 복사했어요. 문자는 휴대폰에서 보내 주세요.' : '문자는 휴대폰에서 보낼 수 있어요.', 3400);
+        return;
+      }
+      const isIOS = /iPad|iPhone|iPod/.test(ua);
+      const sep = isIOS ? '&' : '?';
+      const smsUrl = `sms:${sep}body=${encodeURIComponent(p.text ? p.text + '\n' + p.url : p.url)}`;
       toast(ok ? '문자 앱에 내용을 채워 열게요. 보내기만 누르시면 돼요.'
                : '문자 앱에 내용을 채워 열게요. 안 열리면 링크를 붙여넣어 주세요.', 3400);
       try { global.location.href = smsUrl; } catch (err) {}
