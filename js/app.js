@@ -17,6 +17,8 @@
   const GaewunText = window.GaewunText;
   const Naming = window.Naming;
   const NamingText = window.NamingText;
+  const BabyText = window.BabyText;
+  const Vault = window.Vault;
 
   const state = {
     gender: '여',
@@ -35,6 +37,7 @@
       mode: 'reform', model: null, analysis: null, built: false,
       baby: { gender: '여', year: 2026, month: 11, day: 25, sijin: null }
     },
+    baby: { gender: '여', cal: '양력', sijin: null, note: '', analysis: null },
     last: {}
   };
 
@@ -452,6 +455,7 @@
     if (id === 'gaewun') renderGaewunPanel();
     if (id === 'naming') renderNamingPanel();
     if (id === 'gunghap') { syncGunghapA(); renderProfileBars(); }
+    if (id === 'baby') { state.baby.analysis && !$('#babyResult').children.length && renderBaby(); }
     const panel = document.getElementById('panel-' + id);
     if (panel) panel.scrollIntoView({ block: 'start', behavior: 'smooth' });
     const nav = $('.tabs'), tabEl = document.querySelector(`.tab[data-tab="${id}"]`);
@@ -481,7 +485,7 @@
     const inp = profileInput();
     const sig = JSON.stringify(inp);
     if (state.analysis && state.analysisSig === sig) return state.analysis;
-    if (state.cal === '음력윤달' && !leapMonthOf(inp.year)) return { error: '선택한 해에는 윤달이 없습니다. 사주 탭에서 음력(평달)을 선택해 주세요.' };
+    if (state.cal === '음력윤달' && !leapMonthOf(inp.year)) return { error: '선택한 해에는 윤달이 없어요. 사주 탭에서 음력(평달)을 골라 주세요.' };
     const res = S.analyze(inp);
     if (res && res.ok) { state.analysis = res; state.analysisSig = sig; }
     return res;
@@ -496,14 +500,14 @@
         : `${inp.gender} · ${inp.year}.${pad2(inp.month)}.${pad2(inp.day)} ${inp.calendar === '음력' ? (inp.leap ? '음력(윤달)' : '음력') : '양력'} · ${inp.sijin == null ? '시간 모름' : S.SIJIN[inp.sijin]}`;
       slot.innerHTML = `<div class="pf-bar">
         <span class="pf-seal serif">煞</span>
-        <div class="pf-txt"><b>${a && a.name ? a.name + ' 님 · ' : ''}${meta}</b><small>사주 탭에서 입력한 명식으로 계산합니다</small></div>
+        <div class="pf-txt"><b>${a && a.name ? a.name + ' 님 · ' : ''}${meta}</b><small>사주 탭에서 넣은 명식으로 계산해요</small></div>
         <button type="button" class="pf-edit" data-goto="saju">변경</button>
       </div>`;
     });
   }
 
   function panelError(msg) {
-    return `<div class="card"><p class="small">${msg || '명식을 계산하지 못했습니다.'}</p>
+    return `<div class="card"><p class="small">${msg || '명식을 계산하지 못했어요.'}</p>
       <div class="center mt14"><button class="btn-ghost" data-goto="saju">사주 명식 입력하기</button></div></div>`;
   }
 
@@ -573,7 +577,8 @@
     readGw();
     const x = Gaewun.build(a, { height: state.gw.height, weight: state.gw.weight });
     state.last.gaewun = { x, a };
-    host.innerHTML = GaewunText.render(x, a);
+    host.innerHTML = GaewunText.renderFree(x, a) + Vault.wrap(GaewunText.renderDeep(x, a), 'gaewun', { h: 520 });
+    Vault.apply();
     state.gw.shown = true;
   }
 
@@ -586,7 +591,8 @@
     readGw();
     const x = Gaewun.build(a, { height: state.gw.height, weight: state.gw.weight });
     state.last.gaewun = { x, a };
-    host.innerHTML = GaewunText.render(x, a);
+    host.innerHTML = GaewunText.renderFree(x, a) + Vault.wrap(GaewunText.renderDeep(x, a), 'gaewun', { h: 520 });
+    Vault.apply();
   }
 
   /* ================= 개명 · 아기 작명 ================= */
@@ -748,7 +754,7 @@
     renderProfileBars();
     if (state.nm.built && state.nm.model) runNaming(false);
     else if (!host.innerHTML.trim()) {
-      host.innerHTML = `<div class="card"><p class="small">성씨와 현재 이름(또는 아기 생년월일)을 넣고 <b>이름 진단서</b>를 펼쳐 보십시오. 진단은 무료이고, 사주에 맞춘 이름 후보 5선은 오픈 특가로 열립니다.</p></div>`;
+      host.innerHTML = `<div class="card"><p class="small">성씨와 현재 이름(또는 아기 생년월일)을 넣고 <b>이름 진단서</b>를 펼쳐 보세요. 진단은 무료이고, 사주에 맞춘 이름 후보 5선은 오픈 특가로 열려요.</p></div>`;
     }
   }
 
@@ -757,10 +763,10 @@
     if (P.CONFIG.provider !== 'demo') { openPay('naming'); return; }
     const res = await P.pay('naming', { name: (state.nm.analysis && state.nm.analysis.name) || '', phone: '' });
     if (res && res.ok) {
-      toast('데모 결제로 후보 5선을 열었습니다.');
+      toast('데모 결제로 후보 5선을 열었어요.');
       runNaming(true);
     } else {
-      toast((res && res.error) || '열지 못했습니다.');
+      toast((res && res.error) || '열지 못했어요.');
     }
   }
 
@@ -804,12 +810,12 @@
     dSel.value = Math.min(cur, limit);
     const hint = $('#lunarHint');
     if (state.cal === '양력') {
-      hint.textContent = '1940년 ~ 2026년 출생 지원 · 양력 그대로 계산합니다.';
+      hint.textContent = '1940년 ~ 2026년 출생 지원 · 양력 그대로 계산해요.';
     } else {
       const lp = leapMonthOf(y);
-      let t = `${y}년 음력은 ${lp ? '윤' + lp + '월' : '윤달 없음'} · 해당 월의 실제 일수만 선택됩니다.`;
+      let t = `${y}년 음력은 ${lp ? '윤' + lp + '월' : '윤달 없음'} · 그 달에 실제로 있는 날짜만 고를 수 있어요.`;
       if (state.cal === '음력윤달' && lp) t += ` (윤${lp}월 1일 ~ ${daysInMonth(y, lp)}일)`;
-      if (state.cal === '음력윤달' && !lp) t = `${y}년에는 윤달이 없습니다. 다른 해를 선택하거나 음력(평달)을 골라 주세요.`;
+      if (state.cal === '음력윤달' && !lp) t = `${y}년에는 윤달이 없어요. 다른 해를 고르거나 음력(평달)을 골라 주세요.`;
       hint.textContent = t;
     }
   }
@@ -862,7 +868,7 @@
     const name = $('#userName').value.trim();
     const y = +$('#birthYear').value, m = +$('#birthMonth').value, d = +$('#birthDay').value;
     if (state.cal === '음력윤달' && !leapMonthOf(y)) {
-      toast('선택한 해에는 윤달이 없습니다. 음력(평달)을 선택해 주세요.');
+      toast('선택한 해에는 윤달이 없어요. 음력(평달)을 골라 주세요.');
       return;
     }
     const res = S.analyze({
@@ -980,20 +986,35 @@
     // 격국 · 십성 지도
     renderTenGodMap(a);
 
-    // 무료 풀이
-    $('#freeReading').innerHTML = TX.buildFree(a);
+    // 맛보기(무료) + 잠금 구간 심층
+    $('#freeReading').innerHTML = TX.buildTaste(a);
+    const deepHost = $('#deepReading');
+    if (deepHost) deepHost.innerHTML = TX.buildDeep(a);
+    const snap = $('#gwSnapshot');
+    if (snap) {
+      try {
+        const gx = Gaewun.build(a, {});
+        snap.innerHTML = `<div class="baby-kv">
+          <div><span>적정 체중</span><b>${GaewunText.kgTxt(gx.body.kg.lo)}~${GaewunText.kgTxt(gx.body.kg.hi)}kg <span style="color:#9c9488">(${gx.body.type.name} · ${gx.body.type.sub})</span></b></div>
+          <div><span>살릴 점</span><b>${gx.dots.good.slice(0, 3).map(z => `${z.name}(${z.point})`).join(' · ')}</b></div>
+          <div><span>뺄 점</span><b>${gx.dots.bad.slice(0, 3).map(z => `${z.name}(${z.point})`).join(' · ')}</b></div>
+          <div><span>말버릇</span><b>“${(gx.speech.habits[0] || {}).bad || ''}” 대신 “${(gx.speech.habits[0] || {}).good || ''}”</b></div>
+        </div>`;
+      } catch (e) { snap.innerHTML = '<p class="small">개운 처방을 계산하지 못했어요. 외모·점 탭에서 다시 확인해 주세요.</p>'; }
+    }
+    window.__salpuriAnalysis = a;
 
     // 세운
     const s = a.saeun[0];
     $('#saeunGanji').innerHTML = `${S.GAN[s.gan]}${S.JI[s.ji]}<small>${s.year} ${S.GAN_KO[s.gan]}${S.JI_KO[s.ji]}년</small>`;
-    const advice = s.tenGod <= 1 ? '내 힘으로 밀어붙이기보다 사람과 판을 정리하는 해입니다.'
-      : s.tenGod <= 3 ? '만들고 표현하는 일이 성과로 이어지나, 말이 앞서면 계약에서 손해를 봅니다.'
-        : s.tenGod <= 5 ? '돈이 실제로 움직이는 해입니다. 들어오고 나가는 돈을 같은 달에 정리하십시오.'
-          : s.tenGod <= 7 ? '책임과 압박이 늘지만 그 자리가 다음 10년의 몫을 만듭니다.'
-            : '배움과 재정비에 맞는 해입니다. 자격·문서·공부를 챙기면 내년의 발판이 됩니다.';
-    $('#saeunText').innerHTML = `<b style="color:#f6e3ad">${s.tenGodName}</b>의 기운이 들어오는 해입니다. ${advice}` +
-      (s.inter.length ? `<br><span style="color:#e2a35e">원국과 ${[...new Set(s.inter.map(i => i.type))].join('·')}${/합$|충$/.test([...new Set(s.inter.map(i => i.type))].pop()) ? '이' : '가'} 잡혀 변화가 큰 해입니다.</span>` : '') +
-      `<br>다음 해 ${a.saeun[1].year}년은 ${S.GAN[a.saeun[1].gan]}${S.JI[a.saeun[1].ji]}년 · ${a.saeun[1].tenGodName}입니다.`;
+    const advice = s.tenGod <= 1 ? '내 힘으로 밀어붙이기보다 사람과 판을 정리하는 해예요.'
+      : s.tenGod <= 3 ? '만들고 표현하는 일이 성과로 이어지는데, 말이 앞서면 계약에서 손해를 봐요.'
+        : s.tenGod <= 5 ? '돈이 실제로 움직이는 해예요. 들어오고 나가는 돈을 같은 달에 정리해 보세요.'
+          : s.tenGod <= 7 ? '책임과 압박이 늘지만 그 자리가 다음 10년의 몫을 만들어요.'
+            : '배움과 재정비에 맞는 해예요. 자격·문서·공부를 챙기면 내년의 발판이 돼요.';
+    $('#saeunText').innerHTML = `<b style="color:#f6e3ad">${s.tenGodName}</b>의 기운이 들어오는 해예요. ${advice}` +
+      (s.inter.length ? `<br><span style="color:#e2a35e">원국과 ${[...new Set(s.inter.map(i => i.type))].join('·')}${/합$|충$/.test([...new Set(s.inter.map(i => i.type))].pop()) ? '이' : '가'} 잡혀서 변화가 큰 해예요.</span>` : '') +
+      `<br>다음 해 ${a.saeun[1].year}년은 ${S.GAN[a.saeun[1].gan]}${S.JI[a.saeun[1].ji]}년 · ${a.saeun[1].tenGodName}이에요.`;
 
     // 2026 월별 — 잡을 달 · 피할 달
     const ms = TX.monthly2026(a);
@@ -1018,13 +1039,8 @@
     $('#dwNote').textContent = `${a.daewoon.forward ? '순행(順行)' : '역행(逆行)'} · 대운수 ${a.daewoon.startAge}세 ` +
       `(절입까지 ${a.daewoon.days}일 ÷ 3) · ${a.gender}성 ${S.GAN_KO[a.yearPillar.gan]}${S.JI_KO[a.yearPillar.ji]}년생`;
 
-    // 잠금 문구
-    if (P.has('report')) {
-      const ub = $('#unlockBtn');
-      ub.textContent = '프리미엄 리포트 열람하기 (결제 완료)';
-      ub.onclick = () => switchTab('premium');
-    }
     renderTalismans();
+    if (Vault) Vault.apply();
   }
 
   function renderTenGodMap(a) {
@@ -1195,7 +1211,7 @@
     const t = $('#ggTime' + W).value;
     const year = +$('#gg' + W + 'Year').value, month = +$('#gg' + W + 'Month').value, day = +$('#gg' + W + 'Day').value;
     if (g.cal === '음력윤달' && !leapMonthOf(year)) {
-      toast((W === 'A' ? '본인' : '상대') + ': 선택한 해에는 윤달이 없습니다. 음력(평달)을 선택해 주세요.');
+      toast((W === 'A' ? '본인' : '상대') + ': 선택한 해에는 윤달이 없어요. 음력(평달)을 골라 주세요.');
       return null;
     }
     return {
@@ -1369,7 +1385,7 @@
     });
 
     const left = 3 - state.tarot.picked.length;
-    $('#deckHint').textContent = left > 0 ? `카드 ${3 - left + 1}장째 · ${left}장 더 고르세요` : '세 장이 모두 놓였습니다 — 점사를 풀어냅니다';
+    $('#deckHint').textContent = left > 0 ? `카드 ${3 - left + 1}장째 · ${left}장 더 고르세요` : '세 장이 다 놓였어요 — 점사를 풀어낼게요';
     if (left === 0) setTimeout(() => revealReading(), 900);
   }
 
@@ -1421,9 +1437,9 @@
       `세 장을 겹쳐 놓으면 이 질문의 답은 <strong>${strong.card.name}</strong>에서 가장 크게 울립니다.</p>
       <p>${T.REV_NOTE[revCount]}</p>
       <p>${catObj.synth}</p>
-      <p class="sum-strong">가장 힘이 실린 카드는 <strong>${strong.card.name}</strong> — ${strong.card.key}입니다. ${strong.card.cat[cat]}</p>
+      <p class="sum-strong">가장 힘이 실린 카드는 <strong>${strong.card.name}</strong> — ${strong.card.key}예요. ${strong.card.cat[cat]}</p>
       <div class="sum-act"><b>${catObj.icon} 지금 할 일</b>${catObj.act}</div>
-      <p class="sum-note">타로는 정해진 미래가 아니라 지금의 흐름을 비추는 거울입니다. 결정은 언제나 당신의 몫입니다.</p>`;
+      <p class="sum-note">타로는 정해진 미래가 아니라 지금 흐름을 비추는 거울이에요. 결정은 언제나 당신 몫이에요.</p>`;
     sum.classList.remove('hidden');
     const sr = $('#shareTarotRow'); if (sr) sr.classList.remove('hidden');
     sum.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -1450,27 +1466,27 @@
   const TALISMANS = [
     { id: 'wealth', hanja: '財', name: '재물운', sub: '돈의 통로를 여는 부적',
       file: 'talisman-wealth.png', thumb: 'talisman-wealth-thumb.jpg', elems: [3],
-      desc: '금빛 인장과 엽전, 흐르는 금가루. 들어오는 돈을 붙잡고 새는 구멍을 막는 기운입니다.' },
+      desc: '금빛 인장과 엽전, 흐르는 금가루. 들어오는 돈을 붙잡고 새는 구멍을 막는 기운이에요.' },
     { id: 'love', hanja: '緣', name: '인연운', sub: '끊어진 실을 잇는 부적',
       file: 'talisman-love.png', thumb: 'talisman-love-thumb.jpg', elems: [1],
-      desc: '붉은 실과 금빛 고리, 달빛 아래 꽃잎. 인연이 닿는 방향을 열어 주는 기운입니다.' },
+      desc: '붉은 실과 금빛 고리, 달빛 아래 꽃잎. 인연이 닿는 방향을 열어 주는 기운이에요.' },
     { id: 'ward', hanja: '解', name: '액막이 · 살풀이', sub: '들어온 살을 풀어내는 부적',
       file: 'talisman-ward.png', thumb: 'talisman-ward-thumb.jpg', elems: [2, 4],
-      desc: '금빛 나침환과 소금·재, 깃털. 몸과 집에 들어온 액을 씻어내는 기운입니다.' },
+      desc: '금빛 나침환과 소금·재, 깃털. 몸과 집에 들어온 액을 씻어내는 기운이에요.' },
     { id: 'career', hanja: '昇', name: '성공 · 합격운', sub: '오르는 길을 여는 부적',
       file: 'talisman-career.png', thumb: 'talisman-career-thumb.jpg', elems: [0],
-      desc: '달빛 아래 솟은 봉우리와 두 마리 학. 자리와 이름이 올라가는 기운입니다.' }
+      desc: '달빛 아래 솟은 봉우리와 두 마리 학. 자리와 이름이 올라가는 기운이에요.' }
   ];
 
-  const hasTalisman = () => P.has('talisman') || P.has('vip');
+  const hasTalisman = () => P.has('talisman') || P.has('vip') || (Vault && Vault.isOpen());
 
   function renderTalismans() {
-    const host = $('#talismanGrid');
-    if (!host) return;
+    const hosts = ['#talismanGrid', '#talismanGridVault'].map(h => $(h)).filter(Boolean);
+    if (!hosts.length) return;
     const a = state.analysis;
     const yong = a ? a.yongsin.yong : null;
     const own = hasTalisman();
-    host.innerHTML = TALISMANS.map(t => {
+    const html = TALISMANS.map(t => {
       const fit = a && t.elems.includes(yong);
       return `<figure class="tal-item ${fit ? 'fit' : ''}" data-tal="${t.id}">
         <div class="tal-img">
@@ -1485,7 +1501,8 @@
         </figcaption>
       </figure>`;
     }).join('');
-    $$('#talismanGrid [data-tal]').forEach(f => f.onclick = () => openTalView(f.dataset.tal));
+    hosts.forEach(host => { host.innerHTML = html; });
+    $$('[data-tal]').forEach(f => f.onclick = () => openTalView(f.dataset.tal));
   }
 
   function openTalView(id) {
@@ -1503,7 +1520,7 @@
       ? `<a class="btn-gold tal-dl" href="${t.file}" download="살풀이-천기-부적-${t.name}.png">배경화면 내려받기</a>
          <button class="btn-ghost" id="tvAll">4종 모두 받기</button>`
       : `<button class="btn-gold" id="tvBuy">부적 4종 열기 · 14,900원</button>
-         <span class="tv-note">결제하면 4종 전부 바로 내려받을 수 있습니다.</span>`;
+         <span class="tv-note">결제하면 4종 전부 바로 내려받을 수 있어요.</span>`;
     view.classList.add('show');
     document.body.classList.add('tal-open');
     audio.tap();
@@ -1515,7 +1532,7 @@
           a.href = x.file; a.download = `살풀이-천기-부적-${x.name}.png`;
           document.body.appendChild(a); a.click(); a.remove();
         }, i * 320));
-        toast('부적 4종 다운로드를 시작했습니다.');
+        toast('부적 4종 다운로드를 시작했어요.');
       };
     } else {
       const buy = $('#tvBuy');
@@ -1563,7 +1580,7 @@
       }
     },
     async up() {
-      if (this.done()) { toast('이미 소름 돋으셨습니다. 한 사람당 한 번입니다.'); return; }
+      if (this.done()) { toast('이미 소름 돋으셨어요. 한 사람당 한 번이에요.'); return; }
       if (this.busy) return;
       this.busy = true;
       document.querySelectorAll('.like-btn, .like-top-btn').forEach(b => b.classList.add('pulse'));
@@ -1583,7 +1600,7 @@
       try { localStorage.setItem(this.LS_DONE, '1'); } catch (e) {}
       this.busy = false;
       this.paint();
-      toast(ok ? '🔥 소름 돋아요 — 한 표 남겼습니다.' : '집계 서버가 잠시 응답하지 않아 이 기기에만 기록했습니다.');
+      toast(ok ? '🔥 소름 돋아요 — 한 표 남겼어요.' : '집계 서버가 잠시 응답하지 않아 이 기기에만 기록했어요.');
       setTimeout(() => document.querySelectorAll('.like-btn, .like-top-btn').forEach(b => b.classList.remove('pulse')), 900);
     },
     paint() {
@@ -1599,7 +1616,7 @@
         if (n) n.style.display = hideNum ? 'none' : '';
         if (sep) sep.style.display = hideNum ? 'none' : '';
         const t = b.querySelector('.like-txt');
-        if (t) t.textContent = done ? '소름 돋았습니다' : '소름 돋아요';
+        if (t) t.textContent = done ? '소름 돋았어요' : '소름 돋아요';
         b.setAttribute('aria-label', `소름 돋아요 — 실제 방문자 ${known ? txt : '확인 중'}명`);
       });
       /* 상단 고정 배지 — 지금까지 N명이 소름 돋아요 */
@@ -1613,8 +1630,8 @@
           if (!known) { lead.textContent = '지금까지'; tail.textContent = ' 소름 돋아요'; }
           else if (zero) {
             lead.textContent = done ? '첫 번째로' : '아직 아무도';
-            tail.textContent = done ? ' 소름 돋았습니다' : ' 안 눌렀어요 · 첫 번째로 눌러 보세요';
-          } else if (done) { lead.textContent = '나까지'; tail.textContent = '명이 소름 돋았습니다'; }
+            tail.textContent = done ? ' 소름 돋았어요' : ' 안 눌렀어요 · 첫 번째로 눌러 보세요';
+          } else if (done) { lead.textContent = '나까지'; tail.textContent = '명이 소름 돋았어요'; }
           else { lead.textContent = '지금까지'; tail.textContent = '명이 소름 돋아요'; }
         }
         b.setAttribute('aria-label', `소름 돋아요 — 실제 방문자 ${known ? txt : '확인 중'}명`);
@@ -1692,7 +1709,7 @@
       const body = `${text}\n${url}`;
       try {
         await navigator.clipboard.writeText(body);
-        toast('링크가 복사되었습니다. 붙여넣기로 공유하세요.');
+        toast('링크를 복사했어요. 붙여넣기로 공유해 보세요.');
       } catch (e) {
         const ta = document.createElement('textarea');
         ta.value = body;
@@ -1701,7 +1718,7 @@
         ta.select();
         try { document.execCommand('copy'); } catch (err) {}
         ta.remove();
-        toast('링크가 복사되었습니다. 붙여넣기로 공유하세요.');
+        toast('링크를 복사했어요. 붙여넣기로 공유해 보세요.');
       }
     };
     copy();
@@ -1780,7 +1797,7 @@
     const prod = P.PRODUCTS[productId];
     if (!prod) return;
     const un = P.unlocked();
-    if (prod.unlock.every(k => un.has(k))) { toast('이미 결제하신 상품입니다.'); return; }
+    if (prod.unlock.every(k => un.has(k))) { toast('이미 결제하신 상품이에요.'); return; }
     if (productId !== 'talisman' && productId !== 'naming' && !state.analysis) {
       toast('사주 명식을 먼저 조회해 주세요.');
       switchTab('saju');
@@ -1793,8 +1810,8 @@
     const box = $('#payModalBox');
     const methodNote = provider === 'transfer'
       ? '아래 계좌로 입금하시면 확인 후 열립니다.'
-      : provider === 'ctee' ? '크티 결제 페이지로 이동합니다.'
-        : demo ? '현재 테스트 모드입니다. 실제 금액이 청구되지 않으며, 결제 시연 후 바로 열립니다.'
+      : provider === 'ctee' ? '크티 결제 페이지로 이동해요.'
+        : demo ? '지금은 테스트 모드예요. 실제 금액은 청구되지 않고, 결제 시연 후 바로 열려요.'
           : '결제창에서 결제를 완료하시면 이 화면으로 돌아와 열립니다.';
     const transfer = P.CONFIG.transfer;
     box.innerHTML = `
@@ -1818,10 +1835,10 @@
         <div class="dep-row"><span>예금주</span><b>${transfer.holder}</b></div>
         <div class="dep-row"><span>입금 금액</span><b>${prod.price.toLocaleString()}원</b></div>
         <div class="dep-row"><span>입금자명</span><b id="depNameView">-</b></div>
-        <p class="dep-note">입금자명을 성함과 같게 입력하시고, ${transfer.minutes}분 안에 입금해 주십시오. 확인 후 열람 권한이 열립니다.</p>
+        <p class="dep-note">입금자명을 성함과 같게 넣고, ${transfer.minutes}분 안에 입금해 주세요. 확인되면 열람 권한이 열려요.</p>
       </div>` : ''}
       <div class="pay-sum"><span>결제 금액 (VAT 포함)</span><b>${prod.price.toLocaleString()}원</b></div>
-      <button class="btn-gold" id="payGo">${provider === 'transfer' ? '입금했습니다' : provider === 'ctee' ? '구매 페이지로 이동' : `${prod.price.toLocaleString()}원 결제하기`}</button>
+      <button class="btn-gold" id="payGo">${provider === 'transfer' ? '입금했어요' : provider === 'ctee' ? '구매 페이지로 이동' : `${prod.price.toLocaleString()}원 결제하기`}</button>
       <div class="pay-note">${methodNote}</div>`;
     const mClose = $('#mClose'); if (mClose) mClose.onclick = closePay;
     const payGo = $('#payGo'); if (payGo) payGo.onclick = () => doPay(productId);
@@ -1847,7 +1864,7 @@
     const res = await P.pay(productId, { name: nameEl ? nameEl.value.trim() : '', phone: contact });
 
     if (!res.ok) {
-      toast(res.error || '결제가 완료되지 않았습니다.');
+      toast(res.error || '결제가 완료되지 않았어요.');
       btn.disabled = false;
       btn.textContent = '다시 시도';
       return;
@@ -1858,7 +1875,7 @@
       box.innerHTML = `
         <div class="pay-step">
           <div class="done-icon">↗</div>
-          <div class="big">결제 페이지가 열렸습니다</div>
+          <div class="big">결제 페이지가 열렸어요</div>
           <p>새 창에서 결제를 완료하시면<br>주문 확인 후 이 화면의 상품이 열립니다.<br>
           <b style="color:#f6e3ad">주문번호 ${res.order.orderId}</b></p>
           <button class="btn-ghost mt20" id="payDone">닫기</button>
@@ -1872,7 +1889,7 @@
       box.innerHTML = `
         <div class="pay-step">
           <div class="done-icon">₩</div>
-          <div class="big">입금을 기다리고 있습니다</div>
+          <div class="big">입금을 기다리고 있어요</div>
           <p><b style="color:#f6e3ad">${t.bank} ${t.account}</b><br>예금주 ${t.holder} · ${res.order.amount.toLocaleString()}원<br>
           주문번호 <b style="color:#f6e3ad">${res.order.orderId}</b></p>
           <p class="small mt14">입금자명과 위 주문번호를 판매자에게 알려 주시면 확인 후 열립니다.</p>
@@ -1904,7 +1921,7 @@
       box.innerHTML = `
         <div class="pay-step">
           <div class="done-icon">✓</div>
-          <div class="big">이름 후보 5선이 열렸습니다</div>
+          <div class="big">이름 후보 5선이 열렸어요</div>
           <p>주문번호 <b style="color:#f6e3ad">${order.orderId}</b><br>
           ${P.PRODUCTS[productId].name}${demo ? '<br><span class="demo-badge">테스트 결제</span>' : ''}</p>
           <button class="btn-gold mt20" id="payDone" style="max-width:260px;margin:20px auto 0">후보 5선 보기</button>
@@ -1917,7 +1934,7 @@
     box.innerHTML = `
       <div class="pay-step">
         <div class="done-icon">✓</div>
-        <div class="big">결제가 완료되었습니다</div>
+        <div class="big">결제가 완료됐어요</div>
         <p>주문번호 <b style="color:#f6e3ad">${order.orderId}</b><br>
         ${P.PRODUCTS[productId].name}${demo ? '<br><span class="demo-badge">테스트 결제</span>' : ''}</p>
         <button class="btn-gold mt20" id="payDone" style="max-width:240px;margin:20px auto 0">${ownTalisman ? '부적 · 리포트 열기' : '리포트 열기'}</button>
@@ -1941,7 +1958,7 @@
 
   function renderReport(a) {
     if (!a) return;
-    if (!P.has('report') && !P.has('vip')) {
+    if (!P.has('report') && !P.has('vip') && !(Vault && Vault.isOpen())) {
       $('#reportLocked').classList.remove('hidden');
       $('#reportBody').classList.add('hidden');
       $('#printRow').classList.add('hidden');
@@ -1951,6 +1968,170 @@
     $('#reportBody').classList.remove('hidden');
     $('#printRow').classList.remove('hidden');
     $('#reportBody').innerHTML = TX.buildPremium(a);
+  }
+
+  /* ================= 👶 아이 사주 ================= */
+  const RITUAL_BABY = [
+    '아이의 첫 울음 시각까지 살펴보는 중...',
+    '엄마 아빠 품에 처음 안긴 날의 기운을 짚는 중...',
+    '이 아이가 크면서 펼칠 재주를 그려 보는 중...'
+  ];
+
+  function babySyncDay() {
+    const y = +$('#babyYear').value, m = +$('#babyMonth').value;
+    const dSel = $('#babyDay');
+    if (!dSel) return;
+    const cur = +dSel.value || 1;
+    const max = new Date(y, m, 0).getDate();
+    dSel.innerHTML = '';
+    for (let d = 1; d <= max; d++) dSel.add(new Option(d + '일', d));
+    dSel.value = Math.min(cur, max);
+  }
+
+  function initBabyForm() {
+    const ySel = $('#babyYear');
+    if (!ySel) return;
+    const t = kstToday();
+    const mSel = $('#babyMonth'), dSel = $('#babyDay'), tSel = $('#babyTime');
+    for (let y = 2026; y >= 1940; y--) ySel.add(new Option(y + '년', y));
+    for (let m = 1; m <= 12; m++) mSel.add(new Option(m + '월', m));
+    ySel.value = Math.max(1940, t.y - 2);
+    mSel.value = t.m;
+    babySyncDay();
+    dSel.value = t.d;
+    tSel.innerHTML = '';
+    tSel.add(new Option('시간 모름 · 세 기둥으로 봐요', ''));
+    S.SIJIN.forEach((n, i) => tSel.add(new Option(`${n} · ${S.SIJIN_RANGE[i]}`, i)));
+
+    $$('#babyGenderSeg .seg-btn').forEach(b => b.onclick = () => {
+      state.baby.gender = b.dataset.v;
+      $$('#babyGenderSeg .seg-btn').forEach(x => x.classList.toggle('active', x === b));
+      audio.tap();
+    });
+    $$('#babyCalSeg .seg-btn').forEach(b => b.onclick = () => {
+      state.baby.cal = b.dataset.v;
+      $$('#babyCalSeg .seg-btn').forEach(x => x.classList.toggle('active', x === b));
+      audio.tap();
+    });
+    $$('#babyChips .baby-chip').forEach(c => c.onclick = () => {
+      state.baby.note = c.dataset.v || '';
+      $$('#babyChips .baby-chip').forEach(x => x.classList.toggle('on', x === c));
+      audio.tap();
+      if (state.baby.analysis) renderBaby();
+    });
+    [ySel, mSel].forEach(el2 => el2.onchange = babySyncDay);
+    const cb = $('#babyCalcBtn');
+    if (cb) cb.onclick = calcBaby;
+  }
+
+  function calcBaby() {
+    const name = ($('#babyName').value || '').trim();
+    const y = +$('#babyYear').value, m = +$('#babyMonth').value, d = +$('#babyDay').value;
+    const tRaw = $('#babyTime').value;
+    const sijin = tRaw === '' ? null : +tRaw;
+    if (state.baby.cal === '음력윤달' && !leapMonthOf(y)) {
+      toast('선택한 해에는 윤달이 없어요. 음력(평달)을 골라 주세요.');
+      return;
+    }
+    const res = S.analyze({
+      name, gender: state.baby.gender, year: y, month: m, day: d,
+      calendar: state.baby.cal === '양력' ? '양력' : '음력',
+      leap: state.baby.cal === '음력윤달', sijin
+    });
+    if (!res || res.error) { toast((res && res.error) || '사주를 계산하지 못했어요.'); return; }
+    if (res.ts > Date.now() + 86400e3) res.future = true;
+    state.baby.analysis = res;
+    window.__salpuriBaby = res;
+    audio.tap();
+    playRitual('#ritualOverlay', RITUAL_BABY, () => {
+      renderBaby();
+      const host = $('#babyResult');
+      if (host) host.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
+
+  function renderBaby() {
+    const host = $('#babyResult');
+    const a = state.baby.analysis;
+    if (!host || !a) return;
+    const name = a.name || '우리 아이';
+    const o = { name: a.name || '', note: state.baby.note };
+    const ij = TX.iljuOf(a);
+    const t = BabyText.TALENT[a.dayGan];
+    const sub = `양력 ${a.solar.y}.${pad2(a.solar.m)}.${pad2(a.solar.d)} · ${a.lunar ? `음력 ${a.lunar.y}.${pad2(a.lunar.m)}.${pad2(a.lunar.d)}${a.lunar.leap ? '(윤)' : ''} · ` : ''}${a.timeKnown ? a.sijinName : '시간 모름'} · ${a.gender === '여' ? '여아' : '남아'}`;
+    host.innerHTML = `
+      <div class="card baby-taste-card">
+        <div class="result-title">
+          <div class="result-brand serif">살풀이 : 천기(天機) · 아이 사주</div>
+          <h2 class="serif">${name}의 사주</h2>
+          <p>${sub}</p>
+        </div>
+        <div class="pillar-grid" id="babyPillars"></div>
+        <div class="baby-hero-tag">
+          <span>${ij.t}</span><span>${t.t}</span><span>${a.gyeokguk.name}</span>
+        </div>
+        <div class="hr-gold"></div>
+        <div class="free-read" id="babyTaste">${BabyText.taste(a, o)}</div>
+        <div class="taste-next"><i></i><b>아래로 내리면 재능·건강·양육 처방이 이어져요</b><i></i></div>
+      </div>
+      ${Vault.wrap(BabyText.deep(a, o), 'baby', { h: 560 })}
+      <div class="card">
+        <div class="naming-link">
+          <span class="up-ico" style="flex:0 0 44px;width:44px;height:44px;font-size:20px">📜</span>
+          <span class="nl-txt">
+            <b>${name}에게 맞는 이름, 같이 볼까요?</b>
+            <span>지금 넣은 생년월일 그대로 이름 다섯 개를 뽑아 드려요. 사주에 약이 되는 글자로만 골라요.</span>
+          </span>
+          <button type="button" class="btn-gold" data-baby-naming>아기 작명 5선 보기</button>
+        </div>
+        <div class="center mt14"><button class="btn-ghost" data-goto="saju">부모님 사주도 보기</button></div>
+      </div>`;
+
+    /* 기둥 4개 */
+    const grid = $('#babyPillars');
+    if (grid) {
+      grid.innerHTML = a.pillars.map(p => {
+        const posName = { 년: '년주', 월: '월주', 일: '일주', 시: '시주' }[p.pos];
+        if (p.gan == null) return `<div class="pillar unknown"><div class="p-label"><em>${posName}</em></div><div class="gan">—</div><div class="ji">—</div><div class="han">시간 미상</div></div>`;
+        const eG = S.GAN_ELEM[p.gan], eJ = S.JI_ELEM[p.ji];
+        return `<div class="pillar${p.pos === '일' ? ' is-day' : ''}">
+          <div class="p-label"><em>${posName}</em></div>
+          <span class="elem-dot" style="background:var(${elemVar[eG]})"></span>
+          <div class="gan serif" style="color:var(${elemVar[eG]})">${S.GAN[p.gan]}</div>
+          <div class="han">${S.GAN_KO[p.gan]} · ${S.ELEM_HANJA[eG]}</div>
+          <div class="ji serif" style="color:var(${elemVar[eJ]})">${S.JI[p.ji]}</div>
+          <div class="han">${S.JI_KO[p.ji]} · ${S.ELEM_HANJA[eJ]}</div>
+        </div>`;
+      }).join('');
+    }
+    const bn = host.querySelector('[data-baby-naming]');
+    if (bn) bn.onclick = () => gotoBabyNaming(a);
+    Vault.apply();
+    mountLikes && mountLikes();
+  }
+
+  function gotoBabyNaming(a) {
+    state.nm.mode = 'baby';
+    $$('#nmModeSeg .seg-btn').forEach(x => x.classList.toggle('active', x.dataset.v === 'baby'));
+    state.nm.baby.gender = a.gender;
+    const gsel = $$('#nmBabyGender .seg-btn');
+    gsel.forEach(x => x.classList.toggle('active', x.dataset.v === a.gender));
+    if ($('#nmYear')) {
+      $('#nmYear').value = a.solar.y;
+      $('#nmMonth').value = a.solar.m;
+      nmSyncDay();
+      $('#nmDay').value = a.solar.d;
+      $('#nmTime').value = a.sijin == null ? '' : String(a.sijin);
+    }
+    /* 아이 이름이 '김서준'처럼 성+이름이면 성씨를 미리 채워 둔다 */
+    if (a.name && $('#nmSurname') && !$('#nmSurname').value) {
+      const chars = [...a.name.trim()];
+      if (chars.length >= 3) { $('#nmSurname').value = chars[0]; }
+    }
+    switchTab('naming');
+    syncNamingMode();
+    if ($('#nmSurname') && $('#nmSurname').value) runNaming(true);
+    else toast('성씨만 넣으면 아이 사주에 맞는 이름 5선이 나와요.', 3000);
   }
 
   /* ================= 초기화 ================= */
@@ -1968,16 +2149,40 @@
     renderProfileBars();
     renderPriceList();
     renderTalismans();
+    initBabyForm();
+
+    /* 잠금 카드 주입 + 상태 반영 */
+    $$('[data-vault]').forEach(v => {
+      const lk = v.querySelector('.vault-lock');
+      const kind = v.getAttribute('data-vault') || 'saju';
+      if (lk && !lk.querySelector('.vault-lock-in')) lk.outerHTML = Vault.lockHTML(kind);
+    });
+    Vault.apply();
+    window.__salpuriOnUnlock = () => {
+      renderTalismans();
+      if (state.analysis) renderReport(state.analysis);
+      if (state.baby.analysis) renderBaby();
+    };
 
     $('#enterBtn').onclick = enter;
     $('#soundBtn').onclick = () => { audio.toggle(); story.toggleSound(); };
     $$('.tab').forEach(t => t.onclick = () => switchTab(t.dataset.tab));
     $('#calcBtn').onclick = calc;
-    $('#resetBtn').onclick = resetForm;
-    $('#unlockBtn').onclick = () => { if (P.has('report')) switchTab('premium'); else openPay('report'); };
+    const rst = $('#resetBtn'); if (rst) rst.onclick = resetForm;
+    const ubEl = $('#unlockBtn');
+    if (ubEl) ubEl.onclick = () => { if (P.has('report')) switchTab('premium'); else openPay('report'); };
     $('#goSaju').onclick = () => switchTab('saju');
     $('#payModal').onclick = (e) => { if (e.target.id === 'payModal') closePay(); };
     $('#printBtn').onclick = () => window.print();
+    const vpdf = $('#vaultPdfBtn');
+    if (vpdf) vpdf.onclick = () => {
+      if (!Vault.isOpen()) { toast('공유하면 8쪽 리포트가 바로 열려요. 위 버튼을 눌러 주세요.'); return; }
+      if (!state.analysis) { toast('명식을 먼저 조회해 주세요.'); return; }
+      renderReport(state.analysis);
+      switchTab('premium');
+      toast('아래 [PDF로 저장 / 인쇄]를 누르면 8쪽 리포트가 저장돼요.', 3200);
+      setTimeout(() => { const b = $('#printBtn'); if (b) b.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 320);
+    };
 
     // 공유
     const shareTop = $('#shareTop'), shareFoot = $('#shareFoot');
@@ -2044,6 +2249,8 @@
       }
       const like = e.target.closest && e.target.closest('.like-btn, .like-top-btn');
       if (like) { e.preventDefault(); Like.up(); return; }
+      const buyV = e.target.closest && e.target.closest('[data-vault-buy]');
+      if (buyV) { audio.tap(); openPay(buyV.getAttribute('data-vault-buy') || 'report'); return; }
       const buyNm = e.target.closest && e.target.closest('[data-nm-buy]');
       if (buyNm) { audio.tap(); openPay('naming'); return; }
       const demoNm = e.target.closest && e.target.closest('[data-nm-demo]');
@@ -2063,9 +2270,9 @@
     // URL 파라미터 복귀 처리(토스 successUrl)
     const q = new URLSearchParams(location.search);
     if (q.get('payment') === 'success') {
-      toast('결제가 완료되었습니다. 명식을 조회하면 리포트가 열립니다.', 3200);
+      toast('결제가 완료됐어요. 명식을 조회하면 리포트가 열려요.', 3200);
     } else if (q.get('payment') === 'fail') {
-      toast('결제가 취소되었거나 실패했습니다.');
+      toast('결제가 취소됐거나 실패했어요.');
     }
 
     // 키보드 접근성: ESC 로 모달 닫기
