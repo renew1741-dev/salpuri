@@ -31,8 +31,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20261125-21" />
-<link rel="stylesheet" href="css/pdf.css?v=20261125-1" />
+<link rel="stylesheet" href="css/style.css?v=20261125-22" />
+<link rel="stylesheet" href="css/pdf.css?v=20261125-2" />
 </head>
 <body class="locked">
 
@@ -247,8 +247,8 @@
             <div class="card pdf-card">
               <div class="pdf-ico">📄</div>
               <div class="pdf-txt">
-                <b>8쪽 정밀 리포트 (PDF)</b>
-                <span>이 명식만을 위해 계산한 재물·인연·월별 길흉·대운·살풀이 처방을 8쪽으로 묶었어요. 저장해서 두고두고 보세요.</span>
+                <b>9쪽 정밀 리포트 (PDF)</b>
+                <span>이 명식만을 위해 계산한 재물·인연·월별 길흉·대운·살풀이 처방을 9쪽으로 묶었어요. 저장해서 두고두고 보세요.</span>
               </div>
               <button class="btn-ghost" id="vaultPdfBtn">PDF로 받기</button>
             </div>
@@ -298,7 +298,12 @@
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v11M12 3 8.5 6.5M12 3l3.5 3.5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
               내 점사 공유하기
             </button>
+            <button class="share-btn save-kakao-btn" id="saveKakaoBtn" type="button">
+              <span aria-hidden="true">💬</span>
+              내 카톡에 저장해 두기
+            </button>
           </div>
+          <p class="save-kakao-note">카톡 [나와의 채팅]에 저장해 두면 내일 아침 오늘의 운세도 여기서 바로 볼 수 있어요.</p>
         </div>
 
       </div>
@@ -723,8 +728,8 @@
             <b class="ci-title serif">깊이 남기고 싶은 한 사람을 위한 것</b>
           </span>
         </div>
-        <p class="ci-desc">8쪽 정밀 리포트는 PDF로 저장해 두고두고 볼 수 있고, 용신 기운을 담은 부적 배경화면 네 장은 결제 즉시 내려받아요.</p>
-        <div class="ci-chips"><span>8쪽 리포트</span><span>PDF 저장</span><span>부적 4종</span><span>즉시 다운로드</span></div>
+        <p class="ci-desc">9쪽 정밀 리포트는 PDF로 저장해 두고두고 볼 수 있고, 용신 기운을 담은 부적 배경화면 네 장은 결제 즉시 내려받아요.</p>
+        <div class="ci-chips"><span>9쪽 리포트</span><span>PDF 저장</span><span>부적 4종</span><span>즉시 다운로드</span></div>
       </div>
       <div class="card">
         <div class="section-head"><h2 class="serif">살풀이 : 천기 프리미엄</h2><span class="en">PREMIUM</span></div>
@@ -756,7 +761,7 @@
               <span class="pdf-btn-ico" aria-hidden="true">📄</span>
               PDF 파일 바로 저장
             </button>
-            <p class="pdf-hint">누르면 실제 <b>.pdf</b> 파일로 내려받아요 · 8쪽 · 인쇄창이 뜨지 않아요</p>
+            <p class="pdf-hint">누르면 실제 <b>.pdf</b> 파일로 내려받아요 · 9쪽 · 인쇄창이 뜨지 않아요</p>
             <button class="btn-ghost pdf-print-btn" id="printBtn" type="button">🖨️ 인쇄로 PDF 저장</button>
           </div>
         </div>
@@ -794,10 +799,16 @@
     <p>살풀이 : 천기(天機) · 정밀 만세력 &amp; 타로<br>
     입춘 기준 연주 · 24절기 월주 · JDN 일주 · 오호둔·오서둔 시간<br>
     본 서비스는 오락 및 자기 성찰을 위한 콘텐츠이며, 의료·법률·금융 투자 판단의 근거로 사용할 수 없습니다.</p>
-    <button class="share-btn foot-share" id="shareFoot">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v11M12 3 8.5 6.5M12 3l3.5 3.5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      친구에게 공유하기
-    </button>
+    <div class="foot-actions">
+      <button class="share-btn foot-share" id="shareFoot">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v11M12 3 8.5 6.5M12 3l3.5 3.5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        친구에게 공유하기
+      </button>
+      <button class="share-btn foot-share save-kakao-btn" id="saveKakaoFoot" type="button">
+        <span aria-hidden="true">💬</span>
+        내 카톡에 저장해 두기
+      </button>
+    </div>
     <p class="credit">Music: "Eastern Thought" by Kevin MacLeod (incompetech.com) — Licensed under Creative Commons: By Attribution 3.0</p>
   </footer>
 </main>
@@ -842,7 +853,7 @@
 
 <script src="js/data-calendar.js?v=20261125-2"></script>
 <script src="js/saju-engine.js?v=20261125-2"></script>
-<script src="js/saju-text.js?v=20261125-3"></script>
+<script src="js/saju-text.js?v=20261125-4"></script>
 <script src="js/gunghap-engine.js?v=20261125-2"></script>
 <script src="js/gunghap-text.js?v=20261125-2"></script>
 <script src="js/plus-engine.js?v=20261125-2"></script>
@@ -853,10 +864,10 @@
 <script src="js/naming-text.js?v=20261125-8"></script>
 <script src="js/tarot.js?v=20261125-2"></script>
 <script src="js/payment.js?v=20261125-7"></script>
-<script src="js/vault.js?v=20261125-6"></script>
+<script src="js/vault.js?v=20261125-7"></script>
 <script src="js/analytics.js?v=20261125-1"></script>
 <script src="js/baby-text.js?v=20261125-1"></script>
-<script src="js/pdf.js?v=20261125-1"></script>
-<script src="js/app.js?v=20261125-18"></script>
+<script src="js/pdf.js?v=20261125-2"></script>
+<script src="js/app.js?v=20261125-19"></script>
 </body>
 </html>
