@@ -20,6 +20,10 @@
   const LEGACY_KEY = 'salpuri_share_unlock_v1';
   const URL_LIVE = 'https://renew1741-dev.github.io/salpuri/';
 
+  /* ---------- 👑 관리자 프리패스 ---------- */
+  const ADMIN_KEY = 'salpuri_admin_mode';
+  const ADMIN_CODE = 'salpuri83';
+
   /* data-vault 값이 곧 열쇠 이름입니다 (body/style → gaewun 별칭 허용) */
   const ALIAS = { body: 'gaewun', style: 'gaewun', point: 'gaewun' };
   const SECTION_LABEL = {
@@ -37,6 +41,74 @@
     return /^[a-z][a-z0-9_-]{1,23}$/.test(s) ? s : 'saju';
   }
   function labelOf(sec) { return SECTION_LABEL[sec] || '이 풀이'; }
+
+  /* ---------- 👑 관리자 프리패스 (모든 가림막·결제 잠금 0개) ---------- */
+  function isAdmin() {
+    try { return localStorage.getItem(ADMIN_KEY) === '1'; } catch (e) { return false; }
+  }
+
+  function setAdmin(on, opts) {
+    try {
+      if (on) localStorage.setItem(ADMIN_KEY, '1');
+      else localStorage.removeItem(ADMIN_KEY);
+    } catch (e) {}
+    apply();
+    ['saju', 'baby', 'gaewun', 'naming'].forEach(s => refresh(s));
+    document.dispatchEvent(new CustomEvent('salpuri:admin', { detail: { admin: !!on } }));
+    if (!(opts && opts.silent)) {
+      toast(on
+        ? '👑 관리자 모드 ON — 모든 가림막과 결제 잠금이 풀렸습니다.'
+        : '일반(손님) 모드로 돌아왔어요. 점검할 때는 다시 ?admin= 키로 들어오세요.', 3400);
+    }
+  }
+
+  /* ?admin=salpuri83 (또는 #admin=salpuri83) → 프리패스 ON, ?admin=off → OFF */
+  function handleAdminQuery() {
+    let code = null;
+    try {
+      const q = new URLSearchParams(location.search);
+      if (q.has('admin')) code = q.get('admin') || '';
+      if (code == null && /(^|[#&])admin=/.test(location.hash)) {
+        const m = location.hash.match(/admin=([^&]*)/);
+        code = m ? decodeURIComponent(m[1]) : '';
+      }
+    } catch (e) {}
+    if (code == null) return;
+    if (/^(off|0|no|false)$/i.test(code)) setAdmin(false, { silent: true });
+    else if (code === ADMIN_CODE) setAdmin(true, { silent: true });
+    /* 주소창에서 admin 파라미터를 지워 새로고침·공유 시 남지 않게 한다 */
+    try {
+      const u = new URL(location.href);
+      u.searchParams.delete('admin');
+      if (/admin=/.test(u.hash)) u.hash = u.hash.replace(/([#&]?)admin=[^&]*/g, '').replace(/[#&]$/, '');
+      history.replaceState(null, '', u.pathname + (u.search || '') + (u.hash || ''));
+    } catch (e) {}
+  }
+
+  let badge = null;
+  function ensureBadge() {
+    if (badge && document.body.contains(badge)) return badge;
+    badge = document.createElement('div');
+    badge.className = 'admin-badge';
+    badge.id = 'adminBadge';
+    badge.hidden = true;
+    badge.innerHTML = '<span class="ab-crown" aria-hidden="true">👑</span>'
+      + '<b>관리자 모드 ON</b>'
+      + '<a class="ab-dash" href="admin.html" title="관리자 대시보드 열기">대시보드</a>'
+      + '<button type="button" class="ab-off" data-admin-off>일반모드로 보기</button>';
+    badge.addEventListener('click', function (e) {
+      const off = e.target.closest && e.target.closest('[data-admin-off]');
+      if (off) { e.preventDefault(); setAdmin(false); }
+    }, true);
+    document.body.appendChild(badge);
+    return badge;
+  }
+  function updateBadge() {
+    const el = ensureBadge();
+    const on = isAdmin();
+    el.hidden = !on;
+    document.body.classList.toggle('admin-mode', on);
+  }
 
   function readSection(sec) {
     if (state.seen[sec]) return;
@@ -56,6 +128,9 @@
     /* 예전 전역 키는 읽지 않습니다. 남아 있으면 지워서 새 잠금 화면부터 보이게 합니다. */
     try { localStorage.removeItem(LEGACY_KEY); } catch (e) {}
     ['saju', 'baby', 'gaewun'].forEach(readSection);
+    handleAdminQuery();
+    ensureBadge();
+    updateBadge();
   }
 
   /* 어떤 결제가 어떤 카테고리를 여는지 */
@@ -79,6 +154,7 @@
 
   function isOpen(section) {
     const sec = secOf(section);
+    if (isAdmin()) return true;              /* 👑 관리자 프리패스 — 모든 가림막·결제 잠금 해제 */
     readSection(sec);
     return !!state.shared[sec] || paid(sec);
   }
@@ -175,6 +251,7 @@
       if (lock) lock.setAttribute('aria-hidden', open ? 'true' : 'false');
     });
     document.body.classList.toggle('vault-open', anyOpen);
+    updateBadge();
   }
 
   function refresh(section) {
@@ -617,6 +694,10 @@
 
   global.Vault = {
     isOpen, isShared, unlock, lock, apply, refresh, wrap, lockHTML, shareGate, sharePayload,
+    /* 👑 관리자 프리패스 */
+    isAdmin: isAdmin,
+    setAdmin: setAdmin,
+    toggleAdmin: function () { setAdmin(!isAdmin()); },
     /* 새 공유 진입점: 상단·하단·결과 공유 버튼이 모두 이걸 씁니다 (opts.section으로 카테고리 지정) */
     share: shareFlow,
     openSheet, closeSheet,

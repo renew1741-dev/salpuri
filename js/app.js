@@ -20,6 +20,29 @@
   const BabyText = window.BabyText;
   const Vault = window.Vault;
 
+  /* ================= 로그 · 관리자 (analytics.js) ================= */
+  const LOG = window.SalpuriLog || null;
+  const CAT_LABEL = { saju: '사주', baby: '아이사주', gaewun: '외모·점', naming: '작명' };
+  function birthOf(a) {
+    if (!a || !a.solar) return '';
+    return `${a.solar.y}-${String(a.solar.m).padStart(2, '0')}-${String(a.solar.d).padStart(2, '0')} ${a.gender || ''}`
+      + (a.timeKnown === false ? ' · 시간모름' : '');
+  }
+  function logReading(cat, a, detail) {
+    if (!LOG || typeof LOG.logReading !== 'function') return;
+    try { LOG.logReading(cat, a, detail || ''); } catch (e) {}
+  }
+  function logEvent(type, data) {
+    if (!LOG || typeof LOG.log !== 'function') return;
+    try { LOG.log(type, data || {}); } catch (e) {}
+  }
+  function iljuOf(a) {
+    try {
+      const x = TX.iljuOf(a);
+      return x && x.t ? x.t : '';
+    } catch (e) { return ''; }
+  }
+
   const state = {
     gender: '여',
     cal: '양력',
@@ -525,6 +548,7 @@
     const x = Plus.today(a);
     state.last.today = x;
     host.innerHTML = PlusText.renderToday(x, a);
+    logReading('오늘', a, `${x.score}점 · ${x.ganji.label}`);
   }
 
   function renderSinsalPanel() {
@@ -534,6 +558,7 @@
     const x = Plus.sinsal(a);
     state.last.sinsal = x;
     host.innerHTML = PlusText.renderSinsal(x, a);
+    logReading('신살', a, `귀인 ${x.noble} · 살 ${x.sal}`);
   }
 
   function renderYearPanel() {
@@ -543,6 +568,7 @@
     const x = Plus.yearly(a, state.yearly);
     state.last.yearly = x;
     host.innerHTML = PlusText.renderYear(x, a, state.yearly);
+    logReading('신년', a, `${x.year}년 ${x.ganji} 12개월`);
   }
 
   function renderWealthPanel() {
@@ -552,6 +578,7 @@
     const x = Plus.wealth(a);
     state.last.wealth = x;
     host.innerHTML = PlusText.renderWealth(x, a);
+    logReading('재물', a, `사업형 ${x.biz}% · 직장형 ${x.job}%`);
   }
 
   function renderTaekilPanel() {
@@ -561,6 +588,7 @@
     const x = Plus.taekil(a, state.tk.purpose, state.tk.range);
     state.last.taekil = { x, a };
     host.innerHTML = PlusText.renderTaekil(x, a);
+    logReading('택일', a, `${x.purpose} · ${x.range && x.range.label ? x.range.label : ''} · 길일 ${x.top.length}`);
   }
 
   /* ================= 개운 처방 ================= */
@@ -581,6 +609,7 @@
     host.innerHTML = GaewunText.renderFree(x, a) + Vault.wrap(GaewunText.renderDeep(x, a), 'gaewun', { h: 520 });
     Vault.apply();
     state.gw.shown = true;
+    logReading('외모·점', a, `살릴 점 ${x.good ? x.good.length : 0} · 뺄 점 ${x.bad ? x.bad.length : 0}`);
   }
 
   function softRenderGaewun() {
@@ -728,8 +757,9 @@
     state.nm.model = model;
     state.nm.analysis = res;
     state.nm.built = true;
-    host.innerHTML = NamingText.render(model, res, { unlocked: P.has('naming'), price: namingPrice() });
+    host.innerHTML = NamingText.render(model, res, { unlocked: P.has('naming') || (Vault && Vault.isAdmin()), price: namingPrice() });
     mountLikes();
+    logReading('작명', res, `${inp.mode === 'baby' ? '아기 작명' : '개명'} · ${(inp.surname || '') + (inp.given || '')}`.trim());
     if (scroll) setTimeout(() => host.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
   }
 
@@ -766,6 +796,13 @@
     const res = await P.pay('naming', { name: (state.nm.analysis && state.nm.analysis.name) || '', phone: '' });
     if (res && res.ok) {
       toast('데모 결제로 후보 5선을 열었어요.');
+      logEvent('pay_complete', {
+        product: P.PRODUCTS.naming.name,
+        amount: P.PRODUCTS.naming.price,
+        method: 'demo',
+        orderId: (res.order && res.order.orderId) || '',
+        detail: '테스트(데모) 결제 · 작명 후보 5선'
+      });
       runNaming(true);
     } else {
       toast((res && res.error) || '열지 못했어요.');
@@ -893,6 +930,7 @@
     playRitual('#ritualOverlay', RITUAL_SAJU, () => {
       state.analysis = res;
       renderResult(res);
+      logReading('사주', res, `일주 ${iljuOf(res)} · ${res.gyeokguk ? res.gyeokguk.name : ''}`.trim());
       $('#resultPanel').classList.add('show');
       void $('#resultPanel').offsetWidth;
       $('#resultPanel').classList.add('reveal');
@@ -1237,6 +1275,12 @@
     playRitual('#ritualOverlay', RITUAL_GUNGHAP, () => {
       const x = Gunghap.analyze(A, B, state.gg.rel);
       state.gg.result = x;
+      logEvent('reading', {
+        category: '궁합',
+        name: [A.name || '본인', B.name || '상대'].join(' ♥ '),
+        birth: `${birthOf(A)} / ${birthOf(B)}`,
+        detail: `${x.score}점 · ${x.grade || ''}`
+      });
       const host = $('#ggResult');
       host.innerHTML = GunghapText.render(x);
       host.classList.remove('reveal');
@@ -1398,6 +1442,13 @@
     $('#readSummary').classList.add('hidden');
     playRitual('#ritualOverlay', RITUAL_TAROT, () => {
       renderReading();
+      const cat = T.CATEGORIES.find(c => c.id === state.tarot.cat);
+      logEvent('reading', {
+        category: '타로',
+        name: '',
+        birth: '',
+        detail: `${cat ? cat.name : ''} · ` + state.tarot.picked.map(p => p.card.name + (p.rev ? '(역)' : '')).join(' / ')
+      });
       const box = $('#readingBox');
       box.classList.remove('unfold');
       void box.offsetWidth;
@@ -1867,6 +1918,14 @@
     const contactEl = $('#payContact');
     const contact = contactEl ? contactEl.value.trim() : '';
     if (contactEl && !contact) { toast('연락처를 입력해 주세요.'); contactEl.focus(); return; }
+    const prodInfo = P.PRODUCTS[productId];
+    logEvent('pay_attempt', {
+      product: prodInfo ? prodInfo.name : productId,
+      amount: prodInfo ? prodInfo.price : 0,
+      method: P.CONFIG.provider,
+      name: (nameEl ? nameEl.value.trim() : '') || (state.analysis && state.analysis.name) || '',
+      detail: state.paySection ? `${CAT_LABEL[state.paySection] || state.paySection} 잠금 해제 결제` : '가격표에서 결제'
+    });
     btn.disabled = true;
     btn.textContent = '확인하는 중…';
     const res = await P.pay(productId, { name: nameEl ? nameEl.value.trim() : '', phone: contact });
@@ -1927,6 +1986,14 @@
     /* 잠금 카드에서 바로 결제한 경우, 그 카테고리만 열어 줍니다 */
     const paidSec = state.paySection;
     state.paySection = null;
+    logEvent('pay_complete', {
+      product: (order && order.productName) || (P.PRODUCTS[productId] ? P.PRODUCTS[productId].name : productId),
+      amount: (order && order.amount) || (P.PRODUCTS[productId] ? P.PRODUCTS[productId].price : 0),
+      method: (order && order.provider) || P.CONFIG.provider,
+      orderId: (order && order.orderId) || '',
+      name: (order && order.customer && order.customer.name) || '',
+      detail: demo ? '테스트(데모) 결제' : '결제 완료'
+    });
     if (paidSec && window.Vault && !Vault.isOpen(paidSec)) Vault.unlock(paidSec, 'pay');
     const box = $('#payModalBox');
     if (productId === 'naming') {
@@ -2057,6 +2124,7 @@
     audio.tap();
     playRitual('#ritualOverlay', RITUAL_BABY, () => {
       renderBaby();
+      logReading('아이사주', res, `일주 ${iljuOf(res)}`);
       const host = $('#babyResult');
       if (host) host.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
@@ -2175,6 +2243,26 @@
       renderTalismans();
       if (sec === 'saju' && state.analysis) renderReport(state.analysis);
     };
+
+    /* ---- 공유 해금 · 관리자 모드 전환 → 로그 기록 / 화면 갱신 ---- */
+    document.addEventListener('salpuri:unlock', e => {
+      const d = (e && e.detail) || {};
+      if (d.reason === 'pay') return;
+      logEvent('share_unlock', {
+        category: CAT_LABEL[d.section] || d.section || '사주',
+        detail: d.reason === 'copy' ? '링크 복사로 해금' : '친구에게 공유로 해금'
+      });
+    });
+    document.addEventListener('salpuri:admin', e => {
+      const on = !!(e && e.detail && e.detail.admin);
+      try {
+        renderPriceList();
+        renderTalismans();
+        if (state.analysis) renderReport(state.analysis);
+        if (state.nm.built) runNaming(false);
+      } catch (err) {}
+      if (on) toast('👑 관리자 프리패스 — 모든 가림막·결제 잠금이 풀렸어요.', 3000);
+    });
 
     $('#enterBtn').onclick = enter;
     $('#soundBtn').onclick = () => { audio.toggle(); story.toggleSound(); };
