@@ -460,6 +460,37 @@
     audio.start();                            // 0 -> 0.55 페이드인
     setTimeout(() => story.start(), 2000);    // BGM이 깔린 뒤 첫 컷 내레이션
     enterScrollT = setTimeout(() => $('#main').scrollIntoView({ block: 'start' }), 3000);
+    setTimeout(showPromo, 650);               // 오픈 기념 한정 이벤트 (세션당 1회)
+  }
+
+  /* ================= 오픈 기념 한정 이벤트 팝업 (11/28 토요일까지) ================= */
+  const PROMO_KEY = 'salpuri_promo_1128_seen';
+  const PROMO_END = new Date('2026-11-28T23:59:59+09:00').getTime();
+
+  function promoSeen() {
+    try { return sessionStorage.getItem(PROMO_KEY) === '1'; } catch (e) { return true; }
+  }
+  function markPromoSeen() {
+    try { sessionStorage.setItem(PROMO_KEY, '1'); } catch (e) {}
+  }
+  function closePromo() {
+    const m = $('#promoModal');
+    markPromoSeen();
+    if (!m) return;
+    m.classList.remove('show');
+    m.hidden = true;
+  }
+  function showPromo() {
+    const m = $('#promoModal');
+    if (!m) return;
+    if (Date.now() > PROMO_END) return;      // 이벤트 기간이 지나면 안 띄운다
+    if (window.Vault && typeof Vault.isAdmin === 'function' && Vault.isAdmin()) {
+      markPromoSeen(); return;               // 👑 관리자 프리패스는 방해하지 않는다
+    }
+    if (promoSeen()) return;                 // 세션당 1회
+    m.hidden = false;
+    requestAnimationFrame(() => m.classList.add('show'));
+    logEvent('promo_show', { detail: '오픈 기념 11/28(토) 한정 팝업' });
   }
 
   /* ================= 탭 ================= */
@@ -2278,6 +2309,28 @@
     });
 
     $('#enterBtn').onclick = enter;
+    /* 오픈 기념 팝업 — ✕ · 바깥 배경 · 확인 버튼 모두 즉시 닫힘 */
+    const promoEl = $('#promoModal');
+    if (promoEl) {
+      const pX = $('#promoClose');
+      if (pX) pX.onclick = (e) => { e.preventDefault(); e.stopPropagation(); closePromo(); };
+      const pCta = $('#promoCta');
+      if (pCta) pCta.onclick = () => {
+        closePromo();
+        setTimeout(() => {
+          const main = $('#main');
+          if (main) main.scrollIntoView({ block: 'start', behavior: 'smooth' });
+          const calcCard = $('#formCard');
+          if (calcCard && calcCard.scrollIntoView) calcCard.scrollIntoView({ block: 'start', behavior: 'smooth' });
+        }, 90);
+      };
+      promoEl.onclick = (e) => { if (e.target === promoEl) closePromo(); };
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && promoEl.classList.contains('show')) closePromo();
+      });
+    }
+    /* 이미 장막을 열고 들어온 상태(뒤로가기·새로고침)면 입장 직후 팝업 처리 */
+    if (document.body.classList.contains('opened')) setTimeout(showPromo, 300);
     $('#soundBtn').onclick = () => { audio.toggle(); story.toggleSound(); };
     $$('.tab').forEach(t => t.onclick = () => switchTab(t.dataset.tab));
     $('#calcBtn').onclick = calc;

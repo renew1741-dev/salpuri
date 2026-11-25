@@ -148,37 +148,41 @@
     });
   }
 
+  /* ---------------- 캔버스 → 이미지 데이터 (메모리 즉시 해제) ---------------- */
+  function encodeCanvas(canvas) {
+    var ratio = canvas.height / canvas.width;
+    var data, type = 'PNG';
+    try {
+      data = canvas.toDataURL('image/png');
+      /* PNG 가 너무 무거우면(쪽당 3.5MB 이상) JPEG 로 대체 */
+      if (data.length > 4800000) {
+        data = canvas.toDataURL('image/jpeg', IMG_QUALITY);
+        type = 'JPEG';
+      }
+    } catch (e) {
+      data = canvas.toDataURL('image/jpeg', IMG_QUALITY);
+      type = 'JPEG';
+    }
+    try { canvas.width = 0; canvas.height = 0; } catch (e) {}
+    return { data: data, type: type, ratio: ratio };
+  }
+
   /* ---------------- PDF 조립 ---------------- */
-  function assemble(canvases) {
+  function assemble(images) {
     var JsPDF = global.jspdf.jsPDF;
     var pdf = new JsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
-    var usedJpeg = false;
 
-    canvases.forEach(function (canvas, idx) {
+    images.forEach(function (img, idx) {
       if (idx > 0) pdf.addPage('a4', 'portrait');
-      var ratio = canvas.height / canvas.width;          /* 높이/폭 */
+      var ratio = img.ratio;                            /* 높이/폭 */
       var w = A4_W_MM, h = A4_W_MM * ratio;
       if (h > A4_H_MM) { h = A4_H_MM; w = A4_H_MM / ratio; }
       var x = (A4_W_MM - w) / 2, y = (A4_H_MM - h) / 2;
-
-      var data, type = 'PNG';
-      try {
-        data = canvas.toDataURL('image/png');
-        /* PNG 가 너무 무거우면(쪽당 3.5MB 이상) JPEG 로 대체 */
-        if (data.length > 4800000) {
-          data = canvas.toDataURL('image/jpeg', IMG_QUALITY);
-          type = 'JPEG';
-          usedJpeg = true;
-        }
-      } catch (e) {
-        data = canvas.toDataURL('image/jpeg', IMG_QUALITY);
-        type = 'JPEG';
-        usedJpeg = true;
-      }
-      pdf.addImage(data, type, x, y, w, h, 'p' + (idx + 1), 'MEDIUM');
+      pdf.addImage(img.data, img.type, x, y, w, h, 'p' + (idx + 1), 'MEDIUM');
+      img.data = null;                                  /* 쪽마다 즉시 비움 */
     });
 
-    return { pdf: pdf, usedJpeg: usedJpeg };
+    return { pdf: pdf };
   }
 
   /* ---------------- 다운로드 ---------------- */
@@ -300,7 +304,7 @@
         setProgress(8);
         stage = buildStage(analysis);
         var sheets = stage.sheets;
-        var canvases = [];
+        var images = [];
 
         var chain = Promise.resolve();
         sheets.forEach(function (sheet, i) {
@@ -312,17 +316,21 @@
             setProgress(10 + (i / sheets.length) * 78);
             return nextFrame().then(function () { return captureSheet(sheet); })
               .then(function (canvas) {
-                canvases.push(canvas);
+                images.push(encodeCanvas(canvas));
                 setProgress(10 + ((i + 1) / sheets.length) * 78);
               });
           });
         });
-        return chain.then(function () { return canvases; });
+        return chain.then(function () {
+          /* 스테이지를 먼저 걷어 메모리를 비운다 */
+          if (stage && stage.host && stage.host.parentNode) stage.host.parentNode.removeChild(stage.host);
+          return images;
+        });
       })
-      .then(function (canvases) {
+      .then(function (images) {
         if (ui) { ui.prog.textContent = '파일로 묶는 중'; }
         setProgress(92);
-        return nextFrame().then(function () { return assemble(canvases); });
+        return nextFrame().then(function () { return assemble(images); });
       })
       .then(function (built) {
         var blob = built.pdf.output('blob');
