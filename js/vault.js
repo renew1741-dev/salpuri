@@ -209,7 +209,7 @@
         <h3 class="serif">이 아래부터는 핵심 풀이가 잠겨 있어요</h3>
         <ul class="vl-list">${items.map(t => `<li>${t}</li>`).join('')}</ul>
         <div class="vl-price"><s>정가 19,800원</s><b>오픈 특가 9,900원</b></div>
-        <div class="vl-badge"><span>오픈 7일 한정</span> 친구에게 공유하면 지금 바로 무료 열람!</div>
+        <div class="vl-badge"><span>오픈 기념 한정</span> 친구에게 공유하면 지금 바로 무료 열람!</div>
         <button type="button" class="btn-gold vl-share" data-vault-share="${kind}">
           카톡·SNS로 친구에게 공유하고 무료로 열기
         </button>
