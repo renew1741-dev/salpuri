@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="theme-color" content="#0a0710" />
+<title>살풀이 : 천기 — 관리자 대시보드</title>
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0a0710; --ink2:#120d1a; --panel:#16101f; --panel2:#1c1526;
+    --gold:#d9b978; --gold2:#f6e3ad; --gold3:#8d6f3c;
+    --text:#ece4d6; --dim:#9a9083; --line:rgba(217,185,120,.18);
+    --green:#4fd18b; --red:#f3706a; --blue:#7fb6ff; --purple:#c39bff;
+    --sans:"Noto Sans KR",system-ui,-apple-system,sans-serif;
+    --serif:"Noto Serif KR",serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:
+      radial-gradient(1200px 700px at 50% -10%, rgba(96,63,140,.30), transparent 60%),
+      radial-gradient(900px 500px at 100% 100%, rgba(217,185,120,.07), transparent 60%),
+      var(--ink);
+    color:var(--text); font-family:var(--sans); font-size:14px; line-height:1.55;
+    -webkit-font-smoothing:antialiased; min-height:100vh;
+  }
+  a{color:var(--gold2)}
+  .wrap{max-width:1180px;margin:0 auto;padding:18px 16px 60px}
+
+  /* ---------- 잠금 화면 ---------- */
+  #gate{
+    position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:24px;
+    background:radial-gradient(900px 600px at 50% 20%, rgba(96,63,140,.35), transparent 65%), #07050c;
+  }
+  #gate.hide{display:none}
+  .gate-card{
+    width:100%;max-width:380px;padding:30px 24px 26px;border-radius:22px;text-align:center;
+    border:1px solid rgba(217,185,120,.32);
+    background:linear-gradient(165deg, rgba(30,22,40,.95), rgba(12,9,18,.98));
+    box-shadow:0 30px 80px rgba(0,0,0,.6);
+  }
+  .seal{
+    width:64px;height:64px;margin:0 auto 14px;border-radius:50%;
+    display:grid;place-items:center;font-family:var(--serif);font-size:28px;color:var(--gold2);
+    border:1px solid var(--gold); background:radial-gradient(circle at 50% 35%, rgba(217,185,120,.22), rgba(0,0,0,.2));
+  }
+  .gate-card h1{font-family:var(--serif);font-size:20px;margin:0 0 6px;letter-spacing:.02em}
+  .gate-card p{font-size:12px;color:var(--dim);margin:0 0 18px}
+  .gate-card input{
+    width:100%;padding:13px 14px;border-radius:13px;text-align:center;letter-spacing:.28em;
+    border:1px solid rgba(217,185,120,.32); background:rgba(0,0,0,.38); color:var(--gold2);
+    font-family:var(--sans); font-size:16px; outline:none;
+  }
+  .gate-card input:focus{border-color:var(--gold)}
+  .gate-card button{
+    width:100%;margin-top:12px;padding:13px;border-radius:13px;cursor:pointer;
+    border:1px solid rgba(217,185,120,.55);
+    background:linear-gradient(150deg, rgba(217,185,120,.26), rgba(217,185,120,.1));
+    color:var(--gold2);font-family:var(--sans);font-size:14px;font-weight:600;
+  }
+  .gate-card button:disabled{opacity:.55;cursor:default}
+  .gate-err{min-height:18px;margin-top:10px;font-size:12px;color:var(--red)}
+  .gate-card .fine{margin-top:14px;font-size:10.5px;color:#6f675c;line-height:1.6}
+
+  /* ---------- 헤더 ---------- */
+  header.top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+  .brand{display:flex;align-items:center;gap:10px}
+  .brand .mk{
+    width:40px;height:40px;border-radius:50%;display:grid;place-items:center;
+    font-family:var(--serif);font-size:19px;color:var(--gold2);border:1px solid rgba(217,185,120,.6);
+    background:radial-gradient(circle at 50% 35%, rgba(217,185,120,.22), rgba(0,0,0,.15));
+  }
+  .brand h1{font-family:var(--serif);font-size:17px;margin:0;letter-spacing:.02em}
+  .brand small{display:block;font-family:var(--sans);font-size:10.5px;color:var(--dim);letter-spacing:.12em;margin-top:2px}
+  .tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .btn{
+    display:inline-flex;align-items:center;gap:6px;padding:9px 12px;border-radius:11px;cursor:pointer;
+    border:1px solid rgba(217,185,120,.28); background:rgba(255,255,255,.03); color:var(--text);
+    font-family:var(--sans);font-size:12px;text-decoration:none;white-space:nowrap;
+  }
+  .btn:hover{border-color:rgba(217,185,120,.6);color:var(--gold2)}
+  .btn.on{border-color:rgba(79,209,139,.6);background:rgba(79,209,139,.12);color:#b6f0ce}
+  .btn.gold{border-color:rgba(217,185,120,.6);background:rgba(217,185,120,.14);color:var(--gold2);font-weight:600}
+  .live{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--dim)}
+  .live i{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 0 0 rgba(79,209,139,.7);animation:pulse 2s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(79,209,139,.55)}70%{box-shadow:0 0 0 9px rgba(79,209,139,0)}100%{box-shadow:0 0 0 0 rgba(79,209,139,0)}}
+
+  /* ---------- KPI ---------- */
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+  .kpi{
+    padding:14px 14px 13px;border-radius:16px;border:1px solid var(--line);
+    background:linear-gradient(165deg, rgba(30,22,40,.85), rgba(14,10,20,.9));
+  }
+  .kpi .k{font-size:11px;color:var(--dim);letter-spacing:.04em}
+  .kpi .v{font-family:var(--serif);font-size:26px;color:var(--gold2);line-height:1.15;margin-top:4px}
+  .kpi .v small{font-family:var(--sans);font-size:11px;color:var(--dim);margin-left:3px}
+  .kpi .s{font-size:10.5px;color:#7f766a;margin-top:3px}
+  .kpi.pay .v{color:#ffd9a2}
+
+  /* ---------- 패널 ---------- */
+  .grid2{display:grid;grid-template-columns:1.15fr .85fr;gap:12px;margin-bottom:14px}
+  .panel{border:1px solid var(--line);border-radius:18px;background:rgba(18,13,26,.72);overflow:hidden}
+  .panel-h{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line)}
+  .panel-h h2{font-family:var(--serif);font-size:13.5px;margin:0;letter-spacing:.02em}
+  .panel-h span{font-size:10.5px;color:var(--dim)}
+  .panel-b{padding:12px 14px}
+  .bars{display:flex;flex-direction:column;gap:9px}
+  .bar-row{display:grid;grid-template-columns:66px 1fr 42px;align-items:center;gap:8px;font-size:11.5px}
+  .bar-row .nm{color:#cfc5b5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .bar-track{height:8px;border-radius:99px;background:rgba(255,255,255,.06);overflow:hidden}
+  .bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg, rgba(217,185,120,.85), rgba(246,227,173,.55));transition:width .4s}
+  .bar-row .n{text-align:right;color:var(--dim);font-variant-numeric:tabular-nums}
+  .empty{font-size:11.5px;color:#7f766a;padding:14px 0;text-align:center}
+
+  .feed{display:flex;flex-direction:column;gap:0;max-height:262px;overflow:auto}
+  .feed-row{display:grid;grid-template-columns:52px 1fr auto;gap:8px;align-items:center;padding:7px 0;border-bottom:1px dashed rgba(255,255,255,.05);font-size:11.5px}
+  .feed-row:last-child{border-bottom:0}
+  .feed-row .t{color:var(--dim);font-variant-numeric:tabular-nums}
+  .feed-row .x{color:#ded4c4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .feed-row .b{font-size:10px;padding:2px 7px;border-radius:99px;border:1px solid rgba(255,255,255,.12);color:#cbbfae;white-space:nowrap}
+
+  /* ---------- 필터 ---------- */
+  .filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:11px 14px;border-bottom:1px solid var(--line)}
+  .seg{display:inline-flex;border:1px solid rgba(255,255,255,.10);border-radius:99px;overflow:hidden}
+  .seg button{
+    padding:6px 11px;border:0;background:none;color:#b3a898;font-family:var(--sans);font-size:11.5px;cursor:pointer;
+  }
+  .seg button.active{background:rgba(217,185,120,.18);color:var(--gold2);font-weight:600}
+  .filters select,.filters input[type=search]{
+    padding:7px 9px;border-radius:9px;border:1px solid rgba(255,255,255,.12);
+    background:rgba(0,0,0,.3);color:var(--text);font-family:var(--sans);font-size:11.5px;outline:none;
+  }
+  .filters input[type=search]{min-width:130px;flex:1 1 130px}
+  .chk{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;color:#b3a898;cursor:pointer;user-select:none}
+  .chk input{accent-color:#d9b978}
+
+  /* ---------- 표 ---------- */
+  .table-wrap{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:11.5px;min-width:760px}
+  thead th{
+    position:sticky;top:0;z-index:1;background:#1a1424;text-align:left;font-weight:600;color:#b9ae9d;
+    padding:9px 10px;border-bottom:1px solid rgba(217,185,120,.22);white-space:nowrap;font-size:11px;
+  }
+  tbody td{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.045);vertical-align:top;color:#dcd3c4}
+  tbody tr:hover{background:rgba(217,185,120,.05)}
+  td.ts{white-space:nowrap;font-variant-numeric:tabular-nums;color:#c9bfae}
+  td.ts b{color:#f0e7d8;font-weight:600}
+  td.ts i{font-style:normal;color:#8b8175;margin-left:5px}
+  .pill{display:inline-block;padding:2px 8px;border-radius:99px;font-size:10.5px;white-space:nowrap;border:1px solid transparent}
+  .t-visit{color:#9fc7ff;background:rgba(127,182,255,.12);border-color:rgba(127,182,255,.28)}
+  .t-reading{color:#f6e3ad;background:rgba(217,185,120,.13);border-color:rgba(217,185,120,.32)}
+  .t-share_unlock{color:#c9b1ff;background:rgba(195,155,255,.13);border-color:rgba(195,155,255,.3)}
+  .t-pay_attempt{color:#ffc46b;background:rgba(255,196,107,.1);border-color:rgba(255,196,107,.3)}
+  .t-pay_complete{color:#8df0b8;background:rgba(79,209,139,.13);border-color:rgba(79,209,139,.34)}
+  .adm{display:inline-block;margin-left:5px;font-size:9.5px;padding:1px 6px;border-radius:99px;color:#e2b6ff;border:1px solid rgba(195,155,255,.4);background:rgba(195,155,255,.1)}
+  td.amt{text-align:right;white-space:nowrap;color:#ffd9a2;font-variant-numeric:tabular-nums}
+  .muted{color:#8b8175}
+  .foot{padding:11px 14px;border-top:1px solid var(--line);font-size:10.5px;color:#7f766a;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+  .note{margin-top:14px;font-size:10.5px;color:#6f675c;line-height:1.7}
+  .toast{
+    position:fixed;left:50%;bottom:20px;transform:translate(-50%,20px);z-index:200;
+    padding:10px 16px;border-radius:99px;border:1px solid rgba(217,185,120,.5);
+    background:rgba(16,11,24,.96);color:var(--gold2);font-size:12px;opacity:0;pointer-events:none;transition:.25s;
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+  @media (max-width:860px){
+    .kpis{grid-template-columns:repeat(2,1fr)}
+    .grid2{grid-template-columns:1fr}
+    .brand h1{font-size:15px}
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= PIN 잠금 ================= -->
+<div id="gate">
+  <div class="gate-card">
+    <div class="seal serif">煞</div>
+    <h1>관리자 대시보드</h1>
+    <p>대표님 전용 · 실시간 방문·점사·결제 기록</p>
+    <input id="pin" type="password" inputmode="text" autocomplete="current-password" placeholder="PIN" aria-label="관리자 PIN" />
+    <button id="gateBtn">열기</button>
+    <div class="gate-err" id="gateErr"></div>
+    <div class="fine">이 화면은 살풀이 : 천기 운영자만 봅니다.<br>PIN은 대표님만 아는 값으로 바꿔 두세요.</div>
+  </div>
+</div>
+
+<div class="wrap" id="app" hidden>
+  <header class="top">
+    <div class="brand">
+      <div class="mk serif">煞</div>
+      <div>
+        <h1>살풀이 : 천기 — 관리자 대시보드</h1>
+        <small>REAL-TIME VISITOR · READING · PAYMENT LOG</small>
+      </div>
+    </div>
+    <div class="tools">
+      <span class="live"><i></i><span id="liveTxt">연결 중…</span></span>
+      <button class="btn gold" id="passBtn" type="button">👑 내 폰 관리자 프리패스 켜기</button>
+      <a class="btn" id="siteLink" href="./" target="_blank" rel="noopener">사이트 열기 ↗</a>
+      <button class="btn" id="refreshBtn" type="button">↻ 새로고침</button>
+      <button class="btn on" id="autoBtn" type="button">10초 자동갱신 ON</button>
+      <button class="btn" id="logoutBtn" type="button">잠그기</button>
+    </div>
+  </header>
+
+  <section class="kpis">
+    <div class="kpi">
+      <div class="k">오늘 방문</div>
+      <div class="v" id="kVisit">0<small>명</small></div>
+      <div class="s" id="kVisitSub">기기 기준 · 0시부터</div>
+    </div>
+    <div class="kpi">
+      <div class="k">오늘 점사</div>
+      <div class="v" id="kRead">0<small>건</small></div>
+      <div class="s" id="kReadSub">사주·아이사주·점·타로 등</div>
+    </div>
+    <div class="kpi">
+      <div class="k">공유 해금</div>
+      <div class="v" id="kShare">0<small>건</small></div>
+      <div class="s">친구에게 공유해 잠금 푼 횟수</div>
+    </div>
+    <div class="kpi pay">
+      <div class="k">오늘 결제</div>
+      <div class="v" id="kPay">0<small>건</small></div>
+      <div class="s" id="kPaySub">매출 0원 · 시도 0건</div>
+    </div>
+  </section>
+
+  <section class="grid2">
+    <div class="panel">
+      <div class="panel-h"><h2>카테고리별 인기</h2><span id="chartNote">점사 기준</span></div>
+      <div class="panel-b"><div class="bars" id="chart"></div></div>
+    </div>
+    <div class="panel">
+      <div class="panel-h"><h2>지금 들어오는 기록</h2><span>최근 12건</span></div>
+      <div class="panel-b"><div class="feed" id="feed"></div></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="filters">
+      <div class="seg" id="typeSeg">
+        <button data-seg="all" class="active" type="button">전체</button>
+        <button data-seg="reading" type="button">점사</button>
+        <button data-seg="share_unlock" type="button">공유</button>
+        <button data-seg="pay" type="button">결제</button>
+        <button data-seg="visit" type="button">방문</button>
+      </div>
+      <div class="seg" id="rangeSeg">
+        <button data-range="today" class="active" type="button">오늘</button>
+        <button data-range="7" type="button">7일</button>
+        <button data-range="all" type="button">전체</button>
+      </div>
+      <select id="catSel" aria-label="카테고리 선택">
+        <option value="">카테고리 전체</option>
+      </select>
+      <label class="chk"><input type="checkbox" id="hideAdmin" /> 관리자 테스트 제외</label>
+      <input type="search" id="q" placeholder="이름 · 카테고리 · 상품 검색" aria-label="검색" />
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:150px">날짜 · 시:분:초</th>
+            <th style="width:78px">구분</th>
+            <th style="width:110px">이름</th>
+            <th style="width:130px">카테고리 / 상품</th>
+            <th>상세 (생년월일·일주 등)</th>
+            <th style="width:88px;text-align:right">금액</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div class="foot">
+      <span id="footCount">0건</span>
+      <span>시각은 한국시간(KST) · 구글시트 원본 보기: <a id="sheetLink" href="#" target="_blank" rel="noopener">Sheet ↗</a></span>
+    </div>
+  </section>
+
+  <p class="note">
+    · 이 대시보드는 10초마다 자동으로 새로 읽습니다. 화면을 닫아도 기록은 계속 쌓입니다.<br>
+    · [👑 내 폰 관리자 프리패스]를 켜면 이 브라우저에서 여는 살풀이 사이트의 모든 가림막·결제 잠금이 풀립니다. 손님 화면을 볼 때는 [일반모드로 보기]를 누르세요.<br>
+    · 관리자 프리패스가 켜진 상태의 기록에는 [👑 관리자] 표시가 붙습니다. 위 [관리자 테스트 제외]로 실제 손님 기록만 볼 수 있습니다.
+  </p>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  'use strict';
+  var ENDPOINT = 'https://script.google.com/macros/s/AKfycbzIJ4UDjesjj9ywiOGY2IYHSuSpqElFGMnLw7y97VEwKcSNovmfKMsBVNB4LxM-4zWW/exec';
+  var SHEET_URL = 'https://docs.google.com/spreadsheets/d/1t6dtF0jccq_YWDJRkKbgw8pXPDx03jQwunyGVYJU6Lk/edit';
+  var PIN_KEY = 'salpuri_admin_pin';
+  var ADMIN_KEY = 'salpuri_admin_mode';
+
+  var state = {
+    pin: '', rows: [], seg: 'all', range: 'today', cat: '', hideAdmin: false, q: '',
+    auto: true, timer: null, lastAt: null
+  };
+
+  var $ = function (s) { return document.querySelector(s); };
+
+  function toast(msg) {
+    var el = $('#toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(el._t);
+    el._t = setTimeout(function () { el.classList.remove('show'); }, 2400);
+  }
+
+  function pad2(n) { return String(n).padStart(2, '0'); }
+  function todayKST() {
+    var d = new Date();
+    try {
+      var s = d.toLocaleString('sv-SE', { timeZone: 'Asia/Seoul' });
+      return s.slice(0, 10);
+    } catch (e) {
+      var u = new Date(d.getTime() + 9 * 3600 * 1000);
+      return u.getUTCFullYear() + '-' + pad2(u.getUTCMonth() + 1) + '-' + pad2(u.getUTCDate());
+    }
+  }
+  function hhmmssKST() {
+    var d = new Date();
+    try { return d.toLocaleString('sv-SE', { timeZone: 'Asia/Seoul' }).slice(11, 19); }
+    catch (e) { return pad2(d.getHours()) + ':' + pad2(d.getMinutes()) + ':' + pad2(d.getSeconds()); }
+  }
+  function won(n) {
+    n = Number(n) || 0;
+    return n.toLocaleString('ko-KR') + '원';
+  }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function typeLabel(t) {
+    return { visit: '방문', reading: '점사', share_unlock: '공유', pay_attempt: '결제시도', pay_complete: '결제완료' }[t] || t;
+  }
+  function dateOf(ts) { return String(ts || '').slice(0, 10); }
+  function timeOf(ts) { return String(ts || '').slice(11, 19); }
+
+  /* ---------------- 인증 / 조회 ---------------- */
+  function load(pin) {
+    var url = ENDPOINT + '?key=' + encodeURIComponent(pin) + '&limit=4000&t=' + Date.now();
+    return fetch(url, { cache: 'no-store' }).then(function (r) { return r.text(); }).then(function (txt) {
+      var d;
+      try { d = JSON.parse(txt); } catch (e) { throw new Error('응답을 읽지 못했어요.'); }
+      if (!d || d.ok !== true) {
+        var err = new Error(d && d.error === 'unauthorized' ? 'PIN이 맞지 않습니다.' : '기록을 불러오지 못했어요.');
+        err.unauthorized = d && d.error === 'unauthorized';
+        throw err;
+      }
+      return d;
+    });
+  }
+
+  function openGateError(msg) { $('#gateErr').textContent = msg || ''; }
+
+  function enter(pin) {
+    return load(pin).then(function (d) {
+      state.pin = pin;
+      state.rows = d.rows || [];
+      state.lastAt = new Date();
+      try { sessionStorage.setItem(PIN_KEY, pin); } catch (e) {}
+      $('#gate').classList.add('hide');
+      $('#app').hidden = false;
+      render();
+      startAuto();
+      return true;
+    });
+  }
+
+  /* ---------------- 렌더 ---------------- */
+  function filteredRows() {
+    var today = todayKST();
+    var from = '';
+    if (state.range === 'today') from = today;
+    else if (state.range === '7') {
+      var d = new Date(today + 'T00:00:00+09:00');
+      d.setDate(d.getDate() - 6);
+      from = d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+    }
+    var q = state.q.trim().toLowerCase();
+    return state.rows.filter(function (r) {
+      var ts = String(r.ts || '');
+      if (from && dateOf(ts) < from) return false;
+      if (state.hideAdmin && r.admin) return false;
+      if (state.seg === 'pay') { if (r.type !== 'pay_attempt' && r.type !== 'pay_complete') return false; }
+      else if (state.seg !== 'all' && r.type !== state.seg) return false;
+      if (state.cat && String(r.category || '') !== state.cat) return false;
+      if (q) {
+        var hay = [r.name, r.category, r.product, r.detail, r.birth, r.orderId, r.type].join(' ').toLowerCase();
+        if (hay.indexOf(q) < 0) return false;
+      }
+      return true;
+    });
+  }
+
+  function computeKpis() {
+    var today = todayKST();
+    var todays = state.rows.filter(function (r) { return dateOf(r.ts) === today && !r.admin; });
+    var devices = {};
+    var visits = 0, reads = 0, shares = 0, pays = 0, attempts = 0, revenue = 0;
+    todays.forEach(function (r) {
+      if (r.type === 'visit') { visits++; if (r.device) devices[r.device] = 1; }
+      else if (r.type === 'reading') reads++;
+      else if (r.type === 'share_unlock') shares++;
+      else if (r.type === 'pay_complete') { pays++; revenue += Number(r.amount) || 0; }
+      else if (r.type === 'pay_attempt') attempts++;
+    });
+    var uniq = Object.keys(devices).length;
+    return { visits: visits, uniq: uniq, reads: reads, shares: shares, pays: pays, attempts: attempts, revenue: revenue };
+  }
+
+  function renderKpis() {
+    var k = computeKpis();
+    $('#kVisit').innerHTML = k.uniq + '<small>명</small>';
+    $('#kVisitSub').textContent = '고유 기기 ' + k.uniq + ' · 접속 ' + k.visits + '회';
+    $('#kRead').innerHTML = k.reads + '<small>건</small>';
+    $('#kPay').innerHTML = k.pays + '<small>건</small>';
+    $('#kPaySub').textContent = '매출 ' + won(k.revenue) + ' · 시도 ' + k.attempts + '건';
+    $('#kShare').innerHTML = k.shares + '<small>건</small>';
+  }
+
+  function renderChart() {
+    var today = todayKST();
+    var counts = {};
+    state.rows.forEach(function (r) {
+      if (r.type !== 'reading') return;
+      if (state.range === 'today' && dateOf(r.ts) !== today) return;
+      if (state.hideAdmin && r.admin) return;
+      var c = r.category || '기타';
+      counts[c] = (counts[c] || 0) + 1;
+    });
+    var arr = Object.keys(counts).map(function (k) { return { name: k, n: counts[k] }; })
+      .sort(function (a, b) { return b.n - a.n; }).slice(0, 9);
+    var max = arr.length ? arr[0].n : 0;
+    var host = $('#chart');
+    if (!arr.length) { host.innerHTML = '<div class="empty">아직 기록이 없어요. 손님 모드로 점사를 한 번 실행해 보세요.</div>'; return; }
+    host.innerHTML = arr.map(function (x) {
+      var w = max ? Math.max(4, Math.round(x.n / max * 100)) : 0;
+      return '<div class="bar-row"><span class="nm">' + esc(x.name) + '</span>'
+        + '<span class="bar-track"><span class="bar-fill" style="width:' + w + '%"></span></span>'
+        + '<span class="n">' + x.n + '</span></div>';
+    }).join('');
+    $('#chartNote').textContent = (state.range === 'today' ? '오늘' : state.range === '7' ? '7일' : '전체') + ' 점사 기준';
+  }
+
+  function renderFeed() {
+    var rows = filteredRows().slice(-12).reverse();
+    var host = $('#feed');
+    if (!rows.length) { host.innerHTML = '<div class="empty">기록이 없어요.</div>'; return; }
+    host.innerHTML = rows.map(function (r) {
+      var what = r.category || r.product || '';
+      var label = r.type === 'pay_complete' ? (r.product || '결제') + (r.amount ? ' ' + won(r.amount) : '')
+        : r.type === 'pay_attempt' ? (r.product || '결제시도')
+          : (r.name ? r.name + ' · ' : '') + (what || r.detail || '');
+      return '<div class="feed-row"><span class="t">' + esc(timeOf(r.ts)) + '</span>'
+        + '<span class="x">' + esc(label) + '</span>'
+        + '<span class="b">' + esc(typeLabel(r.type)) + '</span></div>';
+    }).join('');
+  }
+
+  function renderTable() {
+    var rows = filteredRows().slice().reverse();
+    var show = rows.slice(0, 400);
+    var tb = $('#tbody');
+    if (!show.length) {
+      tb.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:26px;color:#7f766a">조건에 맞는 기록이 없어요.</td></tr>';
+    } else {
+      tb.innerHTML = show.map(function (r) {
+        var kind = r.product || r.category || r.detail || '';
+        var detail = r.birth || r.detail || '';
+        if (r.type === 'reading' && r.birth) detail = r.birth + (r.detail ? ' · ' + r.detail : '');
+        if (r.type === 'share_unlock') detail = r.detail || '공유로 잠금 해제';
+        if (r.type === 'visit') detail = r.device || '';
+        if (r.type === 'pay_attempt' || r.type === 'pay_complete') detail = (r.method ? r.method + ' · ' : '') + (r.orderId || '') + (r.detail && r.detail !== '결제 완료' ? ' · ' + r.detail : '');
+        var amt = (r.type === 'pay_attempt' || r.type === 'pay_complete') && r.amount ? Number(r.amount).toLocaleString('ko-KR') + '원' : '<span class="muted">—</span>';
+        return '<tr>'
+          + '<td class="ts"><b>' + esc(timeOf(r.ts)) + '</b><i>' + esc(dateOf(r.ts)) + '</i></td>'
+          + '<td><span class="pill t-' + esc(r.type) + '">' + esc(typeLabel(r.type)) + '</span></td>'
+          + '<td>' + (r.name ? esc(r.name) : '<span class="muted">—</span>') + (r.admin ? '<span class="adm">👑</span>' : '') + '</td>'
+          + '<td>' + (kind ? esc(kind) : '<span class="muted">—</span>') + '</td>'
+          + '<td>' + (detail ? esc(detail) : '<span class="muted">—</span>') + '</td>'
+          + '<td class="amt">' + amt + '</td>'
+          + '</tr>';
+      }).join('');
+    }
+    $('#footCount').textContent = rows.length + '건' + (rows.length > 400 ? ' (최근 400건 표시)' : '');
+  }
+
+  function renderCats() {
+    var sel = $('#catSel');
+    if (sel._built) return;
+    var set = {};
+    state.rows.forEach(function (r) { if (r.category) set[r.category] = 1; });
+    var base = ['사주', '아이사주', '궁합', '오늘', '신살', '신년', '재물', '택일', '외모·점', '작명', '타로'];
+    var all = {};
+    base.concat(Object.keys(set)).forEach(function (c) { all[c] = 1; });
+    Object.keys(all).sort().forEach(function (c) {
+      var o = document.createElement('option');
+      o.value = c; o.textContent = c;
+      sel.appendChild(o);
+    });
+    sel._built = true;
+  }
+
+  function render() {
+    renderKpis();
+    renderChart();
+    renderFeed();
+    renderTable();
+    renderCats();
+    var live = $('#liveTxt');
+    live.textContent = 'LIVE · ' + hhmmssKST() + ' 갱신';
+  }
+
+  /* ---------------- 자동 갱신 ---------------- */
+  function refresh(silent) {
+    if (!state.pin) return Promise.resolve();
+    return load(state.pin).then(function (d) {
+      state.rows = d.rows || [];
+      state.lastAt = new Date();
+      render();
+      if (!silent) toast('새로 고쳤어요 · ' + state.rows.length + '건');
+      return true;
+    }).catch(function (e) {
+      if (e.unauthorized) { lockOut('세션이 만료됐어요. PIN을 다시 넣어 주세요.'); }
+      else { $('#liveTxt').textContent = '연결 실패 · 재시도 중'; }
+      throw e;
+    });
+  }
+  function startAuto() {
+    stopAuto();
+    if (!state.auto) return;
+    state.timer = setInterval(function () {
+      refresh(true).catch(function () {});
+    }, 10000);
+  }
+  function stopAuto() { if (state.timer) { clearInterval(state.timer); state.timer = null; } }
+
+  function lockOut(msg) {
+    stopAuto();
+    try { sessionStorage.removeItem(PIN_KEY); } catch (e) {}
+    state.pin = '';
+    $('#app').hidden = true;
+    $('#gate').classList.remove('hide');
+    openGateError(msg || '');
+  }
+
+  /* ---------------- 프리패스 토글 ---------------- */
+  function passOn() {
+    try { return localStorage.getItem(ADMIN_KEY) === '1'; } catch (e) { return false; }
+  }
+  function paintPass() {
+    var b = $('#passBtn');
+    if (passOn()) {
+      b.textContent = '👑 관리자 프리패스 ON · 끄기';
+      b.classList.add('on');
+    } else {
+      b.textContent = '👑 내 폰 관리자 프리패스 켜기';
+      b.classList.remove('on');
+    }
+  }
+
+  /* ---------------- 이벤트 ---------------- */
+  $('#gateBtn').addEventListener('click', function () {
+    var btn = this;
+    var pin = $('#pin').value.trim();
+    if (!pin) { openGateError('PIN을 넣어 주세요.'); return; }
+    openGateError('');
+    btn.disabled = true; btn.textContent = '확인 중…';
+    enter(pin).then(function () {
+      btn.disabled = false; btn.textContent = '열기';
+      $('#pin').value = '';
+      paintPass();
+    }).catch(function (e) {
+      btn.disabled = false; btn.textContent = '열기';
+      openGateError(e.message || '열지 못했어요.');
+    });
+  });
+  $('#pin').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('#gateBtn').click(); });
+
+  $('#refreshBtn').addEventListener('click', function () { refresh(false).catch(function () {}); });
+  $('#autoBtn').addEventListener('click', function () {
+    state.auto = !state.auto;
+    this.textContent = state.auto ? '10초 자동갱신 ON' : '10초 자동갱신 OFF';
+    this.classList.toggle('on', state.auto);
+    if (state.auto) startAuto(); else stopAuto();
+    toast(state.auto ? '10초마다 자동으로 갱신합니다.' : '자동 갱신을 껐어요.');
+  });
+  $('#logoutBtn').addEventListener('click', function () { lockOut(''); });
+
+  $('#typeSeg').addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-seg]'); if (!b) return;
+    state.seg = b.getAttribute('data-seg');
+    Array.prototype.forEach.call(this.querySelectorAll('button'), function (x) { x.classList.toggle('active', x === b); });
+    render();
+  });
+  $('#rangeSeg').addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-range]'); if (!b) return;
+    state.range = b.getAttribute('data-range');
+    Array.prototype.forEach.call(this.querySelectorAll('button'), function (x) { x.classList.toggle('active', x === b); });
+    render();
+  });
+  $('#catSel').addEventListener('change', function () { state.cat = this.value; render(); });
+  $('#hideAdmin').addEventListener('change', function () { state.hideAdmin = this.checked; render(); });
+  $('#q').addEventListener('input', function () { state.q = this.value; render(); });
+
+  $('#passBtn').addEventListener('click', function () {
+    if (passOn()) {
+      try { localStorage.removeItem(ADMIN_KEY); } catch (e) {}
+      toast('프리패스 OFF — 이 브라우저는 손님 화면으로 돌아갑니다.');
+    } else {
+      try { localStorage.setItem(ADMIN_KEY, '1'); } catch (e) {}
+      toast('프리패스 ON — 살풀이 사이트의 모든 풀이·부적·리포트가 바로 열립니다.');
+    }
+    paintPass();
+  });
+
+  $('#sheetLink').href = SHEET_URL;
+  $('#siteLink').addEventListener('click', function () {
+    if (passOn()) return;
+    toast('프리패스가 꺼져 있어 손님 화면으로 열립니다.');
+  });
+
+  /* 세션에 PIN이 남아 있으면 바로 연다 */
+  (function boot() {
+    paintPass();
+    var saved = '';
+    try { saved = sessionStorage.getItem(PIN_KEY) || ''; } catch (e) {}
+    if (saved) {
+      enter(saved).then(function () { paintPass(); }).catch(function () { openGateError(''); });
+    } else {
+      setTimeout(function () { $('#pin').focus(); }, 260);
+    }
+  })();
+})();
+</script>
+</body>
+</html>
