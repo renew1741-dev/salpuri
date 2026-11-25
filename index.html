@@ -31,7 +31,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20261125-19" />
+<link rel="stylesheet" href="css/style.css?v=20261125-20" />
+<link rel="stylesheet" href="css/pdf.css?v=20261125-1" />
 </head>
 <body class="locked">
 
@@ -732,7 +733,7 @@
         <div class="pay-note">
           · 결제 즉시 이 화면에서 프리미엄 리포트가 열립니다.<br>
           · 부적 배경화면 4종은 결제 후 바로 내려받으실 수 있습니다.<br>
-          · 리포트는 PDF로 저장하실 수 있습니다(인쇄 → PDF 저장).
+          · 리포트는 <b>PDF 파일 바로 저장</b> 버튼으로 .pdf 파일로 내려받으실 수 있습니다.
         </div>
       </div>
 
@@ -750,7 +751,14 @@
         </div>
         <div id="reportBody" class="report-doc hidden"></div>
         <div class="center mt20 hidden" id="printRow">
-          <button class="btn-ghost" id="printBtn">PDF로 저장 / 인쇄</button>
+          <div class="pdf-actions">
+            <button class="btn-gold pdf-save-btn" id="pdfSaveBtn" type="button">
+              <span class="pdf-btn-ico" aria-hidden="true">📄</span>
+              PDF 파일 바로 저장
+            </button>
+            <p class="pdf-hint">누르면 실제 <b>.pdf</b> 파일로 내려받아요 · 8쪽 · 인쇄창이 뜨지 않아요</p>
+            <button class="btn-ghost pdf-print-btn" id="printBtn" type="button">🖨️ 인쇄로 PDF 저장</button>
+          </div>
         </div>
         <div class="upsell" id="upsellReport">
           <div class="upsell-head">
@@ -832,6 +840,7 @@
 <script src="js/vault.js?v=20261125-6"></script>
 <script src="js/analytics.js?v=20261125-1"></script>
 <script src="js/baby-text.js?v=20261125-1"></script>
-<script src="js/app.js?v=20261125-16"></script>
+<script src="js/pdf.js?v=20261125-1"></script>
+<script src="js/app.js?v=20261125-17"></script>
 </body>
 </html>
