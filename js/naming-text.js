@@ -60,7 +60,7 @@
       ${ring(cur.score.total, cur.band.t)}
       <p class="nm-verdict serif">발음오행 ${cur.score.sound}/30 · 사주 보완 ${cur.score.saju}/45 · 수리 ${cur.score.suri}/25</p>
       <div class="nm-need">${model.needLine}</div>
-      <p class="small center mt10">이름 궁합은 사주가 필요로 하는 오행을 이름이 얼마나 채우는지(45) · 성과 이름의 발음오행 흐름(30) · 한글 획수의 사격(25)으로 계산합니다.</p>
+      <p class="small center mt10">이름 궁합은 사주가 필요로 하는 오행을 이름이 얼마나 채우는지(45) · 성과 이름의 발음오행 흐름(30) · 한글 획수의 사격(25)으로 계산해요.</p>
     </div>`;
   }
 
@@ -92,7 +92,7 @@
         <span><b class="hee">희신</b> 용신을 받쳐 주는 기운</span>
         <span><b class="gi">기신</b> 이름에서 피해야 할 기운</span>
       </div>
-      <p class="small">이름 쪽 점(●)은 이름 글자의 초성 발음오행입니다. 성씨는 타고나는 몫이라 보완 계산에서 제외하고, 이름 두 글자만 봅니다.</p>
+      <p class="small">이름 쪽 점(●)은 이름 글자의 초성 발음오행이에요. 성씨는 타고나는 몫이라 보완 계산에서 빼고, 이름 두 글자만 봐요.</p>
     </div>`;
   }
 
@@ -116,7 +116,7 @@
         <b class="nm-blk-title">지금 이름이 살려 주는 곳</b>
         <ul>${goods.map(x => `<li>${x}</li>`).join('')}</ul>
       </div>` : ''}
-      ${cur ? `<p class="small">사격은 한글 획수로 계산했습니다. 실제 한자를 쓰고 계시면 획수가 달라 수리도 조금 달라질 수 있습니다.</p>` : ''}
+      ${cur ? `<p class="small">사격은 한글 획수로 계산했어요. 실제 한자를 쓰고 계시면 획수가 달라서 수리도 조금 달라질 수 있어요.</p>` : ''}
     </div>`;
   }
 
@@ -124,10 +124,10 @@
     const n = model.need;
     const elS = global.Naming.elSubj, elO = global.Naming.elObj;
     const paras = [];
-    paras.push(`아직 이름이 없는 사주입니다. 일간은 ${GAN_KO[a.dayGan]}(${EH[a.dayElem]})이고, 여덟 글자에서 ${elS(n.top)} ${pctTxt(n.topPct)}로 가장 두껍고 ${elS(n.low)} ${pctTxt(n.lowPct)}로 가장 마릅니다. 용신은 ${el(n.yong)}, 희신은 ${el(n.hee)}, 기신은 ${el(n.gi)}입니다.`);
-    paras.push(`작명에서 먼저 정할 것은 이름의 뜻이 아니라 방향입니다. 이 사주는 ${elO(n.yong)} 세워야 ${n.strong.indexOf('약') >= 0 ? '기운이 버티고' : '넘치는 기운이 빠져나갑니다'}. ${elS(n.top)} ${pctTxt(n.topPct)}로 이미 두꺼우니, 이름에 ${elO(n.top)} 또 얹으면 같은 자리에서 힘이 새는 구조가 됩니다.`);
-    paras.push(`이름은 성을 포함해 세 글자의 첫소리로 읽힙니다. 하루에도 수십 번 불리는 소리이므로, 초성의 오행이 사주와 상생으로 이어지느냐가 평생의 결을 조금씩 바꿉니다. 여기에 한자 획수의 사격(원·형·이·정)이 초년·청년·중년·말년의 흐름을 더합니다.`);
-    if (a.future) paras.push(`지금은 출산 예정일 기준 명식입니다. 실제 태어난 시각이 예정과 다르면 시주가 달라지므로, 출생 후 시간을 넣고 한 번 더 확인하시길 권합니다.`);
+    paras.push(`아직 이름이 없는 사주예요. 일간은 ${GAN_KO[a.dayGan]}(${EH[a.dayElem]})이고, 여덟 글자에서 ${elS(n.top)} ${pctTxt(n.topPct)}로 가장 두껍고 ${elS(n.low)} ${pctTxt(n.lowPct)}로 가장 말라요. 용신은 ${el(n.yong)}, 희신은 ${el(n.hee)}, 기신은 ${el(n.gi)}이에요.`);
+    paras.push(`작명에서 먼저 정할 건 이름의 뜻이 아니라 방향이에요. 이 사주는 ${elO(n.yong)} 세워야 ${n.strong.indexOf('약') >= 0 ? '기운이 버티고' : '넘치는 기운이 빠져나가요'}. ${elS(n.top)} ${pctTxt(n.topPct)}로 이미 두꺼우니까, 이름에 ${elO(n.top)} 또 얹으면 같은 자리에서 힘이 새요.`);
+    paras.push(`이름은 성까지 세 글자의 첫소리로 읽혀요. 하루에도 수십 번 불리는 소리라서, 초성의 오행이 사주와 상생으로 이어지는지가 평생의 결을 조금씩 바꿔요. 여기에 한자 획수의 사격(원·형·이·정)이 초년·청년·중년·말년의 흐름을 더해요.`);
+    if (a.future) paras.push(`지금은 출산 예정일 기준 명식이에요. 실제로 태어난 시각이 예정과 다르면 시주가 달라지니까, 출생 후에 시간을 넣고 한 번 더 확인해 보세요.`);
     return paras;
   }
 
@@ -182,7 +182,7 @@
 
     return `<div class="card nm-lock">
       <div class="section-head"><h2 class="serif">사주 맞춤 이름 후보 5선</h2><span class="en">5 NAMES</span></div>
-      <p class="small">${global.Naming.elObj(model.need.yong)} 세우고 ${global.Naming.elObj(model.need.gi)} 피하도록, 발음오행 상생과 한자 사격을 함께 통과한 이름들입니다. 후보마다 한자·수리·해설이 붙습니다.</p>
+      <p class="small">${global.Naming.elObj(model.need.yong)} 세우고 ${global.Naming.elObj(model.need.gi)} 피하도록, 발음오행 상생과 한자 사격을 같이 통과한 이름들이에요. 후보마다 한자·수리·해설이 붙어요.</p>
       <div class="nm-lock-list">${list}</div>
       <div class="nm-preview">
         <span class="nm-preview-tag">${first ? first.full : ''} · 1순위 해설</span>
@@ -193,7 +193,7 @@
         <div class="nm-price"><s>${won(price.list)}원</s><b>${won(price.sale)}원</b><span>오픈 특가</span></div>
         <button class="btn-gold" data-nm-buy="1">후보 5선 전체 열기</button>
         <button class="btn-ghost nm-demo-btn" data-nm-demo="1">데모로 먼저 열어보기</button>
-        <p class="small">결제 즉시 이 화면에서 열립니다. 현장 결제 연동 전까지는 데모(테스트 결제)로 전체 내용을 확인하실 수 있습니다.</p>
+        <p class="small">결제하면 이 화면에서 바로 열려요. 실제 결제 연동 전까지는 데모(테스트 결제)로 전체 내용을 확인하실 수 있어요.</p>
       </div>
     </div>`;
   }
@@ -207,9 +207,9 @@
     return `<div class="card nm-open">
       <div class="section-head"><h2 class="serif">사주 맞춤 이름 후보 5선</h2><span class="en">5 NAMES</span></div>
       ${gainLine}
-      <p class="small">같은 이름이라도 어떤 한자를 쓰느냐에 따라 사격이 달라집니다. 각 후보는 그 이름에서 사격이 가장 좋은 조합으로 골랐습니다. 사격은 형격(청년)·이격(중년)·정격(말년)을 중심으로 보고, 원격(조상운)은 참고로만 봅니다.</p>
+      <p class="small">같은 이름이라도 어떤 한자를 쓰느냐에 따라 사격이 달라져요. 각 후보는 그 이름에서 사격이 제일 좋은 조합으로 골랐어요. 사격은 형격(청년)·이격(중년)·정격(말년)을 중심으로 보고, 원격(조상운)은 참고로만 봐요.</p>
       ${model.candidates.map((c, i) => candCard(c, i)).join('')}
-      <p class="small">최종 결정 전에는 가족이 부르는 소리와 한자 뜻을 함께 확인하십시오. 이름은 한 번 정하면 오래 쓰는 것이니, 마음에 드는 두세 개를 3일쯤 불러 보고 고르셔도 좋습니다.</p>
+      <p class="small">최종 결정 전에는 가족이 부르는 소리와 한자 뜻을 같이 확인해 보세요. 이름은 한 번 정하면 오래 쓰니까, 마음에 드는 두세 개를 3일쯤 불러 보고 고르셔도 좋아요.</p>
     </div>`;
   }
 
@@ -221,11 +221,11 @@
       <div class="section-head"><h2 class="serif">이름 하나가 바꾸는 것</h2><span class="en">WHY NAME</span></div>
       <p class="nm-para serif">${model.hook}</p>
       <ul class="nm-points">
-        <li><b>부르는 소리</b> 이름은 하루에도 수십 번 불리는 유일한 주문입니다. 사주가 타고난 기운이라면, 이름은 평생 반복되는 소리입니다.</li>
+        <li><b>부르는 소리</b> 이름은 하루에도 수십 번 불리는 유일한 주문이에요. 사주가 타고난 기운이라면, 이름은 평생 반복되는 소리죠.</li>
         <li><b>발음오행</b> 성과 이름의 첫소리가 상생으로 이어지는지를 봅니다. 여기서 어긋나면 같은 사주라도 일이 한 박자 늦게 풀립니다.</li>
-        <li><b>81수리</b> 한자 획수로 초년·청년·중년·말년의 흐름을 봅니다. 뜻이 좋아도 수리가 흉한 자리에서는 남는 것이 적습니다.</li>
+        <li><b>81수리</b> 한자 획수로 초년·청년·중년·말년의 흐름을 봐요. 뜻이 좋아도 수리가 흉한 자리에서는 남는 게 적어요.</li>
       </ul>
-      <p class="small">철학관 작명 의뢰는 보통 10만~15만 원, 상담 20~30분에 이름 석 자를 받습니다. 여기서는 만세력으로 사주를 먼저 끝까지 읽고, 사주의 빈 칸을 정한 뒤 그 칸에 맞는 발음오행·한자·수리를 조합해 드립니다.</p>
+      <p class="small">철학관에 작명을 맡기면 보통 10만~15만 원에, 상담 20~30분으로 이름 석 자를 받아요. 여기서는 만세력으로 사주를 먼저 끝까지 읽고, 사주의 빈 칸을 정한 다음 그 칸에 맞는 발음오행·한자·수리를 조합해 드려요.</p>
     </div>`;
   }
 
@@ -248,7 +248,7 @@
       <div class="nm-need">${model.needLine}</div>
       <p class="small center mt10">${isBaby
         ? '아직 이름이 없으니 점수 대신 사주가 필요로 하는 글자를 먼저 보여 드립니다. 이름을 붙이면 그 이름의 점수와 해설이 바로 나옵니다.'
-        : '지금 이름을 비워 두셨습니다. 이름을 넣으면 그 이름의 점수와 어긋난 지점을 짚어 드리고, 아래에는 사주에 맞춘 개명 후보 5선을 세웠습니다.'}</p>
+        : '지금 이름을 비워 두셨어요. 이름을 넣으면 그 이름의 점수와 어긋난 지점을 짚어 드리고, 아래에는 사주에 맞춘 개명 후보 5선을 세웠어요.'}</p>
     </div>`;
 
     return head +
