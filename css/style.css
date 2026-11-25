@@ -2324,7 +2324,8 @@ body.tal-open { overflow: hidden; }
   border: 1px solid rgba(217, 117, 110, .35); background: rgba(217, 117, 110, .07);
   color: #f0c9b8; font-size: 12px; font-family: inherit; letter-spacing: .02em; transition: .2s;
 }
-.like-btn:hover { border-color: #e2a35e; background: rgba(226, 163, 94, .13); }
+/* hover 에서도 금색 그라데이션 유지 — 반투명 배경으로 덮으면 어두운 글자가 묻힙니다(터치 기기의 붙는 hover 포함) */
+.like-btn:hover { border-color: #e2a35e; }
 .like-btn .like-fire { font-size: 14px; line-height: 1; }
 .like-btn .like-num { font-size: 13px; color: var(--gold-2); font-variant-numeric: tabular-nums; font-weight: 500; }
 .like-btn.liked {
