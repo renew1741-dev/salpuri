@@ -1594,6 +1594,10 @@
       /* 결과 맨 마지막 버튼 — 🔥 소름 돋아요 · N */
       document.querySelectorAll('.like-btn').forEach(b => {
         b.classList.toggle('liked', done);
+        const hideNum = known && this.count === 0;
+        const n = b.querySelector('.like-num'), sep = b.querySelector('.like-sep');
+        if (n) n.style.display = hideNum ? 'none' : '';
+        if (sep) sep.style.display = hideNum ? 'none' : '';
         const t = b.querySelector('.like-txt');
         if (t) t.textContent = done ? '소름 돋았습니다' : '소름 돋아요';
         b.setAttribute('aria-label', `소름 돋아요 — 실제 방문자 ${known ? txt : '확인 중'}명`);
@@ -1601,13 +1605,17 @@
       /* 상단 고정 배지 — 지금까지 N명이 소름 돋아요 */
       document.querySelectorAll('.like-top-btn').forEach(b => {
         b.classList.toggle('liked', done);
+        const zero = known && this.count === 0;
+        const num = b.querySelector('.like-num');
+        if (num) num.style.display = zero ? 'none' : '';
         const lead = b.querySelector('.like-lead'), tail = b.querySelector('.like-tail');
-        if (lead) lead.textContent = done ? '나까지' : (known && this.count > 0 ? '지금까지' : '아직');
-        if (tail) {
-          if (!known) tail.textContent = ' 소름 돋아요';
-          else if (done) tail.textContent = '명이 소름 돋았습니다';
-          else if (this.count > 0) tail.textContent = '명이 소름 돋아요';
-          else tail.textContent = '명 · 첫 번째로 눌러 보세요';
+        if (lead && tail) {
+          if (!known) { lead.textContent = '지금까지'; tail.textContent = ' 소름 돋아요'; }
+          else if (zero) {
+            lead.textContent = done ? '첫 번째로' : '아직 아무도';
+            tail.textContent = done ? ' 소름 돋았습니다' : ' 안 눌렀어요 · 첫 번째로 눌러 보세요';
+          } else if (done) { lead.textContent = '나까지'; tail.textContent = '명이 소름 돋았습니다'; }
+          else { lead.textContent = '지금까지'; tail.textContent = '명이 소름 돋아요'; }
         }
         b.setAttribute('aria-label', `소름 돋아요 — 실제 방문자 ${known ? txt : '확인 중'}명`);
       });
