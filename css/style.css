@@ -563,6 +563,19 @@ body.opened .hero-img { transform: scale(1); filter: brightness(.95) contrast(1.
 /* ---------- 폼 ---------- */
 .field { margin-bottom: 20px; }
 .field:last-child { margin-bottom: 0; }
+/* ---------- 키·몸무게 공통 (메인 폼 · 외모·점 탭) ---------- */
+.body-pair { margin-top: 2px; }
+.body-cell { display: flex; flex-direction: column; gap: 6px; }
+.body-cell-k { font-size: 10.5px; color: var(--muted); letter-spacing: .06em; }
+.body-cell-k b { font-weight: 400; font-size: 9.5px; color: var(--gold-3); letter-spacing: .06em; margin-left: 2px; }
+.body-pair .inp { text-align: center; font-size: 16px; letter-spacing: .02em; }
+/* 숫자 입력 기본 증감 화살표 숨김 — 모바일 키패드만 뜨게 */
+.body-pair .inp::-webkit-outer-spin-button,
+.body-pair .inp::-webkit-inner-spin-button,
+.gw-inputs .inp::-webkit-outer-spin-button,
+.gw-inputs .inp::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.body-pair .inp,
+.gw-inputs .inp { -moz-appearance: textfield; appearance: textfield; }
 .field-label {
   display: flex; align-items: center; gap: 8px;
   font-size: 12.5px; color: var(--gold-2); margin-bottom: 9px; font-weight: 500;
@@ -1866,6 +1879,27 @@ body.tal-open { overflow: hidden; }
 .gw-hero-keys small { font-size: 10px; color: var(--muted); margin-left: 2px; font-family: var(--sans); }
 
 /* ---------- ① 체형 ---------- */
+.gw-avg-note {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  margin: 0 0 14px; padding: 12px 14px; border-radius: 13px;
+  border: 1px solid rgba(226, 163, 94, .5);
+  background: linear-gradient(150deg, rgba(226, 163, 94, .17), rgba(226, 163, 94, .04));
+  box-shadow: 0 0 22px rgba(226, 163, 94, .09);
+}
+.gw-avg-tx b { display: block; font-size: 12.5px; color: #f3c88a; font-weight: 600; line-height: 1.5; word-break: keep-all; }
+.gw-avg-tx p { font-size: 11px; line-height: 1.7; color: #c9b9a0; margin-top: 4px; word-break: keep-all; }
+.gw-avg-tx p b { display: inline; font-family: var(--sans); font-size: 11px; color: #f3c88a; }
+.gw-avg-btn {
+  flex: 0 0 auto; padding: 9px 12px; border-radius: 10px; cursor: pointer;
+  border: 1px solid rgba(246, 227, 173, .5); background: rgba(246, 227, 173, .13);
+  color: var(--gold-2); font-size: 11.5px; font-family: inherit; white-space: nowrap;
+  transition: .18s ease;
+}
+.gw-avg-btn:hover { background: rgba(246, 227, 173, .22); }
+@media (max-width: 480px) {
+  .gw-avg-note { flex-direction: column; align-items: stretch; gap: 10px; }
+  .gw-avg-note .gw-avg-btn { align-self: flex-end; padding: 8px 14px; }
+}
 .gw-type-row {
   display: flex; align-items: center; justify-content: space-between; gap: 14px;
   padding: 12px 14px; border: 1px solid rgba(217, 185, 120, .22); border-radius: 14px;
