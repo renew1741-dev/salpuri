@@ -224,6 +224,7 @@
         '<div class="pdf-ui-help" id="pdfUiHelp" hidden>' +
           '<p><b>저장이 시작되지 않았다면</b> 인앱 브라우저(카카오톡·스레드·인스타그램)의 다운로드 제한입니다. 아래 방법 중 하나로 받으실 수 있어요.</p>' +
           '<ol>' +
+            '<li>카톡으로 보내시려면 <b>[💬 내 카톡(공유)으로 PDF 보내기]</b> → <b>카카오톡</b> → <b>나와의 채팅</b></li>' +
             '<li>오른쪽 위 <b>⋮</b>(또는 <b>···</b>) → <b>다른 브라우저로 열기</b> → 크롬/삼성인터넷</li>' +
             '<li>아래 <b>[크롬으로 열기]</b> 를 누르면 크롬에서 같은 화면이 열립니다. 사주를 한 번 더 조회한 뒤 다시 저장해 주세요.</li>' +
             '<li><b>[🖨️ 인쇄로 PDF 저장]</b> → 인쇄 화면에서 프린터 대신 <b>PDF로 저장</b>을 고르세요.</li>' +
@@ -341,18 +342,15 @@
       })
       .then(function (res) {
         var mb = (res.bytes / 1048576).toFixed(1);
-        var acts = [{ label: '닫기', primary: true, onClick: hideUI }];
-        var iosShare = isIOS() && navigator.canShare && res.blob;
-        if (iosShare) {
-          acts.unshift({
-            label: '📤 파일로 저장/공유',
-            onClick: function () {
-              var f = new File([res.blob], res.fileName, { type: 'application/pdf' });
-              if (!navigator.canShare({ files: [f] })) { alert('이 브라우저는 파일 공유를 지원하지 않아요.'); return; }
-              navigator.share({ files: [f], title: '살풀이 : 천기 정밀 리포트' }).catch(function () {});
-            }
-          });
-        }
+        var acts = [{ label: '닫기', onClick: hideUI }];
+
+        /* 💬 내 카톡(공유)으로 PDF 보내기 — 파일 자체를 공유 시트로 넘긴다 */
+        acts.unshift({
+          label: '💬 내 카톡(공유)으로 PDF 보내기',
+          primary: true,
+          onClick: function () { sharePdfFile(res); }
+        });
+
         if (isAndroid() && res.inApp) {
           acts.unshift({
             label: '🌐 크롬으로 열기',
@@ -363,19 +361,7 @@
         }
         acts.push({
           label: '저장이 안 되나요?',
-          onClick: function () {
-            showUI({
-              title: 'PDF 파일이 만들어졌어요',
-              sub: res.fileName + ' · ' + res.pages + '쪽 · ' + mb + 'MB',
-              help: true,
-              actions: [
-                { label: '저장 다시 시도', primary: true, onClick: function () { saveBlob(res.blob, res.fileName); } },
-                (isAndroid() ? { label: '🌐 크롬으로 열기', onClick: function () { try { location.href = chromeIntentUrl(); } catch (e) {} } } : null),
-                { label: '🖨️ 인쇄로 PDF 저장', onClick: function () { hideUI(); setTimeout(function () { try { global.print(); } catch (e) {} }, 120); } },
-                { label: '닫기', onClick: hideUI }
-              ].filter(Boolean)
-            });
-          }
+          onClick: function () { showHelp(res, mb); }
         });
 
         showUI({
@@ -408,6 +394,91 @@
       });
   }
 
+  /* ---------------- 💬 PDF 파일 자체를 공유(카톡 나와의 채팅 등) ---------------- */
+  function makeFile(res) {
+    try { return new File([res.blob], res.fileName, { type: 'application/pdf' }); }
+    catch (e) { return null; }
+  }
+
+  function canShareFiles(file) {
+    try {
+      return !!(file && navigator.share && navigator.canShare && navigator.canShare({ files: [file] }));
+    } catch (e) { return false; }
+  }
+
+  function showHelp(res, mb) {
+    showUI({
+      title: 'PDF 파일이 만들어졌어요',
+      sub: res.fileName + ' · ' + res.pages + '쪽 · ' + mb + 'MB',
+      help: true,
+      actions: [
+        { label: '💬 내 카톡(공유)으로 PDF 보내기', primary: true, onClick: function () { sharePdfFile(res); } },
+        { label: '저장 다시 시도', onClick: function () { saveBlob(res.blob, res.fileName); } },
+        (isAndroid() ? { label: '🌐 크롬으로 열기', onClick: function () { try { location.href = chromeIntentUrl(); } catch (e) {} } } : null),
+        { label: '🖨️ 인쇄로 PDF 저장', onClick: function () { hideUI(); setTimeout(function () { try { global.print(); } catch (e) {} }, 120); } },
+        { label: '닫기', onClick: hideUI }
+      ].filter(Boolean)
+    });
+  }
+
+  function sharePdfFile(res) {
+    var file = makeFile(res);
+
+    /* 공유 시트를 쓸 수 없으면(인앱 웹뷰 등) 저장을 시도하고 안내만 띄운다 */
+    if (!canShareFiles(file)) {
+      saveBlob(res.blob, res.fileName);
+      showUI({
+        title: '이 브라우저에선 파일 직접 전송이 막혀 있어요',
+        sub: '인앱 브라우저에선 파일 직접 전송이 막혀 있어요. 저장된 PDF를 카톡에 첨부하거나, ' +
+          '오른쪽 위 ⋮ → 다른 브라우저(크롬)로 열기 후 눌러주세요!',
+        help: true,
+        actions: [
+          (isAndroid() ? { label: '🌐 크롬으로 열기', primary: true, onClick: function () { try { location.href = chromeIntentUrl(); } catch (e) {} } } : null),
+          { label: '저장 다시 시도', primary: !isAndroid(), onClick: function () { saveBlob(res.blob, res.fileName); } },
+          { label: '🖨️ 인쇄로 PDF 저장', onClick: function () { hideUI(); setTimeout(function () { try { global.print(); } catch (e) {} }, 120); } },
+          { label: '닫기', onClick: hideUI }
+        ].filter(Boolean)
+      });
+      return Promise.resolve({ ok: false, reason: 'no-file-share' });
+    }
+
+    var payload = {
+      files: [file],
+      title: '살풀이 : 천기 — 정밀 사주 리포트',
+      text: '살풀이 : 천기 8쪽 정밀 리포트'
+    };
+    return Promise.resolve()
+      .then(function () { return navigator.share(payload); })
+      .then(function () {
+        showUI({
+          title: '공유 창을 열었어요',
+          sub: '카카오톡을 고르면 [나와의 채팅]으로 PDF가 바로 전송돼요.',
+          pct: 100,
+          actions: [
+            { label: '💬 한 번 더 보내기', primary: true, onClick: function () { sharePdfFile(res); } },
+            { label: '닫기', onClick: hideUI }
+          ]
+        });
+        return { ok: true };
+      })
+      .catch(function (err) {
+        var aborted = err && (err.name === 'AbortError' || /abort|cancel/i.test(err.message || ''));
+        if (aborted) return { ok: false, reason: 'cancel' };
+        /* 공유가 실패하면 저장으로 되돌린다 */
+        saveBlob(res.blob, res.fileName);
+        showUI({
+          title: '공유 창을 열지 못했어요',
+          sub: '대신 PDF 파일을 저장했어요. 카톡에 파일을 첨부해 보내주세요.',
+          pct: 100,
+          actions: [
+            { label: '💬 다시 시도', primary: true, onClick: function () { sharePdfFile(res); } },
+            { label: '닫기', onClick: hideUI }
+          ]
+        });
+        return { ok: false, reason: 'share-failed', error: (err && err.message) || '' };
+      });
+  }
+
   function preload() { return ensureAssets().catch(function () {}); }
 
   global.SalpuriPDF = {
@@ -415,5 +486,4 @@
     preload: preload,
     isInApp: isInApp,
     fileNameFor: function (a) { return safeFileName(a && a.name); }
-  };
-})(window);
+  };})(window);
