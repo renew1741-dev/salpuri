@@ -3036,3 +3036,196 @@ body.admin-mode .vault.is-locked .vault-inner { filter: none !important; }
   .month-table .mo-when { width: 52px; }
   .month-table .mo-flow { width: 54px; }
 }
+
+/* ============================================================
+   v11 — 두 해 달력 배지 · 쉬운 말 사전 · 재미 코너
+   ============================================================ */
+
+/* ---------- 쉬운 말 사전 (무료 풀이 안) ---------- */
+.easy-dic {
+  margin-top: 14px; padding: 12px 14px;
+  border: 1px dashed rgba(217, 185, 120, .38);
+  border-radius: 14px; background: rgba(217, 185, 120, .05);
+}
+.easy-dic > summary {
+  cursor: pointer; list-style: none;
+  font-size: 12.5px; font-weight: 700; color: var(--gold-2);
+}
+.easy-dic > summary::-webkit-details-marker { display: none; }
+.easy-dic > summary::after { content: ' ＋'; color: var(--gold); }
+.easy-dic[open] > summary::after { content: ' －'; }
+.easy-dic ul { margin: 10px 0 0; display: grid; gap: 8px; list-style: none; }
+.easy-dic li { font-size: 11.5px; line-height: 1.8; color: var(--muted); word-break: keep-all; }
+.easy-dic li b { display: block; color: var(--gold-2); font-weight: 700; font-size: 12px; margin-bottom: 1px; }
+.easy-dic li span { display: block; }
+.easy-dic-note { margin-top: 10px; font-size: 10.5px; color: #7d766a; line-height: 1.7; }
+
+/* ---------- 달력: 배지 · 한눈에 ---------- */
+.yr-cal-lead { font-size: 10.5px; color: var(--muted); margin: 2px 0 12px; line-height: 1.9; word-break: keep-all; }
+.yr-viewseg { display: flex; gap: 6px; margin-bottom: 12px; }
+.yr-viewseg button {
+  flex: 1; padding: 9px 6px; border-radius: 11px; cursor: pointer;
+  border: 1px solid rgba(217, 185, 120, .22); background: rgba(255, 255, 255, .03);
+  font-size: 11.5px; color: var(--muted); font-family: inherit;
+}
+.yr-viewseg button.active {
+  color: #221a0d; border-color: transparent; font-weight: 700;
+  background: linear-gradient(150deg, #f6e3ad, #d9b978 70%, #c3a469);
+}
+.yr-cal { display: grid; gap: 8px; }
+.yr-row {
+  padding: 9px 10px 10px; border-radius: 14px;
+  border: 1px solid rgba(217, 185, 120, .16);
+  background: rgba(255, 255, 255, .022);
+  display: grid; gap: 7px;
+}
+.yr-row.jackpot { border-color: rgba(246, 227, 173, .55); background: linear-gradient(160deg, rgba(246, 227, 173, .1), rgba(255, 255, 255, .02)); }
+.yr-row.good { border-color: rgba(122, 201, 164, .38); }
+.yr-row.warn { border-color: rgba(226, 163, 94, .4); }
+.yr-row.bad { border-color: rgba(217, 117, 110, .45); background: rgba(217, 117, 110, .05); }
+.yr-row-h { display: flex; align-items: baseline; gap: 8px; }
+.yr-row-h b { font-family: var(--serif); font-size: 15px; color: var(--gold-2); letter-spacing: .02em; }
+.yr-row-h span { font-size: 12px; color: var(--text); }
+.yr-row-h em { font-style: normal; font-size: 10px; color: var(--muted); margin-left: auto; }
+.yr-cell { display: flex; flex-wrap: wrap; gap: 5px 8px; align-items: center; padding: 8px 10px; border-radius: 10px; background: rgba(0, 0, 0, .22); }
+.yr-year { font-size: 9.5px; letter-spacing: .1em; color: var(--muted); border: 1px solid rgba(217, 185, 120, .3); border-radius: 999px; padding: 1px 7px; }
+.yr-sc { margin-left: auto; font-size: 13px; color: var(--gold-2); font-weight: 700; }
+.yr-badge {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: 11px; font-weight: 700; line-height: 1.4;
+  padding: 3px 9px; border-radius: 999px; white-space: nowrap;
+  border: 1px solid transparent;
+}
+.yr-badge.jackpot { color: #ffe9a8; background: rgba(246, 227, 173, .16); border-color: rgba(246, 227, 173, .6); }
+.yr-badge.good { color: #a9ecc9; background: rgba(122, 201, 164, .14); border-color: rgba(122, 201, 164, .45); }
+.yr-badge.calm { color: #cfd8c6; background: rgba(180, 200, 170, .1); border-color: rgba(180, 200, 170, .3); }
+.yr-badge.warn { color: #ffca92; background: rgba(226, 163, 94, .14); border-color: rgba(226, 163, 94, .5); }
+.yr-badge.bad { color: #ffb0a8; background: rgba(217, 117, 110, .16); border-color: rgba(217, 117, 110, .55); }
+.yr-keep, .yr-avoid, .yr-mood { flex-basis: 100%; font-size: 11.5px; line-height: 1.75; word-break: keep-all; }
+.yr-keep { color: #ded7ca; }
+.yr-keep b { color: #8fe0b4; font-weight: 700; margin-right: 5px; font-size: 10.5px; }
+.yr-avoid { color: #cfc6b5; }
+.yr-avoid b { color: #ffa79f; font-weight: 700; margin-right: 5px; font-size: 10.5px; }
+.yr-mood { color: #8d877c; font-size: 10.5px; font-style: italic; }
+.yr-cal[data-view="both"] .yr-mood { display: none; }
+.yr-cal:not([data-view="both"]) .yr-year { display: none; }
+.yr-cal[data-view="2026"] .yr-cell.y2027, .yr-cal[data-view="2027"] .yr-cell.y2026 { display: none; }
+@media (min-width: 620px) {
+  .yr-row { grid-template-columns: 118px 1fr 1fr; align-items: start; gap: 10px; }
+  .yr-row-h { flex-direction: column; gap: 2px; }
+  .yr-row-h em { margin-left: 0; }
+}
+.yr-cal-sum { display: grid; gap: 8px; margin-top: 14px; }
+.yr-cal-sum.mini { grid-template-columns: 1fr 1fr; margin-top: 12px; }
+.yr-cal-sum > div { border: 1px solid rgba(217, 185, 120, .16); border-radius: 12px; padding: 9px 11px; background: rgba(255, 255, 255, .02); }
+.yr-cal-sum span { display: block; font-size: 10px; color: var(--muted); letter-spacing: .04em; }
+.yr-cal-sum b { display: block; font-size: 13px; color: var(--gold-2); font-weight: 600; margin-top: 2px; }
+.yr-cal-sum em { display: block; font-style: normal; font-size: 10.5px; color: #9c9488; margin-top: 1px; }
+@media (min-width: 620px) { .yr-cal-sum { grid-template-columns: repeat(4, 1fr); } .yr-cal-sum.mini { grid-template-columns: 1fr 1fr; } }
+
+/* 그래프 막대 — 배지 색과 맞춘다 */
+.yr-bar.jackpot i { background: linear-gradient(180deg, #ffe9a8, #c9a24d); box-shadow: 0 0 12px rgba(246, 227, 173, .35); }
+.yr-bar.good i { background: linear-gradient(180deg, rgba(122, 201, 164, .85), rgba(122, 201, 164, .25)); }
+.yr-bar.calm i { background: linear-gradient(180deg, rgba(200, 210, 190, .45), rgba(200, 210, 190, .12)); }
+.yr-bar.warn i { background: linear-gradient(180deg, rgba(226, 163, 94, .75), rgba(226, 163, 94, .2)); }
+.yr-bar.bad i { background: linear-gradient(180deg, rgba(217, 117, 110, .8), rgba(217, 117, 110, .2)); }
+.yr-legend i.jackpot { background: #ffe9a8; }
+.yr-legend i.good { background: rgba(122, 201, 164, .85); }
+.yr-legend i.calm { background: rgba(200, 210, 190, .5); }
+.yr-legend i.warn { background: rgba(226, 163, 94, .8); }
+.yr-legend i.bad { background: rgba(217, 117, 110, .8); }
+.yr-pick.jackpot { border-color: rgba(246, 227, 173, .45); }
+.yr-pick.good { border-color: rgba(122, 201, 164, .4); }
+.yr-pick.calm { border-color: rgba(200, 210, 190, .2); }
+.yr-pick.warn { border-color: rgba(226, 163, 94, .4); }
+.yr-pick.bad { border-color: rgba(217, 117, 110, .45); }
+.yr-pick span .yr-badge { margin-left: 6px; font-size: 10px; }
+.yr-pick p b { color: var(--gold-2); font-weight: 700; margin-right: 4px; }
+
+/* ---------- 💘 한눈팔 확률 (재미 코너) ---------- */
+.gg-fun {
+  border-color: rgba(255, 160, 200, .3) !important;
+  background:
+    radial-gradient(ellipse 70% 50% at 20% 0%, rgba(255, 120, 170, .12), transparent 65%),
+    var(--panel) !important;
+}
+.gg-fun-kicker { font-size: 10px; letter-spacing: .18em; color: #f3a6c4; margin-bottom: 6px; }
+.gg-fun-title { font-size: 19px; color: #ffe3ee; line-height: 1.45; word-break: keep-all; }
+.gg-fun-disclaim {
+  margin-top: 10px; padding: 9px 12px; border-radius: 11px;
+  border: 1px dashed rgba(255, 160, 200, .5); background: rgba(255, 120, 170, .07);
+  font-size: 11.5px; line-height: 1.75; color: #ffd7e6; word-break: keep-all;
+}
+.gg-wander { display: flex; align-items: center; gap: 16px; margin: 18px 0 6px; }
+.gg-wander-num { text-align: center; min-width: 92px; }
+.gg-wander-num b { font-size: 46px; line-height: 1; color: #fff3d6; letter-spacing: -.02em; }
+.gg-wander-num span { font-size: 16px; color: var(--gold); margin-left: 1px; }
+.gg-wander-num em { display: block; font-style: normal; font-size: 10.5px; color: #f3a6c4; margin-top: 4px; }
+.gg-gauge { flex: 1; }
+.gg-gauge-track { position: relative; height: 14px; border-radius: 99px; background: rgba(255, 255, 255, .08); overflow: hidden; }
+.gg-gauge-track i { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, #7ac9a4, #f0b429 55%, #d9756e); }
+.gg-gauge-pin { position: absolute; top: 0; width: 2px; height: 14px; background: #fff; box-shadow: 0 0 8px rgba(255, 255, 255, .9); }
+.gg-gauge-legend { display: flex; justify-content: space-between; font-size: 9.5px; color: var(--muted); margin-top: 5px; }
+.gg-fun-hero { margin-top: 14px; padding: 13px 14px; border-radius: 14px; border: 1px solid rgba(255, 160, 200, .28); background: rgba(255, 255, 255, .035); }
+.gg-fun-hero b { display: block; font-size: 15px; color: #ffe3ee; margin-bottom: 5px; }
+.gg-fun-hero p { font-size: 12.5px; line-height: 1.85; color: #e6dcdcd8; word-break: keep-all; }
+.gg-fun-tier { margin-top: 10px; font-size: 12px; line-height: 1.85; color: #ded7ca; word-break: keep-all; }
+.gg-wander-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 11px; }
+.gg-wc { font-size: 10.5px; line-height: 1.6; padding: 4px 9px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, .12); color: var(--muted); }
+.gg-wc.up { border-color: rgba(217, 117, 110, .4); color: #ffb0a8; }
+.gg-wc.down { border-color: rgba(122, 201, 164, .4); color: #a9ecc9; }
+.gg-fun-rx { margin-top: 16px; padding: 13px 14px; border-radius: 14px; border: 1px solid rgba(217, 185, 120, .38); background: rgba(217, 185, 120, .07); }
+.gg-fun-rx b { display: block; font-size: 12.5px; color: var(--gold-2); margin-bottom: 6px; }
+.gg-fun-rx p { font-size: 12px; line-height: 1.85; color: #e6ddcd; word-break: keep-all; }
+.gg-fun-watch { display: block; margin-top: 8px; font-size: 10.5px; color: #e2a35e; }
+.gg-fun-side { margin-top: 14px; font-size: 11.5px; line-height: 1.85; color: var(--muted); word-break: keep-all; }
+.gg-fun-side b { color: var(--gold-2); }
+.gg-fun-note { margin-top: 10px; font-size: 10px; line-height: 1.8; color: #7d766a; word-break: keep-all; }
+
+/* 리포트 안 달력 배지 (화면용) */
+.pbadge { display: inline-block; font-size: 10px; font-weight: 700; line-height: 1.5; padding: 2px 8px; border-radius: 999px; white-space: nowrap; border: 1px solid transparent; }
+.pbadge.jackpot { color: #ffe9a8; background: rgba(246, 227, 173, .16); border-color: rgba(246, 227, 173, .55); }
+.pbadge.good { color: #a9ecc9; background: rgba(122, 201, 164, .14); border-color: rgba(122, 201, 164, .45); }
+.pbadge.calm { color: #cfd8c6; background: rgba(180, 200, 170, .1); border-color: rgba(180, 200, 170, .3); }
+.pbadge.warn { color: #ffca92; background: rgba(226, 163, 94, .14); border-color: rgba(226, 163, 94, .5); }
+.pbadge.bad { color: #ffb0a8; background: rgba(217, 117, 110, .16); border-color: rgba(217, 117, 110, .55); }
+.m-table .mo-keep { color: #ded7ca; }
+.m-table .mo-keep b { color: var(--gold-2); margin-right: 3px; }
+
+/* 명식 표 아래 — 어려운 글씨 안내 */
+.pillar-hint { margin-top: 8px; font-size: 10.5px; line-height: 1.8; color: #8d877c; word-break: keep-all; }
+.pillar-hint b { color: var(--gold-2); font-weight: 600; }
+
+/* 잡을 달 · 피할 달 칩에 배지 색 */
+.mchip em { display: block; font-style: normal; font-size: 9.5px; margin-top: 2px; color: var(--muted); }
+.mchip.jackpot { border-color: rgba(246, 227, 173, .55); }
+.mchip.jackpot em { color: #ffe9a8; }
+.mchip.good { border-color: rgba(122, 201, 164, .45); }
+.mchip.good em { color: #a9ecc9; }
+.mchip.calm em { color: #cfd8c6; }
+.mchip.warn { border-color: rgba(226, 163, 94, .45); }
+.mchip.warn em { color: #ffca92; }
+.mchip.bad { border-color: rgba(217, 117, 110, .5); }
+.mchip.bad em { color: #ffb0a8; }
+
+/* 라벨이 좁은 화면에서 두 줄로 깨지지 않게 (키 · 체중 등) */
+.field-label { flex-wrap: wrap; row-gap: 3px; word-break: keep-all; }
+.field-label .fl-main { white-space: nowrap; flex: 0 0 auto; flex-shrink: 0; }
+.field-label > b { min-width: 0; }
+
+/* 리포트 안 쉬운 말 박스 */
+.rep-gloss { margin-top: 16px; padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(217, 185, 120, .3); background: rgba(217, 185, 120, .06); }
+.rep-gloss > b { display: block; font-size: 12px; color: var(--gold-2); margin-bottom: 6px; }
+.rep-gloss ul { list-style: none; display: grid; gap: 4px; }
+.rep-gloss li { font-size: 11.5px; line-height: 1.7; color: #ded7ca; word-break: keep-all; }
+.rep-gloss li strong { color: var(--gold-2); font-weight: 700; margin-right: 4px; }
+.rep-gloss p { margin-top: 6px; font-size: 10.5px; color: #8d877c; }
+
+/* 🔥 소름 돋아요 — 눌린 상태에서도 글자가 또렷하게 (금색 배경 위 어두운 글자) */
+.like-btn.liked { color: #1d1206; }
+.like-btn.liked .like-txt,
+.like-btn.liked .like-sep,
+.like-btn.liked .like-lead,
+.like-btn.liked .like-tail { color: #1d1206; }
+.like-btn.liked .like-num { color: #4a2a05; }
+.like-btn.liked .like-fire { filter: drop-shadow(0 1px 2px rgba(120,50,0,.35)); }
