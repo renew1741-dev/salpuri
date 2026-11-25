@@ -23,8 +23,8 @@
   const PRODUCTS = {
     report: {
       id: 'report',
-      name: '살풀이 : 천기 2026 정밀 사주 리포트',
-      desc: '13장 리포트 · 격국·십성·신살 · 2026 월별 길흉 · 대운 9구간 · PDF 저장',
+      name: '살풀이 : 천기 2026 정밀 사주 리포트 (8쪽)',
+      desc: '8쪽 리포트 · 기질·재물·인연·2026 월별 길흉·대운·살풀이 처방 · PDF 저장',
       price: 9900,
       badge: '인기',
       unlock: ['report']
@@ -122,7 +122,7 @@
   /** 결제 실행 — {ok:true, order} / {ok:true, pending:true, order} / {ok:false, error} */
   async function pay(productId, customer) {
     const product = PRODUCTS[productId];
-    if (!product) return { ok: false, error: '상품을 찾을 수 없습니다.' };
+    if (!product) return { ok: false, error: '상품을 찾을 수 없어요.' };
     const order = {
       orderId: makeOrderId(),
       productId,
@@ -136,7 +136,7 @@
 
     if (CONFIG.provider === 'ctee') {
       const url = CONFIG.ctee[productId];
-      if (!url) return { ok: false, error: '크티 링크가 아직 설정되지 않았습니다.' };
+      if (!url) return { ok: false, error: '크티 링크가 아직 설정되지 않았어요.' };
       order.status = 'external';
       saveOrder(order);
       global.open(url, '_blank', 'noopener');
@@ -145,7 +145,7 @@
 
     if (CONFIG.provider === 'transfer') {
       const t = CONFIG.transfer;
-      if (!t.bank || !t.account) return { ok: false, error: '입금 계좌가 아직 설정되지 않았습니다.' };
+      if (!t.bank || !t.account) return { ok: false, error: '입금 계좌가 아직 설정되지 않았어요.' };
       order.status = 'awaiting_transfer';
       order.transfer = { bank: t.bank, account: t.account, holder: t.holder, minutes: t.minutes };
       saveOrder(order);
@@ -171,7 +171,7 @@
           redirectUrl: location.origin + location.pathname + '?payment=redirect',
           noticeUrls: []
         });
-        if (res && res.code) return { ok: false, error: res.message || '결제가 취소되었습니다.' };
+        if (res && res.code) return { ok: false, error: res.message || '결제가 취소됐어요.' };
         order.status = 'paid';
         order.txId = (res && res.txId) || '';
         saveOrder(order);
@@ -222,11 +222,11 @@
   /** 계좌이체 — 입금 확인 코드로 수동 승인 */
   function confirmTransfer(orderId, code) {
     const order = getOrders().find(o => o.orderId === orderId);
-    if (!order) return { ok: false, error: '주문을 찾을 수 없습니다.' };
+    if (!order) return { ok: false, error: '주문을 찾을 수 없어요.' };
     if (order.status === 'paid') return { ok: true, order };
-    if (!CONFIG.transfer.confirmCode) return { ok: false, error: '입금 확인 기능이 설정되지 않았습니다.' };
+    if (!CONFIG.transfer.confirmCode) return { ok: false, error: '입금 확인 기능이 설정되지 않았어요.' };
     if (String(code || '').trim() !== String(CONFIG.transfer.confirmCode)) {
-      return { ok: false, error: '확인 코드가 맞지 않습니다.' };
+      return { ok: false, error: '확인 코드가 맞지 않아요.' };
     }
     order.status = 'paid';
     order.confirmedAt = new Date().toISOString();
