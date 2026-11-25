@@ -1,0 +1,337 @@
+/* ============================================================
+   살풀이 : 천기 — PDF 리포트 (오프스크린 렌더 스테이지)
+   실제 .pdf 파일을 만들기 위해 8쪽을 A4(96dpi 794×1123) 크기로
+   인쇄용 밝은 테마로 다시 그립니다. 화면(DOM)에는 보이지 않습니다.
+   ============================================================ */
+
+.pdf-stage {
+  position: fixed;
+  left: -20000px;
+  top: 0;
+  width: 794px;
+  z-index: -1;
+  pointer-events: none;
+  background: #ffffff;
+  /* 앱의 다크 테마 변수 영향을 끊는다 */
+  --gold: #9a7c33;
+  --gold-2: #7a5c1e;
+  --muted: #7d7364;
+  --text: #1e1913;
+  --serif: 'Noto Serif KR', 'Gowun Batang', serif;
+  --sans: 'Noto Sans KR', system-ui, -apple-system, sans-serif;
+}
+
+.pdf-sheet {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  width: 794px;
+  min-height: 1123px;
+  padding: 62px 58px 82px;
+  background: #ffffff;
+  color: #1e1913;
+  font-family: var(--sans);
+  font-size: 13px;
+  line-height: 1.85;
+  letter-spacing: -0.005em;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+.pdf-sheet + .pdf-sheet { margin-top: 24px; }
+
+/* ------------------------------------------------------------
+   표지
+   ------------------------------------------------------------ */
+.pdf-sheet.pdf-cover { padding-top: 74px; text-align: center; justify-content: center; }
+.pdf-sheet.pdf-cover .report-brand { color: #7a5c1e; }
+.pdf-sheet.pdf-cover .report-brand span { color: #9a7c33; opacity: .8; }
+.pdf-sheet.pdf-cover .report-brand-sub { color: #9a7c33; opacity: .85; }
+.pdf-sheet.pdf-cover .report-seal { border-color: #9a7c33; color: #7a5c1e; box-shadow: none; }
+.pdf-sheet.pdf-cover .report-title { color: #14100b; }
+.pdf-sheet.pdf-cover .report-meta { color: #6f6553; }
+
+/* ------------------------------------------------------------
+   공통 문서 요소
+   ------------------------------------------------------------ */
+.pdf-sheet .report-head {
+  text-align: center;
+  padding: 0;
+  margin: 0;
+  border-bottom: 0;
+}
+.pdf-sheet .report-brand {
+  font-family: var(--serif);
+  font-size: 21px;
+  color: #7a5c1e;
+  letter-spacing: .2em;
+  text-indent: .2em;
+  line-height: 1.4;
+}
+.pdf-sheet .report-brand span { color: #9a7c33; opacity: .7; margin: 0 .3em; }
+.pdf-sheet .report-brand-sub {
+  font-size: 9.5px;
+  letter-spacing: .42em;
+  text-indent: .42em;
+  color: #9a7c33;
+  opacity: .8;
+  margin: 9px 0 20px;
+}
+.pdf-sheet .report-seal {
+  width: 56px; height: 56px;
+  margin: 0 auto 18px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  border: 1px solid #b79b5e;
+  color: #7a5c1e;
+  font-size: 23px;
+  box-shadow: none;
+}
+.pdf-sheet .report-title {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 24px;
+  color: #14100b;
+  letter-spacing: .02em;
+  margin-bottom: 12px;
+}
+.pdf-sheet .report-meta {
+  font-size: 11.5px;
+  color: #6f6553;
+  letter-spacing: .05em;
+  margin: 0;
+}
+.pdf-sheet .report-pillars { display: flex; justify-content: center; gap: 10px; margin: 26px 0 24px; }
+.pdf-sheet .report-pillars .rp {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  min-width: 56px; padding: 9px 7px 7px;
+  border-radius: 8px;
+  border: 1px solid #cfc3aa;
+  background: #faf7f0;
+}
+.pdf-sheet .report-pillars .rp b { font-size: 8.5px; color: #8a7f6c; font-weight: 400; letter-spacing: .1em; }
+.pdf-sheet .report-pillars .rp i {
+  font-style: normal; font-family: var(--serif);
+  font-size: 18px; line-height: 1.25; color: #2b2317;
+}
+.pdf-sheet .report-pillars .rp .g { color: #7a5c1e; }
+.pdf-sheet .report-pillars .rp.empty i { color: #b9b0a0; }
+
+.pdf-sheet .rep-page { position: relative; }
+.pdf-sheet .rep-page-tag {
+  display: block;
+  font-size: 9.5px;
+  letter-spacing: .2em;
+  color: #9a7c33;
+  margin-bottom: 7px;
+}
+.pdf-sheet .rep-page-lead {
+  font-size: 12.5px;
+  line-height: 1.8;
+  color: #6f6553;
+  margin-bottom: 14px;
+  padding-left: 11px;
+  border-left: 2px solid #e0d6c2;
+}
+.pdf-sheet h3 {
+  font-family: var(--serif);
+  font-size: 18.5px;
+  font-weight: 700;
+  color: #1a150e;
+  margin: 0 0 18px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #ddd2bb;
+  letter-spacing: .005em;
+  word-break: keep-all;
+}
+.pdf-sheet p {
+  font-size: 13.8px;
+  line-height: 2.0;
+  color: #2b2419;
+  margin: 0 0 16px;
+  word-break: keep-all;
+  orphans: 2;
+  widows: 2;
+}
+.pdf-sheet p strong, .pdf-sheet strong {
+  color: #6b4d12;
+  font-weight: 700;
+}
+.pdf-sheet p strong strong, .pdf-sheet strong strong { color: #6b4d12; }
+
+.pdf-sheet .rep-quote {
+  margin: 26px 0 4px;
+  padding: 15px 18px;
+  border: 1px solid #ddd2bb;
+  border-left: 3px solid #b79b5e;
+  border-radius: 6px;
+  background: #faf7f0;
+  font-family: var(--serif);
+  font-size: 14px;
+  line-height: 1.95;
+  color: #241d13;
+  text-align: left;
+}
+.pdf-sheet .rep-quote small {
+  display: block;
+  font-family: var(--sans);
+  font-size: 10px;
+  color: #9a7c33;
+  letter-spacing: .12em;
+  margin-bottom: 7px;
+}
+.pdf-sheet .rep-cover-note {
+  font-size: 12px;
+  line-height: 1.95;
+  color: #6f6553;
+  margin-top: 26px;
+  text-align: center;
+}
+
+/* 표지 액자 */
+.pdf-sheet.pdf-cover::before {
+  content: '';
+  position: absolute;
+  inset: 24px;
+  border: 1px solid #ddd0b1;
+  border-radius: 2px;
+  pointer-events: none;
+}
+.pdf-sheet.pdf-cover::after {
+  content: '';
+  position: absolute;
+  inset: 31px;
+  border: 1px solid #f0e8d6;
+  border-radius: 1px;
+  pointer-events: none;
+}
+
+/* 장 끝 표식 — 남는 여백이 '책의 장 끝'으로 읽히게 */
+.pdf-sheet:not(.pdf-cover) .rep-page::after {
+  content: '';
+  display: block;
+  width: 34px;
+  height: 1px;
+  margin: 22px auto 0;
+  background: #cbbd9b;
+}
+
+/* 표 */
+.pdf-sheet .m-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 6px 0 14px;
+  font-size: 10.4px;
+  line-height: 1.55;
+}
+.pdf-sheet .m-table th {
+  text-align: left;
+  font-weight: 700;
+  color: #7a6a52;
+  font-size: 9.6px;
+  padding: 7px 5px;
+  border-bottom: 1px solid #cfc3aa;
+  letter-spacing: .03em;
+  background: #faf7f0;
+}
+.pdf-sheet .m-table td {
+  padding: 6px 5px;
+  border-bottom: 1px solid #ece5d7;
+  color: #2b2419;
+  vertical-align: top;
+  word-break: keep-all;
+}
+.pdf-sheet .m-table tr.cur td { background: #f4edde; color: #14100b; font-weight: 600; }
+.pdf-sheet .m-table tr.row-good td { background: #f3f8f2; }
+
+.pdf-sheet .tag {
+  display: inline-block;
+  font-size: 9px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  border: 1px solid #c9bda6;
+  color: #4a4136;
+  background: #f6f2e9;
+  white-space: nowrap;
+}
+.pdf-sheet .tag.good { border-color: #a9c9b4; color: #276749; background: #eef6f0; }
+.pdf-sheet .tag.mid { border-color: #cfc3aa; color: #5d5346; background: #f6f2e9; }
+.pdf-sheet .tag.bad { border-color: #dcb3ae; color: #9b3a32; background: #fbefed; }
+
+/* 페이지 하단 각주 */
+.pdf-foot {
+  position: absolute;
+  left: 58px; right: 58px; bottom: 34px;
+  display: flex; align-items: center; justify-content: space-between;
+  font-family: var(--sans);
+  font-size: 9px;
+  letter-spacing: .14em;
+  color: #a4967a;
+  border-top: 1px solid #ece5d7;
+  padding-top: 9px;
+}
+.pdf-foot .pdf-foot-brand { font-family: var(--serif); letter-spacing: .18em; color: #9a7c33; }
+.pdf-foot .pdf-foot-num { letter-spacing: .08em; }
+
+/* 인쇄로 저장(보조 수단)에서도 이 스테이지는 출력되지 않게 */
+@media print {
+  .pdf-stage { display: none !important; }
+}
+
+/* ============================================================
+   PDF 저장 진행/안내 오버레이
+   ============================================================ */
+.pdf-ui {
+  position: fixed; inset: 0; z-index: 9600;
+  display: none; align-items: center; justify-content: center;
+  padding: 18px;
+  background: rgba(3, 2, 6, .8);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+}
+.pdf-ui.show { display: flex; }
+@keyframes pdfUiIn { from { transform: translateY(14px) scale(.985); opacity: .4; } }
+.pdf-ui-card {
+  width: 100%; max-width: 420px; max-height: 88vh; overflow-y: auto;
+  padding: 24px 18px 16px;
+  border-radius: 22px;
+  border: 1px solid rgba(217, 185, 120, .35);
+  background: linear-gradient(180deg, #1a1224 0%, #120d1a 46%, #09060e 100%);
+  box-shadow: 0 26px 70px rgba(0, 0, 0, .72), inset 0 1px 0 rgba(246, 227, 173, .1);
+  animation: pdfUiIn .22s ease both;
+  color: #ece6da;
+  font-family: 'Noto Sans KR', system-ui, -apple-system, sans-serif;
+}
+.pdf-ui-head { text-align: center; }
+.pdf-ui-kicker { display: block; font-size: 9.5px; letter-spacing: .24em; color: #d9b978; margin-bottom: 8px; }
+.pdf-ui-title { font-family: 'Noto Serif KR', 'Gowun Batang', serif; font-size: 18px; font-weight: 600; line-height: 1.45; color: #fff3d6; word-break: keep-all; }
+.pdf-ui-sub { margin-top: 7px; font-size: 12px; line-height: 1.7; color: #b7aa96; word-break: keep-all; }
+.pdf-ui-bar { height: 4px; border-radius: 999px; background: rgba(217, 185, 120, .16); margin: 16px 2px 8px; overflow: hidden; }
+.pdf-ui-bar i { display: block; height: 100%; width: 4%; border-radius: 999px; background: linear-gradient(90deg, #8d6f3c, #f6e3ad); transition: width .28s ease; }
+.pdf-ui-prog { text-align: center; font-size: 11px; letter-spacing: .08em; color: #9c9488; min-height: 16px; }
+.pdf-ui-actions { display: grid; gap: 8px; margin-top: 16px; }
+.pdf-ui-btn {
+  display: block; width: 100%; padding: 13px 14px;
+  border-radius: 14px; cursor: pointer;
+  font-family: inherit; font-size: 13px; font-weight: 500;
+  color: #f0e6d2;
+  border: 1px solid rgba(217, 185, 120, .3);
+  background: rgba(255, 255, 255, .05);
+  transition: .16s ease;
+}
+.pdf-ui-btn:hover { border-color: rgba(217, 185, 120, .6); background: rgba(217, 185, 120, .12); }
+.pdf-ui-btn.primary {
+  border-color: rgba(217, 185, 120, .62);
+  background: linear-gradient(150deg, #f6e3ad, #d9b978 70%, #c3a469);
+  color: #221a0d; font-weight: 700;
+}
+.pdf-ui-help {
+  margin-top: 14px; padding: 13px 14px;
+  border-radius: 14px;
+  border: 1px dashed rgba(217, 185, 120, .4);
+  background: rgba(0, 0, 0, .34);
+  font-size: 11.5px; line-height: 1.75; color: #cfc6b6;
+  word-break: keep-all;
+}
+.pdf-ui-help b { color: #f6e3ad; }
+.pdf-ui-help ol { margin: 8px 0 0 16px; display: grid; gap: 6px; }
+.pdf-ui-help li { list-style: decimal; }
