@@ -1566,7 +1566,7 @@
       if (this.done()) { toast('이미 소름 돋으셨습니다. 한 사람당 한 번입니다.'); return; }
       if (this.busy) return;
       this.busy = true;
-      document.querySelectorAll('.like-btn').forEach(b => b.classList.add('pulse'));
+      document.querySelectorAll('.like-btn, .like-top-btn').forEach(b => b.classList.add('pulse'));
       let ok = false;
       try {
         const r = await fetch(`${this.API}/hit/${this.NS}/${this.KEY}`, { cache: 'no-store' });
@@ -2042,7 +2042,7 @@
         switchTab(id);
         if (id === 'saju') setTimeout(() => { const f = $('#formCard'); if (f) f.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 320);
       }
-      const like = e.target.closest && e.target.closest('.like-btn');
+      const like = e.target.closest && e.target.closest('.like-btn, .like-top-btn');
       if (like) { e.preventDefault(); Like.up(); return; }
       const buyNm = e.target.closest && e.target.closest('[data-nm-buy]');
       if (buyNm) { audio.tap(); openPay('naming'); return; }
