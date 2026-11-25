@@ -2648,3 +2648,55 @@ body.ss-open { overflow: hidden; }
   .ss-back.show { align-items: center; }
   .ss-sheet { border-radius: 24px; border-bottom: 1px solid rgba(217,185,120,.34); padding-bottom: 16px; }
 }
+
+/* ============================================================
+   👑 관리자 프리패스 뱃지 (vault.js가 주입)
+   ============================================================ */
+.admin-badge {
+  position: fixed;
+  left: 50%;
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  z-index: 9800;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100vw - 24px);
+  padding: 8px 10px 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(217, 185, 120, .62);
+  background: rgba(14, 10, 20, .93);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .55), 0 0 0 1px rgba(0, 0, 0, .3) inset;
+  backdrop-filter: blur(8px);
+  font-size: 11.5px;
+  line-height: 1;
+  color: #f6ead4;
+  white-space: nowrap;
+}
+.admin-badge[hidden] { display: none !important; }
+.admin-badge .ab-crown { font-size: 14px; line-height: 1; }
+.admin-badge b { font-weight: 600; letter-spacing: .01em; color: var(--gold-2, #f6e3ad); }
+.admin-badge a.ab-dash {
+  padding: 5px 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(217, 185, 120, .38);
+  color: #f6e3ad;
+  font-size: 11px;
+  text-decoration: none;
+  background: rgba(217, 185, 120, .1);
+}
+.admin-badge a.ab-dash:hover { background: rgba(217, 185, 120, .2); }
+.admin-badge button.ab-off {
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, .18);
+  background: none;
+  color: #c9bfae;
+  font-family: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+.admin-badge button.ab-off:hover { color: #fff; border-color: rgba(217, 185, 120, .55); }
+body.admin-mode .vault-lock { display: none !important; }
+body.admin-mode .vault.is-locked .vault-fade { display: none !important; }
+body.admin-mode .vault.is-locked .vault-inner { filter: none !important; }
