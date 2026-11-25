@@ -1700,10 +1700,9 @@
     const url = location.origin + location.pathname;
     const title = '살풀이 : 천기 — 정밀 만세력 · 신비 타로';
     const payload = { title, text, url };
-    try {
-      if (navigator.share) { await navigator.share(payload); return; }
-    } catch (e) {
-      if (e && e.name === 'AbortError') return;
+    /* OS 공유창 → 실패/무응답이면 인앱 공유 바텀시트(vault.js)가 반드시 뜽니다 */
+    if (window.Vault && typeof Vault.share === 'function') {
+      try { Vault.share(payload, { unlock: false, mode: 'plain' }); return; } catch (e) {}
     }
     const copy = async () => {
       const body = `${text}\n${url}`;
@@ -1721,6 +1720,11 @@
         toast('링크를 복사했어요. 붙여넣기로 공유해 보세요.');
       }
     };
+    try {
+      if (navigator.share) { await navigator.share(payload); return; }
+    } catch (e) {
+      if (e && e.name === 'AbortError') return;
+    }
     copy();
   }
 
