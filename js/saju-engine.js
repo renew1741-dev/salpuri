@@ -614,8 +614,8 @@
     const gyeokguk = gyeokgukOf(pillars, dayGan, mp.ji);
     const dw = daewoonList(ts, solar.y, mp.gan, mp.ji, yp.gan, gender);
 
-    // 5) 세운
-    const currentYear = 2026;
+    // 5) 세운 — 해가 바뀌어도 그해 기준으로 계산한다
+    const currentYear = new Date(Date.now() + 9 * 3600 * 1000).getUTCFullYear();
     const saeun = [saeunOf(currentYear, dayGan), saeunOf(currentYear + 1, dayGan)];
     saeun.forEach(s => {
       s.inter = interactions(

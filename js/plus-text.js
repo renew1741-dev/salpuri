@@ -109,18 +109,69 @@
         <div class="td-luck-item"><span>방향</span><b>${x.luck.dir}</b></div>
         <div class="td-luck-item"><span>숫자</span><b>${x.luck.num.replace('·', ', ')}</b></div>
       </div>
-      <p class="td-note">용신 ${el(x.luck.elem)}의 기운을 오늘 하루 가까이 두세요. 개운은 큰 의식이 아니라 오늘 어느 쪽으로 앉고 무엇을 입는지에서 시작돼요.</p>
+      <p class="td-note">나를 살리는 행운 기운 ${el(x.luck.elem)}을 오늘 하루 가까이 두세요. 개운은 큰 의식이 아니라 오늘 어느 쪽으로 앉고 무엇을 입는지에서 시작돼요.</p>
       ${shareRow('today', '오늘의 운세 보내기')}
     </div>`;
   }
 
   /* ================= ③ 신년 · 12개월 ================= */
-  function renderYear(x, a, year) {
-    const max = 100, min = 30;
-    const h = s => Math.max(12, Math.round((s - min) / (max - min) * 100));
-    const bars = x.months.map(m => `<div class="yr-bar ${x.best.some(b => b.order === m.order) ? 'best' : x.worst.some(b => b.order === m.order) ? 'worst' : ''}">
+  const BADGE_LEGEND = '🎯 대박 좋은 달 · 🌱 좋은 달 · 🌿 무난한 달 · ⚠️ 지갑·입 조심할 달 · 🚨 조심할 달';
+
+  function calCell(m, showYear) {
+    const b = m.badge || { cls: 'calm', icon: '🌿', label: '무난한 달' };
+    return `<div class="yr-cell y${m.yearTag || ''}">
+      ${showYear ? `<span class="yr-year">${m.yearTag}</span>` : ''}
+      <span class="yr-badge ${b.cls}">${b.icon} ${b.label}</span>
+      <b class="yr-sc">${m.score}</b>
+      <p class="yr-keep"><b>챙기기</b> ${m.keep || m.act}</p>
+      <p class="yr-avoid"><b>피하기</b> ${m.avoid || '무리한 확장'}</p>
+      <p class="yr-mood">${m.vibe || ''}</p>
+    </div>`;
+  }
+
+  function calendarCard(x, other) {
+    const both = !!other;
+    const pairs = x.months.map((m, i) => {
+      const o = both ? other.months[i] : null;
+      const main = Object.assign({}, m, { yearTag: x.year });
+      const alt = o ? Object.assign({}, o, { yearTag: other.year }) : null;
+      const best = !alt ? m.badge.cls : ([m, o].sort((p, q) => q.score - p.score)[0].badge.cls);
+      return `<div class="yr-row ${best}">
+        <div class="yr-row-h"><b>${m.start}</b><span>${m.name}</span><em>~${m.endStart}</em></div>
+        ${calCell(main, both)}
+        ${alt ? calCell(alt, both) : ''}
+      </div>`;
+    }).join('');
+
+    const bestOf = xx => xx.months.slice().sort((p, q) => q.score - p.score)[0];
+    const worstOf = xx => xx.months.slice().sort((p, q) => p.score - q.score)[0];
+
+    return `<div class="card yr-cal-card" id="yrCalCard">
+      <div class="section-head"><h2 class="serif">${both ? `${x.year}·${other.year} 달력` : `${x.year}년 달력`}</h2><span class="en">CALENDAR</span></div>
+      <p class="yr-cal-lead">${BADGE_LEGEND}</p>
+      ${both ? `<div class="yr-viewseg" id="yrViewSeg">
+        <button type="button" class="active" data-yrview="both">두 해 함께</button>
+        <button type="button" data-yrview="${x.year}">${x.year}만</button>
+        <button type="button" data-yrview="${other.year}">${other.year}만</button>
+      </div>` : ''}
+      <div class="yr-cal" id="yrCal" data-view="both">
+        ${pairs}
+      </div>
+      ${both ? `<div class="yr-cal-sum">
+        <div><span>${x.year} 최고의 달</span><b>${bestOf(x).start} ${bestOf(x).name}</b><em>${bestOf(x).score}점 · ${bestOf(x).badge.label}</em></div>
+        <div><span>${x.year} 조심할 달</span><b>${worstOf(x).start} ${worstOf(x).name}</b><em>${worstOf(x).score}점 · ${worstOf(x).badge.label}</em></div>
+        <div><span>${other.year} 최고의 달</span><b>${bestOf(other).start} ${bestOf(other).name}</b><em>${bestOf(other).score}점 · ${bestOf(other).badge.label}</em></div>
+        <div><span>${other.year} 조심할 달</span><b>${worstOf(other).start} ${worstOf(other).name}</b><em>${worstOf(other).score}점 · ${worstOf(other).badge.label}</em></div>
+      </div>` : ''}
+      <p class="td-note">달의 경계는 1일이 아니라 절입(節入) 시각이에요. 그래서 1월 초생은 전 해의 마지막 달(축월)로 봅니다. 배지 하나만 기억해도 그 달에 뭘 할지 정해져요.</p>
+      ${shareRow('year', '이 달력 보내기')}
+    </div>`;
+  }
+
+  function renderYear(x, a, year, other) {
+    const bars = x.months.map(m => `<div class="yr-bar ${m.badge.cls}">
       <span class="yr-b-val">${m.score}</span>
-      <i style="height:${h(m.score)}%"></i>
+      <i style="height:${Math.max(12, m.score)}%"></i>
       <span class="yr-b-m">${m.start}<br>${m.name.replace('월', '')}</span>
     </div>`).join('');
     return `<div class="card">
@@ -131,20 +182,26 @@
       </div>
       <p class="yr-theme serif">${x.theme}</p>
       <p class="yr-body">${x.body}</p>
-      ${x.jr.length ? `<p class="yr-jr">원국과 <b>${[...new Set(x.jr.map(r => r.name))].join('·')}</b>이 잡혀서, 예정에 없던 변화가 생기기 쉬운 해예요.</p>` : ''}
+      ${x.jr.length ? `<p class="yr-jr">원국과 <b>${[...new Set(x.jr.map(r => r.name))].join('·')}</b>이 잡혀서, 예정에 없던 변화가 생기기 쉬운 해예요. 큰 결정은 한 번 더 확인하세요.</p>` : ''}
+      <div class="yr-cal-sum mini">
+        <div><span>올해 최고의 달</span><b>${x.best[0].start} ${x.best[0].name}</b><em>${x.best[0].badge.label}</em></div>
+        <div><span>올해 조심할 달</span><b>${x.worst[0].start} ${x.worst[0].name}</b><em>${x.worst[0].badge.label}</em></div>
+      </div>
     </div>
 
+    ${calendarCard(x, other)}
+
     <div class="card">
-      <div class="section-head"><h2 class="serif">12개월의 흐름</h2><span class="en">12 MONTHS</span></div>
+      <div class="section-head"><h2 class="serif">12개월 기운 그래프</h2><span class="en">12 MONTHS</span></div>
       <div class="yr-chart">${bars}</div>
-      <div class="yr-legend"><span><i class="best"></i>잡을 달</span><span><i class="worst"></i>피할 달</span></div>
+      <div class="yr-legend"><span><i class="jackpot"></i>대박</span><span><i class="good"></i>좋음</span><span><i class="calm"></i>무난</span><span><i class="warn"></i>조심</span><span><i class="bad"></i>위험</span></div>
     </div>
 
     <div class="card">
       <div class="section-head"><h2 class="serif">잡아야 할 달 · 피할 달</h2><span class="en">PICK & AVOID</span></div>
       <div class="yr-picks">
-        ${x.best.map(m => `<div class="yr-pick good"><span>${m.start} ${m.name} <b>${GAN[m.gan]}${JI[m.ji]}</b></span><p>${m.act}</p></div>`).join('')}
-        ${x.worst.map(m => `<div class="yr-pick bad"><span>${m.start} ${m.name} <b>${GAN[m.gan]}${JI[m.ji]}</b></span><p>${m.act}</p></div>`).join('')}
+        ${x.best.map(m => `<div class="yr-pick ${m.badge.cls}"><span>${m.start} ${m.name} <b>${GAN[m.gan]}${JI[m.ji]}</b><em class="yr-badge ${m.badge.cls}">${m.badge.icon} ${m.badge.label}</em></span><p><b>이 달엔</b> ${m.keep}</p></div>`).join('')}
+        ${x.worst.map(m => `<div class="yr-pick ${m.badge.cls}"><span>${m.start} ${m.name} <b>${GAN[m.gan]}${JI[m.ji]}</b><em class="yr-badge ${m.badge.cls}">${m.badge.icon} ${m.badge.label}</em></span><p><b>이것만 피하세요</b> ${m.avoid}</p></div>`).join('')}
       </div>
     </div>
 
@@ -156,8 +213,7 @@
           <p>${q.act}</p>
         </div>`).join('')}
       </div>
-      <p class="td-note">세운은 같은 일도 어느 달에 하느냐로 결과가 갈려요. 잡을 달에는 결정을, 피할 달에는 정리를 두세요.</p>
-      ${shareRow('year', '신년운세 보내기')}
+      <p class="td-note">세운은 같은 일도 어느 달에 하느냐로 결과가 갈려요. 배지가 🎯·🌱인 달에는 결정을, ⚠️·🚨인 달에는 정리를 두세요.</p>
     </div>`;
   }
 
@@ -167,7 +223,7 @@
       <div class="result-title">
         <div class="result-brand serif">살풀이 : 천기(天機) · 재물 · 적성</div>
         <h2 class="serif">${who(a)}의 돈의 그릇</h2>
-        <p>재성 ${Math.round((x.powers.cnt[4] + x.powers.cnt[5]) * 10) / 10} · 관성 ${Math.round((x.powers.cnt[6] + x.powers.cnt[7]) * 10) / 10} · 식상 ${Math.round((x.powers.cnt[2] + x.powers.cnt[3]) * 10) / 10} · 인성 ${Math.round((x.powers.cnt[8] + x.powers.cnt[9]) * 10) / 10}</p>
+        <p>돈 ${Math.round((x.powers.cnt[4] + x.powers.cnt[5]) * 10) / 10} · 직장 ${Math.round((x.powers.cnt[6] + x.powers.cnt[7]) * 10) / 10} · 표현 ${Math.round((x.powers.cnt[2] + x.powers.cnt[3]) * 10) / 10} · 공부 ${Math.round((x.powers.cnt[8] + x.powers.cnt[9]) * 10) / 10} <span style="opacity:.7">(돈·결과물 / 직장·명예 / 표현·재능 / 공부·도움)</span></p>
       </div>
       <div class="wl-ratio">
         <div class="wl-bar"><i style="width:${x.biz}%"></i></div>
@@ -178,15 +234,15 @@
 
     <div class="card">
       <div class="section-head"><h2 class="serif">돈이 모이는 구조</h2><span class="en">MONEY PATH</span></div>
-      <p><b>${x.pyeon > x.jeong ? '편재' : x.jeong > x.pyeon ? '정재' : '정재·편재'}</b> — ${x.structure}</p>
+      <p><b>${x.pyeon > x.jeong ? '돌아다니는 큰돈(편재)' : x.jeong > x.pyeon ? '차곡차곡 모으는 돈(정재)' : '모으는 돈 + 큰돈(정재·편재)'}</b> — ${x.structure}</p>
       <div class="hr-gold"></div>
       <p>${x.mainPath}</p>
       <div class="wl-scores">
-        <div><span>비겁</span><i style="width:${Math.min(100, x.powers.self * 25)}%"></i><em>${Math.round(x.powers.self * 10) / 10}</em></div>
-        <div><span>식상</span><i style="width:${Math.min(100, x.powers.output * 25)}%"></i><em>${Math.round(x.powers.output * 10) / 10}</em></div>
-        <div><span>재성</span><i style="width:${Math.min(100, x.powers.money * 25)}%"></i><em>${Math.round(x.powers.money * 10) / 10}</em></div>
-        <div><span>관성</span><i style="width:${Math.min(100, x.powers.officer * 25)}%"></i><em>${Math.round(x.powers.officer * 10) / 10}</em></div>
-        <div><span>인성</span><i style="width:${Math.min(100, x.powers.resource * 25)}%"></i><em>${Math.round(x.powers.resource * 10) / 10}</em></div>
+        <div><span>내 편<br><em style="font-style:normal;opacity:.6">비겁</em></span><i style="width:${Math.min(100, x.powers.self * 25)}%"></i><em>${Math.round(x.powers.self * 10) / 10}</em></div>
+        <div><span>표현<br><em style="font-style:normal;opacity:.6">식상</em></span><i style="width:${Math.min(100, x.powers.output * 25)}%"></i><em>${Math.round(x.powers.output * 10) / 10}</em></div>
+        <div><span>돈<br><em style="font-style:normal;opacity:.6">재성</em></span><i style="width:${Math.min(100, x.powers.money * 25)}%"></i><em>${Math.round(x.powers.money * 10) / 10}</em></div>
+        <div><span>직장<br><em style="font-style:normal;opacity:.6">관성</em></span><i style="width:${Math.min(100, x.powers.officer * 25)}%"></i><em>${Math.round(x.powers.officer * 10) / 10}</em></div>
+        <div><span>공부<br><em style="font-style:normal;opacity:.6">인성</em></span><i style="width:${Math.min(100, x.powers.resource * 25)}%"></i><em>${Math.round(x.powers.resource * 10) / 10}</em></div>
       </div>
     </div>
 

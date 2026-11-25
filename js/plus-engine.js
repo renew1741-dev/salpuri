@@ -169,8 +169,7 @@
     else if (gHap.t === 'gen') { score += 5; reasons.push('오늘 기운이 내 기운을 살려 줘요'); }
     else if (gHap.t === 'same') { score += 2; reasons.push('오늘 기운이 내 기운과 같은 결이에요'); }
     else if (gHap.t === 'control') { score -= 3; reasons.push('오늘 기운이 내 기운을 눌러요'); }
-    jrAll.forEach(r => { if (r.t !== 'none') { score += r.w * 1.1; reasons.push(`오늘 일지 ${JI[dj.ji]}${iGa(JI[dj.ji])} 내 배우자 자리와 ${r.name}(${r.hanja})${eul(r.name)} 이뤄요`); } });
-    const GOOD_TEN = { 2: 7, 3: -4, 4: 4, 5: 6, 6: -5, 7: 7, 8: 2, 9: 5, 0: 1, 1: -3 };
+    jrAll.forEach(r => { if (r.t !== 'none') { score += r.w * 1.1; reasons.push(`오늘 일지 ${JI[dj.ji]}${iGa(JI[dj.ji])} 내 배우자 자리와 ${r.name}(${r.hanja})${eul(r.name)} 이뤄요`); } });    const GOOD_TEN = { 2: 7, 3: -4, 4: 4, 5: 6, 6: -5, 7: 7, 8: 2, 9: 5, 0: 1, 1: -3 };
     score += GOOD_TEN[ten];
     const ye = [GAN_ELEM[dj.gan], JI_ELEM[dj.ji]];
     const yong = a.yongsin.yong, gi = a.yongsin.gi;
@@ -207,7 +206,7 @@
     const badHours = hours.filter(h => h.bad).slice(0, 2);
 
     /* 한 문단 총평 */
-    const tenName = S.TEN_GODS[ten];
+    const tenName = TX.godFull(ten);
     const summary = score >= 76
       ? `${tenName}의 기운이 내 자리에 곱게 들어오는 날이에요. ${jr.good && jr.t !== 'none'
         ? '일지가 맞물려 사람과 일이 같이 움직이니까, 미뤄 둔 연락과 결정을 오늘 꺼내 보세요'
@@ -234,10 +233,8 @@
      ③ 신년 · 12개월
      ============================================================ */
   function yearly(a, year) {
-    const y = year || 2026;
-    const months = TX.monthly2026(a, y).map(m => ({
-      ...m, score: Math.max(34, Math.min(96, Math.round(48 + (m.score - 0.42) * 62)))
-    }));
+    const y = year || new Date(Date.now() + 9 * 3600 * 1000).getUTCFullYear();
+    const months = TX.monthly2026(a, y).map(m => ({ ...m, score: m.pct }));
     const sorted = months.slice().sort((x, y2) => y2.score - x.score);
     const best = sorted.slice(0, 2), worst = sorted.slice(-2).reverse();
     const yg = mod(y - 4, 10), yj = mod(y - 4, 12);
@@ -257,7 +254,7 @@
       return { q: q + 1, theme, avg, top, label, act };
     });
     return {
-      ok: true, year: y, gan: yg, ji: yj, ganji: `${GAN[yg]}${JI[yj]}`, ten, tenName: S.TEN_GODS[ten],
+      ok: true, year: y, gan: yg, ji: yj, ganji: `${GAN[yg]}${JI[yj]}`, ten, tenName: TX.godFull(ten),
       theme: TX.SAEUN_THEME[ten], body: TX.SAEUN_BODY[ten],
       months, best, worst, quarters,
       jr: jr.filter(r => r.t !== 'none')
@@ -295,10 +292,10 @@
         : '버는 힘과 모으는 힘이 같이 있어요. 들어온 돈의 일정 비율을 먼저 떼어 두는 규칙 하나면 충분해요.';
 
     const caution = [];
-    if (cnt[1] > 0.8) caution.push('겁재(劫財)가 살아 있는 사주예요. 지인 보증·동업·지인 대출이 이 사주에서 제일 크게 새는 구멍이에요.');
-    if (cnt[4] > 1.2) caution.push('편재가 강해서 큰돈의 흐름을 먼저 봐요. 다만 한곳에 몰아넣는 투자는 이 사주가 제일 크게 다치는 자리예요.');
-    if (cnt[6] > 0.9) caution.push('편관이 강해서 압박이 오면 판을 키우려 해요. 그 순간의 결단은 대개 손실로 돌아와요.');
-    if (cnt[3] > 0.9) caution.push('상관이 살아 있어서 말과 아이디어가 앞서요. 계약서에 없는 말은 하지 마세요.');
+    if (cnt[1] > 0.8) caution.push('판 키우는 경쟁심(겁재)이 살아 있는 사주예요. 지인 보증·동업·지인 대출이 이 사주에서 제일 크게 새는 구멍이에요.');
+    if (cnt[4] > 1.2) caution.push('돌아다니는 큰돈(편재)이 강해서 큰돈의 흐름을 먼저 봐요. 다만 한곳에 몰아넣는 투자는 이 사주가 제일 크게 다치는 자리예요.');
+    if (cnt[6] > 0.9) caution.push('나를 벼리는 압박(편관)이 강해서 압박이 오면 판을 키우려 해요. 그 순간의 결단은 대개 손실로 돌아와요.');
+    if (cnt[3] > 0.9) caution.push('톡톡 튀는 재주(상관)가 살아 있어서 말과 아이디어가 앞서요. 계약서에 없는 말은 하지 마세요.');
     if (!caution.length) caution.push('재물을 크게 해치는 살은 두드러지지 않아요. 문제는 속도보다 관리 — 수입의 20%를 손대지 않는 통장으로 먼저 보내세요.');
 
     const timing = a.daewoon.list.map(d => {
@@ -332,8 +329,8 @@
   const PURPOSES = {
     move: { id: 'move', name: '이사', en: 'MOVE', weight: { move: 1 }, tip: '이사는 옮겨 가는 날의 기운이 새 집의 첫 기운이 돼요. 충일과 공망일은 피하세요.' },
     open: { id: 'open', name: '개업 · 사업', en: 'OPEN', weight: { open: 1 }, tip: '개업은 첫 손님을 받는 날의 기운을 3년간 끌고 가요. 재성일과 천을귀인일이 제일 좋아요.' },
-    contract: { id: 'contract', name: '중요 계약', en: 'CONTRACT', weight: { contract: 1 }, tip: '계약은 서명하는 날의 기운이 문서에 남아요. 관성일과 육합일을 고르세요.' },
-    wedding: { id: 'wedding', name: '결혼 · 상견례', en: 'WEDDING', weight: { wedding: 1 }, tip: '혼인은 두 집안의 기운이 겹치는 날이에요. 육합·천덕귀인일이 제일 좋고 충일은 피하세요.' }
+    contract: { id: 'contract', name: '중요 계약', en: 'CONTRACT', weight: { contract: 1 }, tip: '계약은 서명하는 날의 기운이 문서에 남아요. 직장·책임 기운(관성)이 도는 날과 잘 붙는 날(육합)을 고르세요.' },
+    wedding: { id: 'wedding', name: '결혼 · 상견례', en: 'WEDDING', weight: { wedding: 1 }, tip: '혼인은 두 집안의 기운이 겹치는 날이에요. 잘 붙는 날(육합)과 하늘 복이 붙는 날(천덕귀인)이 제일 좋고, 부딪히는 날(충)은 피하세요.' }
   };
 
   function rangeOf(kind, now) {
@@ -366,12 +363,12 @@
       const rs = [];
       const jr = br(dp.ji, dj.ji);
       jr.forEach(r => {
-        if (r.t === 'yukhap') { score += 14; rs.push(`일지 ${JI[dj.ji]}${wa(JI[dj.ji])} 육합 — 자리가 맞물리는 날`); }
+        if (r.t === 'yukhap') { score += 14; rs.push(`일지 ${JI[dj.ji]}${wa(JI[dj.ji])} 잘 붙는 기운(육합) — 자리가 맞물리는 날`); }
         else if (r.t === 'banhap' || r.t === 'banghap') { score += 9; rs.push(`일지와 ${r.name} — 기운이 모이는 날이에요`); }
-        else if (r.t === 'chung') { score -= 22; rs.push('일지와 충(沖) — 옮기고 어긋나기 쉬운 날이에요'); }
-        else if (r.t === 'hyeong') { score -= 12; rs.push('일지와 형(刑) — 말과 절차가 꼬이기 쉬운 날'); }
-        else if (r.t === 'pa') { score -= 9; rs.push('일지와 파(破) — 계획이 한 번 어긋나는 날이에요'); }
-        else if (r.t === 'hae') { score -= 8; rs.push('일지와 해(害) — 겉은 괜찮은데 속이 상하는 날이에요'); }
+        else if (r.t === 'chung') { score -= 22; rs.push('일지와 부딪히는 기운(충) — 옮기고 어긋나기 쉬운 날이에요'); }
+        else if (r.t === 'hyeong') { score -= 12; rs.push('일지와 서로 누르는 기운(형) — 말과 절차가 꼬이기 쉬운 날'); }
+        else if (r.t === 'pa') { score -= 9; rs.push('일지와 깨지는 기운(파) — 계획이 한 번 어긋나는 날이에요'); }
+        else if (r.t === 'hae') { score -= 8; rs.push('일지와 속이 상하는 기운(해) — 겉은 괜찮은데 속이 상하는 날이에요'); }
       });
       if (cheon.indexOf(dj.ji) >= 0) { score += 12; rs.push('천을귀인일 — 막히면 누가 나타나는 날이에요'); }
       const gHap = global.Gunghap.ganRel(a.dayGan, dj.gan);
@@ -380,7 +377,7 @@
       const ten = S.tenGod(a.dayGan, dj.gan);
       const tenBonus = { 2: 5, 3: -4, 4: 4, 5: 6, 6: -5, 7: 7, 8: 1, 9: 5, 0: -1, 1: -5 };
       score += tenBonus[ten];
-      if ([5, 7, 2, 9].indexOf(ten) >= 0) rs.push(`${S.TEN_GODS[ten]}일 — ${ten === 5 ? '돈이 남는' : ten === 7 ? '문서와 신뢰가 서는' : ten === 2 ? '편안히 먹고사는' : '배움과 도움이 붙는'} 날이에요`);
+      if ([5, 7, 2, 9].indexOf(ten) >= 0) rs.push(`${TX.godShort(ten)}이 도는 날 — ${ten === 5 ? '돈이 남는' : ten === 7 ? '문서와 신뢰가 서는' : ten === 2 ? '편안히 먹고사는' : '배움과 도움이 붙는'} 날이에요`);
       const ye = [GAN_ELEM[dj.gan], JI_ELEM[dj.ji]];
       if (ye.indexOf(yong) >= 0) { score += 6; rs.push(`용신 ${el(yong)}${iGa(el(yong))} 드는 날이에요`); }
       if (ye.indexOf(gi) >= 0) { score -= 6; rs.push(`기신 ${el(gi)}${iGa(el(gi))} 드는 날이에요`); }
@@ -403,7 +400,7 @@
       score = Math.max(18, Math.min(98, Math.round(score)));
       days.push({
         y: dt.y, m: dt.m, d: dt.d, wd: wdOf(dt.y, dt.m, dt.d), ganji: `${GAN[dj.gan]}${JI[dj.ji]}`,
-        gan: dj.gan, ji: dj.ji, ten, tenName: S.TEN_GODS[ten], score,
+        gan: dj.gan, ji: dj.ji, ten, tenName: TX.godFull(ten), score,
         grade: score >= 85 ? '대길' : score >= 72 ? '길' : score >= 60 ? '무난' : '피함',
         reasons: rs
       });

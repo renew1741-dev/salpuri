@@ -88,8 +88,8 @@
       <div class="nm-rows-head"><span>오행</span><span></span><span>사주의 세기</span><span></span><span>이름</span></div>
       ${rows}
       <div class="nm-legend">
-        <span><b class="yong">용신</b> 이름으로 채워야 할 기운</span>
-        <span><b class="hee">희신</b> 용신을 받쳐 주는 기운</span>
+        <span><b class="yong">용신</b> 나를 살리는 기운 · 이름으로 채워야 함</span>
+        <span><b class="hee">희신</b> 용신을 옆에서 받쳐 주는 기운</span>
         <span><b class="gi">기신</b> 이름에서 피해야 할 기운</span>
       </div>
       <p class="small">이름 쪽 점(●)은 이름 글자의 초성 발음오행이에요. 성씨는 타고나는 몫이라 보완 계산에서 빼고, 이름 두 글자만 봐요.</p>
@@ -124,7 +124,7 @@
     const n = model.need;
     const elS = global.Naming.elSubj, elO = global.Naming.elObj;
     const paras = [];
-    paras.push(`아직 이름이 없는 사주예요. 일간은 ${GAN_KO[a.dayGan]}(${EH[a.dayElem]})이고, 여덟 글자에서 ${elS(n.top)} ${pctTxt(n.topPct)}로 가장 두껍고 ${elS(n.low)} ${pctTxt(n.lowPct)}로 가장 말라요. 용신은 ${el(n.yong)}, 희신은 ${el(n.hee)}, 기신은 ${el(n.gi)}이에요.`);
+    paras.push(`아직 이름이 없는 사주예요. 일간은 ${GAN_KO[a.dayGan]}(${EH[a.dayElem]})이고, 여덟 글자에서 ${elS(n.top)} ${pctTxt(n.topPct)}로 가장 두껍고 ${elS(n.low)} ${pctTxt(n.lowPct)}로 가장 말라요. 나를 살리는 행운 기운(용신)은 ${el(n.yong)}, 도와주는 기운(희신)은 ${el(n.hee)}, 넘치면 흐려지는 기운(기신)은 ${el(n.gi)}이에요.`);
     paras.push(`작명에서 먼저 정할 건 이름의 뜻이 아니라 방향이에요. 이 사주는 ${elO(n.yong)} 세워야 ${n.strong.indexOf('약') >= 0 ? '기운이 버티고' : '넘치는 기운이 빠져나가요'}. ${elS(n.top)} ${pctTxt(n.topPct)}로 이미 두꺼우니까, 이름에 ${elO(n.top)} 또 얹으면 같은 자리에서 힘이 새요.`);
     paras.push(`이름은 성까지 세 글자의 첫소리로 읽혀요. 하루에도 수십 번 불리는 소리라서, 초성의 오행이 사주와 상생으로 이어지는지가 평생의 결을 조금씩 바꿔요. 여기에 한자 획수의 사격(원·형·이·정)이 초년·청년·중년·말년의 흐름을 더해요.`);
     if (a.future) paras.push(`지금은 출산 예정일 기준 명식이에요. 실제로 태어난 시각이 예정과 다르면 시주가 달라지니까, 출생 후에 시간을 넣고 한 번 더 확인해 보세요.`);

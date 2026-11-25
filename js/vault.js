@@ -208,10 +208,10 @@
   /* ---------- 잠금 카드 마크업 ---------- */
   const LOCK_ITEMS = {
     saju: [
-      '2026·2027 월별로 피할 달과 잡을 달',
+      '올해·내년 월별로 피할 달과 잡을 달',
       '재물·연애·직장 타이밍 심층 풀이',
       '외모·점 개운 처방(적정 kg·길점/흉점)',
-      '9쪽 정밀 PDF 리포트',
+      '10쪽 정밀 PDF 리포트',
       '스마트폰 부적 4종'
     ],
     baby: [
@@ -251,7 +251,7 @@
             <b class="vl-duo-title">2인 동반 패키지</b>
             <span class="vl-duo-price"><s>19,800원</s> 17,900원</span>
           </div>
-          <p class="vl-duo-desc">나 + 지인 1명 · 서로 다른 명식 2개의 9쪽 리포트·PDF까지 · 1인당 8,950원</p>
+          <p class="vl-duo-desc">나 + 지인 1명 · 서로 다른 명식 2개의 10쪽 리포트·PDF까지 · 1인당 8,950원</p>
           <button type="button" class="vl-duo-btn" data-vault-buy="duo">2인 패키지로 두 사람 보기 · 17,900원</button>
           <p class="vl-duo-note" data-duo-note hidden></p>
         </div>

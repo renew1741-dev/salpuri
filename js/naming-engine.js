@@ -583,7 +583,7 @@
     const gan = S.GAN_KO[a.dayGan];
     const paras = [];
 
-    paras.push(`사주는 일간 ${gan}(${EH[a.dayElem]})을 축으로 서 있어요. 여덟 글자에서 ${elSubj(need.top)} ${pctTxt(need.topPct)}로 가장 두껍고, ${elSubj(need.low)} ${pctTxt(need.lowPct)}로 거의 말라요. 용신은 ${el(need.yong)}, 희신은 ${el(need.hee)}, 기신은 ${el(need.gi)}이에요 — 이름으로 채워야 할 칸은 ${elConj(need.yong)} ${el(need.hee)}이에요.`);
+    paras.push(`사주는 일간 ${gan}(${EH[a.dayElem]})을 축으로 서 있어요. 여덟 글자에서 ${elSubj(need.top)} ${pctTxt(need.topPct)}로 가장 두껍고, ${elSubj(need.low)} ${pctTxt(need.lowPct)}로 거의 말라요. 나를 살리는 행운 기운(용신)은 ${el(need.yong)}, 도와주는 기운(희신)은 ${el(need.hee)}, 넘치면 흐려지는 기운(기신)은 ${el(need.gi)}이에요 — 이름으로 채워야 할 칸은 ${elConj(need.yong)} ${el(need.hee)}이에요.`);
 
     const nameDesc = cur.elems.map((x) => {
       const e = x.e == null ? '한글 아님' : `초성 ${allCho(x.ch)} → ${el(x.e)}`;
@@ -598,7 +598,7 @@
       issues.push(`기신인 ${elSubj(need.gi)} 이름에 ${giCount}자 들어 있어요. 사주에서 이미 눌러야 할 기운을 이름이 한 번 더 얹은 구조라, 결정할 때마다 같은 자리에서 미끄러지는 일이 반복돼요.`);
     }
     if (!cur.nameElems.some(x => x.e === need.yong)) {
-      issues.push(`용신 ${elSubj(need.yong)} 이름에는 한 번도 안 나와요. 사주가 가장 필요로 하는 기운을 이름이 받쳐 주지 못하는 셈이에요.`);
+      issues.push(`나를 살리는 기운(용신) ${elSubj(need.yong)} 이름에는 한 번도 안 나와요. 사주가 가장 필요로 하는 기운을 이름이 받쳐 주지 못하는 셈이에요.`);
     }
     const topCount = cur.nameElems.filter(x => x.e === need.top).length;
     if (topCount && need.topPct > 0.28 && need.top !== need.gi) {

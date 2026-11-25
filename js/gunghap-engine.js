@@ -2,13 +2,14 @@
    살풀이 : 천기 정밀 궁합 엔진 (Gunghap Engine)
    - 두 사람의 만세력(사주 4주)을 각각 산출해 겹쳐 봄
    - 일간 천간합·충·상생·상극, 일지 육합·삼합·반합·충·형·파·해
-   - 오행 상호 보완도, 2026 병오년 인연 흐름
+   - 오행 상호 보완도, 올해 세운 인연 흐름
    - 종합 케미 점수(64~98) · 네 가지 축 · 총평
    ============================================================ */
 (function (global) {
   'use strict';
   const S = global.Saju;
   const mod = (n, m) => ((n % m) + m) % m;
+  const THIS_YEAR = new Date(Date.now() + 9 * 3600 * 1000).getUTCFullYear();
   const GAN = S.GAN, JI = S.JI, GAN_KO = S.GAN_KO, JI_KO = S.JI_KO;
   const ELEM_KO = S.ELEM_KO, ELEM_HANJA = S.ELEM_HANJA;
   const GAN_ELEM = S.GAN_ELEM, JI_ELEM = S.JI_ELEM;
@@ -148,9 +149,9 @@
     return { value: (fa + fb) / 2, fa, fb, fillsA, fillsB };
   }
 
-  /* ---------- 세운(2026 병오) ---------- */
+  /* ---------- 세운(올해) ---------- */
   function saeunHit(a, year) {
-    const y = year || 2026;
+    const y = year || THIS_YEAR;
     const yg = mod(y - 4, 10), yj = mod(y - 4, 12);
     const dp = a.dayPillar;
     const g = ganRel(dp.gan, yg);
@@ -303,7 +304,7 @@
     if (diff > 0.3) score += 2;
     if (a.strength.ratio >= 0.62 && b.strength.ratio >= 0.62) score -= 2;
     // 6) 세운
-    const s26a = saeunHit(a, 2026), s26b = saeunHit(b, 2026);
+    const s26a = saeunHit(a, THIS_YEAR), s26b = saeunHit(b, THIS_YEAR);
     const sPts = s26a.pts + s26b.pts;
     score += Math.max(-4, Math.min(4, sPts * 0.7));
     // 7) 관계 유형 보정
@@ -338,10 +339,10 @@
     const elemAxis = Math.round(38 + comp.value * 60);
     const yearAxis = Math.max(25, Math.min(95, Math.round(55 + sPts * 6)));
 
-    /* 2026 월 흐름 */
+    /* 올해 월 흐름 */
     const months = [];
     [[nameA, a], [nameB, b]].forEach(([nm, p]) => {
-      const ms = global.SajuText.monthly2026(p, 2026);
+      const ms = global.SajuText.monthly2026(p, THIS_YEAR);
       const hits = [];
       ms.forEach(m => {
         const rs = jiRelations(p.dayPillar.ji, m.ji).filter(r => r.t !== 'none');
@@ -365,18 +366,124 @@
       complement: comp,
       axes: [
         { key: 'gan', label: '감정의 코드', en: 'HEART', value: ganAxis, note: g.t === 'hap' ? '일간이 합을 이뤄서, 설명하지 않아도 통하는 자리가 있어요.' : g.t === 'gen' ? '한쪽이 다른 쪽을 살리는 흐름이에요. 주는 쪽이 지치지 않게 해야 해요.' : g.t === 'same' ? '같은 기운끼리라 편안한데, 한 사람이 두 사람이 되기 쉬워요.' : g.t === 'chung' ? '첫인상부터 긴장이 생기는 자리예요. 끌림과 거리두기가 번갈아 와요.' : '한쪽이 다른 쪽을 누르는 자리예요. 힘을 빼면 오히려 오래가요.' },
-        { key: 'ji', label: '생활의 결', en: 'DAILY', value: jiAxis, note: dayJ.good ? `${dayJ.name}(${dayJ.hanja}) — 잠자는 시간, 돈 쓰는 방식, 말의 속도가 닮았어요.` : `${dayJ.name}(${dayJ.hanja}) — 생활 리듬이 어긋나요. 규칙을 정해 두면 크게 다치지 않아요.` },
+        { key: 'ji', label: '생활의 결', en: 'DAILY', value: jiAxis, note: dayJ.t === 'none' ? '배우자 자리 사이에 특별한 합도 충도 없어요. 생활 리듬은 두 사람이 맞춰 가는 쪽이에요.' : dayJ.good ? `${dayJ.name}(${dayJ.hanja}) — 잠자는 시간, 돈 쓰는 방식, 말의 속도가 닮았어요.` : `${dayJ.name}(${dayJ.hanja}) — 생활 리듬이 어긋나요. 규칙을 정해 두면 크게 다치지 않아요.` },
         { key: 'elem', label: '기운의 보완', en: 'FILL', value: elemAxis, note: comp.value >= 0.6 ? '서로에게 없는 기운을 채워 줘요. 함께 있으면 판단이 맑아져요.' : comp.value >= 0.35 ? '한쪽은 채워 주고 한쪽은 받기만 해요. 받는 쪽이 무심해지지 않아야 해요.' : '서로에게 없는 기운이 겹쳐요. 같은 약점을 함께 메워야 해요.' },
-        { key: 'year', label: '올해의 흐름', en: '2026', value: yearAxis, note: sPts > 1.5 ? '2026 병오년이 두 사람의 일지를 밀어 줘요. 관계가 말로 확정되기 좋은 해예요.' : sPts < -1.5 ? '2026 병오년이 두 사람 사이를 흔들어요. 확정보다 확인이 필요한 해예요.' : '2026년은 두 사람 사이에 큰 물결이 없어요. 지금 속도를 유지하세요.' }
+        { key: 'year', label: '올해의 흐름', en: String(THIS_YEAR), value: yearAxis, note: sPts > 1.5 ? `${THIS_YEAR}년이 두 사람의 일지를 밀어 줘요. 관계가 말로 확정되기 좋은 해예요.` : sPts < -1.5 ? `${THIS_YEAR}년이 두 사람 사이를 흔들어요. 확정보다 확인이 필요한 해예요.` : `${THIS_YEAR}년은 두 사람 사이에 큰 물결이 없어요. 지금 속도를 유지하세요.` }
       ],
-      saeun: { a: s26a, b: s26b, pts: sPts, months },
+      saeun: { a: s26a, b: s26b, pts: sPts, months, year: THIS_YEAR },
       tenA, tenB, officer, wealth, output,
       crossSum
     };
   }
 
+  /* ============================================================
+     💘 재미로 보는 코너 — 한눈팔 확률
+     진짜 명리 판단이 아니라, 도화·역마·이성 기운·합충을 재료로
+     12~88% 사이의 숫자를 만드는 유희용 계산입니다.
+     ============================================================ */
+  const WANDER_FLAVOR = {
+    dohwa: {
+      name: '인기 폭발형',
+      line: '가만히 서 있어도 옆에서 번호를 물어보는 타입이에요. 잘생겨서가 아니라 사람을 편하게 만드는 분위기 때문이죠.',
+      rx: '데이트 사진을 본인 SNS에 직접 올리게 하세요. "이 사람은 내 사람" 표시 하나가 제일 싸고 강한 잠금장치예요.',
+      look: '사람 많은 자리에 혼자 보내지 마세요'
+    },
+    yeokma: {
+      name: '떠돌이형',
+      line: '바람보다는 혼자만의 시간과 취미에 푹 빠지는 타입이에요. 주말마다 어디론가 사라지는데, 정작 그 자리에 누가 있는지는 관심이 없어요.',
+      rx: '주말 일정을 미리 같이 정하세요. 혼자 떠날 시간을 미리 넉넉히 주면 오히려 안 떠나요.',
+      look: '갑자기 잡히는 당일 일정'
+    },
+    charm: {
+      name: '인연 많은 형',
+      line: '이성 기운이 두터워서 만남 자체는 끊이지 않아요. 문제는 바람기가 아니라 \'고르는 게 귀찮다\'는 쪽이에요.',
+      rx: '관계의 이름을 분명히 하세요. 애매한 사이가 제일 위험해요. 이름표를 붙이는 순간 후보가 사라집니다.',
+      look: '\'그냥 아는 사람\'이 자꾸 늘어나는 것'
+    },
+    loyalty: {
+      name: '집 지킴형',
+      line: '바람보다 집이 좋은 타입이에요. 약속과 루틴을 좋아하고, 낯선 사람보다 익숙한 얼굴이 편해요.',
+      rx: '이런 사람은 잡는 게 아니라 놓아 주세요. 간섭이 늘면 그때 진짜로 도망갑니다. 대신 고마움을 말로 자주 하세요.',
+      look: '이 사람이 갑자기 말을 아끼는 날'
+    },
+    neutral: {
+      name: '평범한 사람형',
+      line: '눈은 가끔 돌아가지만 발은 잘 안 움직이는, 세상에서 제일 흔하고 제일 안전한 타입이에요.',
+      rx: '심심할 때 같이 뭐라도 하세요. 한눈팔 확률보다 \'심심해서 다툴 확률\'이 더 높은 사주예요.',
+      look: '둘 다 폰만 보고 있는 저녁'
+    },
+    flirt: {
+      name: '말로 하는 형',
+      line: '행동은 안 하는데 말과 눈빛이 살짝 가벼운 타입이에요. 본인은 장난인데 받는 쪽은 진지해져서 문제가 생기죠.',
+      rx: '장난과 다정함의 선을 말로 정해 두세요. "나 이거 좀 불편해"를 웃으면서 한 번 말하면 정리됩니다.',
+      look: '술자리 다음 날의 "어제 그건 장난이었어"'
+    }
+  };
+
+  function wanderOf(P, Q) {
+    let n = 28;
+    const has = name => (P.sals || []).some(s => s.name === name);
+    const reasons = [];
+    const add = (v, key, txt) => { n += v; reasons.push({ v, key, txt }); };
+
+    if (has('도화살')) add(16, 'dohwa', '사람을 끄는 기운(도화)이 있어서 시선이 먼저 붙어요.');
+    if (has('홍염살')) add(8, 'dohwa', '말과 눈빛에 사람을 끄는 결(홍염)이 배어 있어요.');
+    if (has('역마살')) add(12, 'yeokma', '밖으로 도는 기운(역마)이 강해서 자리를 자주 비워요.');
+    if (has('화개살')) add(-7, 'loyalty', '혼자 깊어지는 기운(화개)이 있어서 사람보다 취미 쪽이에요.');
+
+    let cnt = 0;
+    P.pillars.forEach(p => {
+      if (!p || p.gan == null) return;
+      if (p.ganTenGod === 4 || p.ganTenGod === 5) cnt += 1.2;
+      if (p.jiTenGod === 4 || p.jiTenGod === 5) cnt += 1;
+      if (p.ganTenGod === 6 || p.ganTenGod === 7) cnt += 1.2;
+      if (p.jiTenGod === 6 || p.jiTenGod === 7) cnt += 1;
+    });
+    if (cnt >= 2.6) add(9, 'charm', '이성 기운(돈·직장 자리)이 두터워서 만남이 끊이지 않아요.');
+    else if (cnt < 0.9) add(-5, 'loyalty', '이성 기운이 얇아서 눈을 잘 안 돌려요.');
+
+    const st = P.dayPillar.stage;
+    if (st === 1) add(8, 'flirt', '배우자 자리가 설렘·흔들림(목욕) 자리예요.');
+    else if (st === 4) add(5, 'dohwa', '배우자 자리가 전성기(제왕) 자리라 존재감이 세요.');
+    else if ([7, 8, 9, 10].includes(st)) add(-6, 'loyalty', '배우자 자리가 정리·창고 자리라 밖으로 잘 안 나가요.');
+
+    const g = ganRel(P.dayGan, Q.dayGan);
+    const j = jiRelations(P.dayPillar.ji, Q.dayPillar.ji)[0];
+    if (g.t === 'hap') add(-9, 'loyalty', '두 사람 일간이 합이라 끌리는 방향이 한쪽으로 모여요.');
+    if (j.t === 'yukhap') add(-7, 'loyalty', '배우자 자리가 잘 붙는 기운(육합)이라 발이 묶여 있어요.');
+    if (j.t === 'chung' || j.t === 'hyeong' || j.t === 'pa') add(7, 'flirt', '배우자 자리가 부딪히는 기운이라 자극을 밖에서 찾기 쉬워요.');
+
+    if (P.strength.ratio >= 0.62) add(3, 'neutral', '기운이 센 편이라 자기 주관이 세요.');
+    else if (P.strength.ratio < 0.4) add(-4, 'loyalty', '기운이 얇아서 낯선 자극보다 익숙함을 찾아요.');
+
+    n = Math.max(12, Math.min(88, Math.round(n)));
+    const top = reasons.slice().sort((x, y) => Math.abs(y.v) - Math.abs(x.v))[0] || { key: 'neutral' };
+    const flavor = WANDER_FLAVOR[top.key] || WANDER_FLAVOR.neutral;
+
+    let tier, tierLine;
+    if (n <= 24) { tier = '빙하기 국면'; tierLine = '이 사람은 바람이 아니라 마음의 문이 굳게 닫힌 타입이에요. 오히려 나를 향한 문이 안 열려 있을까 걱정하세요.'; }
+    else if (n <= 39) { tier = '안정 국면'; tierLine = '눈이 돌아갈 자리가 거의 없어요. 이 사람이 한눈판다는 얘기가 들리면 그건 다른 사람이 이 사람 흉을 보는 거예요.'; }
+    else if (n <= 54) { tier = '평범 국면'; tierLine = '눈은 가끔 돌아가는데 발은 안 움직여요. 사람 사는 게 다 그렇죠, 뭐.'; }
+    else if (n <= 69) { tier = '매력 관리 국면'; tierLine = '인기는 있는데 선은 지키는 쪽이에요. 대신 이 사람 주변의 \'선\'이 이 사람보다 느슨할 수 있어요.'; }
+    else if (n <= 79) { tier = '인기 폭발 국면'; tierLine = '가만히 있어도 누군가 다가오는 타입이에요. 이 사람 잘못이 아니라 이 사람 기운이 그런 거예요.'; }
+    else { tier = '문이 열려 있는 국면'; tierLine = '솔직히 좀 걱정되는 숫자예요. 다만 확률은 \'가능성\'이지 \'예정\'이 아니에요. 잠금장치는 아래 처방에 있어요.'; }
+
+    return { pct: n, tier, tierLine, flavor, reasons, topKey: top.key };
+  }
+
+  /* x = Gunghap.analyze 결과 */
+  function wander(x) {
+    const b = wanderOf(x.b, x.a);
+    const a = wanderOf(x.a, x.b);
+    const diff = b.pct - a.pct;
+    const coupleLine = diff >= 12 ? `${x.nameB} 쪽이 ${diff}%p 더 인기 많은 조합이에요. 이 집은 상대를 자랑스러워해야 오래갑니다.`
+      : diff <= -12 ? `${x.nameA} 쪽이 ${Math.abs(diff)}%p 더 인기 많은 조합이에요. 상대가 긴장 좀 하고 사는 게 이 관계에 약이에요.`
+        : '두 사람 다 비슷비슷해요. 서로를 의심할 재료가 별로 없는 조합이에요.';
+    return { partner: b, me: a, diff, coupleLine };
+  }
+
   global.Gunghap = {
-    analyze, TYPES, GAN_HAP_META, YUKHAP_META, SAMHAP_META, ELEM_PAIR,
+    analyze, wander, wanderOf, TYPES, GAN_HAP_META, YUKHAP_META, SAMHAP_META, ELEM_PAIR,
     jiRelations, ganRel, complementOf, saeunHit, POS_KO, POS_SHORT
   };
 })(window);

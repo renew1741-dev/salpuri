@@ -6,6 +6,7 @@
   const $ = (s, el = document) => el.querySelector(s);
   const $$ = (s, el = document) => Array.from(el.querySelectorAll(s));
   const S = window.Saju;
+  const THIS_YEAR = new Date(Date.now() + 9 * 3600 * 1000).getUTCFullYear();
   const TX = window.SajuText;
   const T = window.Tarot;
   const P = window.Payment;
@@ -53,12 +54,12 @@
     tarot: { cat: 'love', picked: [], reading: [] },
     gg: { rel: 'some', touchedA: false, result: null,
       a: { gender: '여', cal: '양력' }, b: { gender: '남', cal: '양력' } },
-    yearly: 2026,
+    yearly: THIS_YEAR,
     tk: { purpose: 'move', range: 'month' },
     gw: { height: null, weight: null, shown: false },
     nm: {
       mode: 'reform', model: null, analysis: null, built: false,
-      baby: { gender: '여', year: 2026, month: 11, day: 25, sijin: null }
+      baby: { gender: '여', year: THIS_YEAR, month: new Date(Date.now() + 9 * 3600 * 1000).getUTCMonth() + 1, day: new Date(Date.now() + 9 * 3600 * 1000).getUTCDate(), sijin: null }
     },
     baby: { gender: '여', cal: '양력', sijin: null, note: '', analysis: null },
     last: {}
@@ -597,9 +598,23 @@
     if (!host) return;
     const a = getAnalysis(host); if (!a) return;
     const x = Plus.yearly(a, state.yearly);
+    const otherYear = state.yearly === THIS_YEAR ? THIS_YEAR + 1 : THIS_YEAR;
+    const other = Plus.yearly(a, otherYear);
     state.last.yearly = x;
-    host.innerHTML = PlusText.renderYear(x, a, state.yearly);
-    logReading('신년', a, `${x.year}년 ${x.ganji} 12개월`);
+    host.innerHTML = PlusText.renderYear(x, a, state.yearly, other);
+    bindYearCalendar();
+    logReading('신년', a, `${x.year}년 ${x.ganji} 12개월 · ${x.best[0].start} ${x.best[0].name} 최고`);
+  }
+
+  /* 두 해 달력 — 2026만 / 2027만 / 함께 */
+  function bindYearCalendar() {
+    const seg = $('#yrViewSeg'), cal = $('#yrCal');
+    if (!seg || !cal) return;
+    $$('#yrViewSeg button').forEach(b => b.onclick = () => {
+      $$('#yrViewSeg button').forEach(x => x.classList.toggle('active', x === b));
+      cal.dataset.view = b.dataset.yrview;
+      audio.tap();
+    });
   }
 
   function renderWealthPanel() {
@@ -881,7 +896,7 @@
   function fillSelects() {
     const ySel = $('#birthYear'), mSel = $('#birthMonth'), dSel = $('#birthDay');
     ySel.innerHTML = ''; mSel.innerHTML = ''; dSel.innerHTML = '';
-    for (let y = 2026; y >= 1940; y--) {
+    for (let y = THIS_YEAR; y >= 1940; y--) {
       const o = new Option(y + '년', y);
       if (y === 2000) o.selected = true;
       ySel.add(o);
@@ -917,7 +932,7 @@
     dSel.value = Math.min(cur, limit);
     const hint = $('#lunarHint');
     if (state.cal === '양력') {
-      hint.textContent = '1940년 ~ 2026년 출생 지원 · 양력 그대로 계산해요.';
+      hint.textContent = `1940년 ~ ${THIS_YEAR}년 출생 지원 · 양력 그대로 계산해요.`;
     } else {
       const lp = leapMonthOf(y);
       let t = `${y}년 음력은 ${lp ? '윤' + lp + '월' : '윤달 없음'} · 그 달에 실제로 있는 날짜만 고를 수 있어요.`;
@@ -1079,7 +1094,7 @@
     // 강약 게이지
     renderGauge(a.strength.ratio);
     $('#strengthLabel').textContent = `${a.strength.level} · 일간 ${S.GAN[a.dayGan]}(${S.GAN_KO[a.dayGan]}) ${S.ELEM_KO[a.dayElem]} ${S.ELEM_HANJA[a.dayElem]}`;
-    $('#strengthDesc').textContent = `아군(비겁·인성) ${Math.round(a.strength.support)} : 적군(식상·재성·관성) ${Math.round(a.strength.drain)}`;
+    $('#strengthDesc').textContent = `나를 돕는 쪽(내 편·공부) ${Math.round(a.strength.support)} : 나를 쓰는 쪽(표현·돈·직장) ${Math.round(a.strength.drain)}`;
 
     // 용신
     const ys = a.yongsin;
@@ -1122,19 +1137,19 @@
         : s.tenGod <= 5 ? '돈이 실제로 움직이는 해예요. 들어오고 나가는 돈을 같은 달에 정리해 보세요.'
           : s.tenGod <= 7 ? '책임과 압박이 늘지만 그 자리가 다음 10년의 몫을 만들어요.'
             : '배움과 재정비에 맞는 해예요. 자격·문서·공부를 챙기면 내년의 발판이 돼요.';
-    $('#saeunText').innerHTML = `<b style="color:#f6e3ad">${s.tenGodName}</b>의 기운이 들어오는 해예요. ${advice}` +
+    $('#saeunText').innerHTML = `<b style="color:#f6e3ad">${TX.godFull(s.tenGod)}</b>이 들어오는 해예요. ${advice}` +
       (s.inter.length ? `<br><span style="color:#e2a35e">원국과 ${[...new Set(s.inter.map(i => i.type))].join('·')}${/합$|충$/.test([...new Set(s.inter.map(i => i.type))].pop()) ? '이' : '가'} 잡혀서 변화가 큰 해예요.</span>` : '') +
-      `<br>다음 해 ${a.saeun[1].year}년은 ${S.GAN[a.saeun[1].gan]}${S.JI[a.saeun[1].ji]}년 · ${a.saeun[1].tenGodName}이에요.`;
+      `<br>다음 해 ${a.saeun[1].year}년은 ${S.GAN[a.saeun[1].gan]}${S.JI[a.saeun[1].ji]}년 · ${TX.godFull(a.saeun[1].tenGod)}이에요.`;
 
     // 2026 월별 — 잡을 달 · 피할 달
-    const ms = TX.monthly2026(a);
+    const ms = TX.monthly2026(a, THIS_YEAR);
     const good = TX.bestMonths(ms, 2), bad = TX.worstMonths(ms, 2);
     const monEl = $('#saeunMonths');
     if (monEl) {
       monEl.innerHTML = `<div class="mon-good"><span class="mk">잡아야 할 달</span>` +
-        good.map(m => `<span class="mchip">${m.start} ${m.name}<b>${S.GAN[m.gan]}${S.JI[m.ji]}</b></span>`).join('') + `</div>` +
+        good.map(m => `<span class="mchip ${m.badge.cls}">${m.start} ${m.name}<b>${S.GAN[m.gan]}${S.JI[m.ji]}</b><em>${m.badge.icon} ${m.badge.label}</em></span>`).join('') + `</div>` +
         `<div class="mon-bad"><span class="mk">피할 달</span>` +
-        bad.map(m => `<span class="mchip">${m.start} ${m.name}<b>${S.GAN[m.gan]}${S.JI[m.ji]}</b></span>`).join('') + `</div>`;
+        bad.map(m => `<span class="mchip ${m.badge.cls}">${m.start} ${m.name}<b>${S.GAN[m.gan]}${S.JI[m.ji]}</b><em>${m.badge.icon} ${m.badge.label}</em></span>`).join('') + `</div>`;
     }
 
     // 대운
@@ -1144,7 +1159,7 @@
       return `<div class="dw-item ${cur ? 'cur' : ''}">
         <div class="g serif">${S.GAN[d.gan]}${S.JI[d.ji]}</div>
         <div class="a">${d.startAge}세~</div>
-        <div class="a">${S.TEN_GODS[S.tenGod(a.dayGan, d.gan)]}</div></div>`;
+        <div class="a">${TX.godShort(S.tenGod(a.dayGan, d.gan))}</div></div>`;
     }).join('');
     $('#dwNote').textContent = `${a.daewoon.forward ? '순행(順行)' : '역행(逆行)'} · 대운수 ${a.daewoon.startAge}세 ` +
       `(절입까지 ${a.daewoon.days}일 ÷ 3) · ${a.gender}성 ${S.GAN_KO[a.yearPillar.gan]}${S.JI_KO[a.yearPillar.ji]}년생`;
@@ -1166,7 +1181,7 @@
       if (p.jiTenGod != null) { gp[groupOf(p.jiTenGod)] += 1; cnt[p.jiTenGod] += 1; }
     });
     const max = Math.max(1, ...Object.values(gp));
-    const rows = [['비겁', 'self', '나를 세우는 힘'], ['식상', 'output', '만들어내는 힘'], ['재성', 'wealth', '재물을 다루는 힘'], ['관성', 'officer', '책임과 자리'], ['인성', 'resource', '배움과 후원']];
+    const rows = [['내 편·자존심', 'self', '비겁 · 나를 세우는 힘'], ['표현·재능', 'output', '식상 · 만들어내는 힘'], ['돈·결과물', 'wealth', '재성 · 재물을 다루는 힘'], ['직장·명예', 'officer', '관성 · 책임과 자리'], ['공부·도움', 'resource', '인성 · 배움과 후원']];
     const top = cnt.map((v, i) => ({ v, i })).filter(x => x.v > 0).sort((x, y) => y.v - x.v).slice(0, 3);
     host.innerHTML = `<div class="gk-line"><span class="gk-badge serif">${a.gyeokguk.hanja}</span>
       <div><b class="serif">${a.gyeokguk.name}</b><span>${a.gyeokguk.gist}</span></div></div>` +
@@ -1248,7 +1263,7 @@
   function buildGunghapForm() {
     ['A', 'B'].forEach(W => {
       const ySel = $('#gg' + W + 'Year'), mSel = $('#gg' + W + 'Month'), tSel = $('#ggTime' + W);
-      for (let y = 2026; y >= 1940; y--) {
+      for (let y = THIS_YEAR; y >= 1940; y--) {
         const o = new Option(y + '년', y);
         if (y === 2000) o.selected = true;
         ySel.add(o);
@@ -2188,7 +2203,7 @@
           <div class="big">2인 동반 패키지가 열렸어요</div>
           <p>주문번호 <b style="color:#f6e3ad">${order.orderId}</b><br>
           ${P.PRODUCTS.duo.name}${demo ? '<br><span class="demo-badge">테스트 결제</span>' : ''}</p>
-          <p class="small mt14">이제 <b style="color:#f6e3ad">서로 다른 명식 2개</b>까지 각각 9쪽 리포트·PDF가 열립니다.<br>
+          <p class="small mt14">이제 <b style="color:#f6e3ad">서로 다른 명식 2개</b>까지 각각 10쪽 리포트·PDF가 열립니다.<br>
           사주 탭에서 나를 먼저 보시고, 생년월일을 바꿔 다시 계산하면 두 번째 명식이 등록돼요.</p>
           <button class="btn-gold mt20" id="payDone" style="max-width:260px;margin:20px auto 0">첫 번째 명식 보러 가기</button>
         </div>`;
@@ -2306,7 +2321,7 @@
     if (!ySel) return;
     const t = kstToday();
     const mSel = $('#babyMonth'), dSel = $('#babyDay'), tSel = $('#babyTime');
-    for (let y = 2026; y >= 1940; y--) ySel.add(new Option(y + '년', y));
+    for (let y = THIS_YEAR; y >= 1940; y--) ySel.add(new Option(y + '년', y));
     for (let m = 1; m <= 12; m++) mSel.add(new Option(m + '월', m));
     ySel.value = Math.max(1940, t.y - 2);
     mSel.value = t.m;
@@ -2561,7 +2576,7 @@
     };
     const vpdf = $('#vaultPdfBtn');
     if (vpdf) vpdf.onclick = () => {
-      if (!Vault.isOpen('saju')) { toast('공유하면 9쪽 리포트가 바로 열려요. 위 버튼을 눌러 주세요.'); return; }
+      if (!Vault.isOpen('saju')) { toast('공유하면 10쪽 리포트가 바로 열려요. 위 버튼을 눌러 주세요.'); return; }
       if (!state.analysis) { toast('명식을 먼저 조회해 주세요.'); return; }
       renderReport(state.analysis);
       switchTab('premium');
@@ -2593,6 +2608,17 @@
       $$('#ggRelSeg .seg-btn').forEach(x => x.classList.toggle('active', x === b));
       audio.tap();
     });
+    /* 신년 탭 연도 버튼 — 해가 바뀌면 올해·내년으로 자동 갱신 */
+    const yrBtns = $$('#yrSeg .seg-btn');
+    if (yrBtns.length >= 2) {
+      [THIS_YEAR, THIS_YEAR + 1].forEach((yy, i) => {
+        const b = yrBtns[i];
+        if (!b) return;
+        b.dataset.v = String(yy);
+        b.textContent = `${yy} ${S.GAN[S.mod(yy - 4, 10)]}${S.JI[S.mod(yy - 4, 12)]}년`;
+        b.classList.toggle('active', yy === state.yearly);
+      });
+    }
     $$('#yrSeg .seg-btn').forEach(b => b.onclick = () => {
       state.yearly = +b.dataset.v;
       $$('#yrSeg .seg-btn').forEach(x => x.classList.toggle('active', x === b));

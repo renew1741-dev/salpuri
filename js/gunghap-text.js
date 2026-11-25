@@ -116,7 +116,7 @@
       </div>
       <div class="gg-nc-pillars">${cells}</div>
       <p class="gg-nc-line">일간 <b>${GAN[dp.gan]}(${GAN_KO[dp.gan]}${ELEM_HANJA[a.dayElem]})</b> · ${a.strength.level}<br>
-        ${el(maxE)} ${pcts[maxE]}% · ${el(minE)} ${pcts[minE]}% · 용신 ${el(a.yongsin.yong)}</p>
+        ${el(maxE)} ${pcts[maxE]}% · ${el(minE)} ${pcts[minE]}% · 나를 살리는 기운 ${el(a.yongsin.yong)}</p>
     </div>`;
   }
 
@@ -211,7 +211,7 @@
     } else if (gan.t === 'same') {
       ganLine = `두 사람의 일간은 같은 ${elA}이에요. 같은 기운끼리 만나면 설명이 필요 없어요. 말이 반만 닿아도 알아듣고, 침묵이 어색하지 않죠. 다만 거울을 마주 본 사이는 서로의 빈 곳도 그대로 비춰요.`;
     } else if (gan.t === 'chung') {
-      ganLine = `두 사람의 일간은 <b>${GAN[dpA.gan]}${GAN[dpB.gan]} 천간충(天干沖)</b>이에요. 명리에서 이 자리는 “부딪히면서 끌리는 자리”라고 해요. 첫인상부터 어딘가 불편한데, 그 불편이 오히려 오래 기억에 남아요.`;
+      ganLine = `두 사람의 일간은 <b>${GAN[dpA.gan]}${GAN[dpB.gan]} 부딪히는 기운(천간충)</b>이에요. 명리에서 이 자리는 “부딪히면서 끌리는 자리”라고 해요. 첫인상부터 어딘가 불편한데, 그 불편이 오히려 오래 기억에 남아요.`;
     } else {
       const r = gan.r1 || '';
       ganLine = `두 사람의 일간은 한쪽이 다른 쪽을 누르는 자리예요. ${elA}${wa(elA)} ${elB} 사이에 긴장이 있고, 그 긴장이 관계를 늘 깨어 있게 하죠. ${r === 'resource' || r === 'officer' ? '누르는 쪽이 아니라 눌리는 쪽이 먼저 지치는 관계라, 강한 사람이 힘을 빼는 순간 관계가 편안해져요.' : '누르는 쪽은 대개 몰라요. 말로 확인하기 전에는 상대가 상처받았다는 것도 알기 어려워요.'}`;
@@ -234,13 +234,13 @@
     } else if (jp.t === 'bihwa') {
       jiLine = `배우자궁이 같은 글자예요. 생활의 결이 같아서 부딪힐 일이 적고, 대신 서로를 자극할 일도 적어요. 이 관계는 설렘보다 안정에서 힘을 얻어요.`;
     } else if (jp.t === 'chung') {
-      jiLine = `배우자궁이 <b>${JI[dpA.ji]}${JI[dpB.ji]} 충(沖)</b>이에요. 충은 감정이 아니라 생활 리듬이 어긋나는 자리예요. 한 사람에게 당연한 게 다른 사람에게는 무례가 되죠. 그래서 이 관계는 서로를 이해하는 속도보다 <b>시간표를 맞추는 속도</b>가 중요해요.`;
+      jiLine = `배우자궁이 <b>${JI[dpA.ji]}${JI[dpB.ji]} 부딪히는 기운(충)</b>이에요. 충은 감정이 아니라 생활 리듬이 어긋나는 자리예요. 한 사람에게 당연한 게 다른 사람에게는 무례가 되죠. 그래서 이 관계는 서로를 이해하는 속도보다 <b>시간표를 맞추는 속도</b>가 중요해요.`;
     } else if (jp.t === 'hyeong') {
-      jiLine = `배우자궁이 <b>형(刑)</b>이에요. 형은 미워서가 아니라 가까워서 생기는 압박이에요. 서로의 약점을 정확히 알기 때문에, 화가 나면 그 자리를 정확히 찔러요.`;
+      jiLine = `배우자궁이 <b>서로 누르는 기운(형)</b>이에요. 형은 미워서가 아니라 가까워서 생기는 압박이에요. 서로의 약점을 정확히 알기 때문에, 화가 나면 그 자리를 정확히 찔러요.`;
     } else if (jp.t === 'pa') {
-      jiLine = `배우자궁이 <b>파(破)</b>예요. 말로는 다정한데 손발이 안 맞아요. 약속이 자꾸 어긋나고, 같은 일을 두 번 하게 되죠. 대신 이 어긋남이 관계를 지루하지 않게 만들어요.`;
+      jiLine = `배우자궁이 <b>깨지는 기운(파)</b>예요. 말로는 다정한데 손발이 안 맞아요. 약속이 자꾸 어긋나고, 같은 일을 두 번 하게 되죠. 대신 이 어긋남이 관계를 지루하지 않게 만들어요.`;
     } else if (jp.t === 'hae') {
-      jiLine = `배우자궁이 <b>해(害)</b>예요. 겉으로 티가 안 나고 속으로 삭는 자리예요. 서운함을 말하지 않으면 관계가 아니라 각자의 상처만 쌓여요.`;
+      jiLine = `배우자궁이 <b>속이 상하는 기운(해)</b>예요. 겉으로 티가 안 나고 속으로 삭는 자리예요. 서운함을 말하지 않으면 관계가 아니라 각자의 상처만 쌓여요.`;
     } else {
       jiLine = `배우자궁 사이에 특별한 합도 충도 없어요. 두 사람의 관계는 하늘이 정해 둔 결보다, 매일 무엇을 말하고 무엇을 함께 하느냐에서 만들어져요.`;
     }
@@ -257,7 +257,7 @@
       ` 그래서 이 관계에서는 <b>${stronger}</b>${iGa(stronger)} 먼저 문을 열고, <b>${weaker}</b>${iGa(weaker)} 그 문을 닫지 않는 게 시작이에요. 두 사람이 가까워지는 순간은 대개 말을 잘했을 때가 아니라, 한 사람이 말없이 기다려 줬을 때예요.</p>`);
 
     const tgA = TEN_GODS[x.tenA], tgB = TEN_GODS[x.tenB];
-    out.push(`<p>십성으로 보면 더 분명해요. ${nameA}${iGa(nameA)} 본 ${nameB}${eun(nameB)} <b>${tgA}(${TEN_GODS_HANJA[x.tenA]})</b> — ${TEN_SHORT[x.tenA]}. 반대로 ${nameB}${iGa(nameB)} 본 ${nameA}${eun(nameA)} <b>${tgB}(${TEN_GODS_HANJA[x.tenB]})</b> — ${TEN_SHORT[x.tenB]}. 이 두 문장이 두 사람이 서로를 대하는 방식의 뿌리예요.</p>`);
+    out.push(`<p>십성으로 보면 더 분명해요. ${nameA}${iGa(nameA)} 본 ${nameB}${eun(nameB)} <b>${TX.godFull(x.tenA)}</b> — ${TEN_SHORT[x.tenA]}. 반대로 ${nameB}${iGa(nameB)} 본 ${nameA}${eun(nameA)} <b>${TX.godFull(x.tenB)}</b> — ${TEN_SHORT[x.tenB]}. 이 두 문장이 두 사람이 서로를 대하는 방식의 뿌리예요.</p>`);
 
     const tA = `${GAN_KO[dpA.gan]}${ELEM_KO[eA]}`, tB = `${GAN_KO[dpB.gan]}${ELEM_KO[eB]}`;
     return { title: `끌림의 정체 — ${tA}${wa(tA)} ${tB}${iGa(tB)} 만났을 때`, paras: out };  }
@@ -275,15 +275,15 @@
         ? `${POS_NAME[worst.pos[0]]}${wa(POS_NAME[worst.pos[0]])} ${POS_NAME[worst.pos[1]]} 사이`
         : `${POS_JI[worst.pos[0]]}${wa(POS_JI[worst.pos[0]])} ${POS_JI[worst.pos[1]]} 사이`;
       const body = {
-        '충': '충(沖)은 정면으로 마주 서는 자리예요. 한 사람이 밀면 다른 사람은 물러서지 않고 버텨요. 이 관계에서 싸움은 의견 차이로 시작해 태도 문제로 번지고, 결국 “너는 원래 그렇다”는 말로 끝나요.',
-        '형': '형(刑)은 서로를 너무 잘 알아서 생기는 압박이에요. 상대가 어디를 찌르면 아픈지 정확히 알고, 화가 나면 그 자리를 정확히 찔러요.',
-        '파': '파(破)는 계획이 자꾸 어긋나는 자리예요. 마음은 같은데 시간과 방식이 계속 엇갈려요. 이 어긋남을 “안 맞는다”로 읽으면 관계가 먼저 지쳐요.',
-        '해': '해(害)는 겉으로 안 드러나고 속으로 삭는 자리예요. 웃으면서 넘긴 일이 쌓여서 어느 날 갑자기 관계가 끊겨요.',
-        '천간충': '천간충은 말투와 태도에서 먼저 드러나요. 같은 말도 한 사람에게는 농담, 다른 사람에게는 무례가 되죠. 감정이 상한 쪽은 대개 말을 안 하고, 그 말하지 않은 게 오래 남아요.'
+        '충': '부딪히는 기운(충)은 정면으로 마주 서는 자리예요. 한 사람이 밀면 다른 사람은 물러서지 않고 버텨요. 이 관계에서 싸움은 의견 차이로 시작해 태도 문제로 번지고, 결국 “너는 원래 그렇다”는 말로 끝나요.',
+        '형': '서로 누르는 기운(형)은 서로를 너무 잘 알아서 생기는 압박이에요. 상대가 어디를 찌르면 아픈지 정확히 알고, 화가 나면 그 자리를 정확히 찔러요.',
+        '파': '깨지는 기운(파)는 계획이 자꾸 어긋나는 자리예요. 마음은 같은데 시간과 방식이 계속 엇갈려요. 이 어긋남을 “안 맞는다”로 읽으면 관계가 먼저 지쳐요.',
+        '해': '속이 상하는 기운(해)은 겉으로 안 드러나고 속으로 삭는 자리예요. 웃으면서 넘긴 일이 쌓여서 어느 날 갑자기 관계가 끊겨요.',
+        '천간충': '부딪히는 기운(천간충)은 말투와 태도에서 먼저 드러나요. 같은 말도 한 사람에게는 농담, 다른 사람에게는 무례가 되죠. 감정이 상한 쪽은 대개 말을 안 하고, 그 말하지 않은 게 오래 남아요.'
       }[worst.kind] || '두 사람 사이에 마찰이 되는 글자가 하나 있어요.';
       fricLine = `<p>가장 크게 부딪히는 자리는 <b>${worst.label}</b> — ${posTxt}예요. ${body} 이 자리가 흔들리면 다른 것도 같이 흔들려요. 그래서 두 사람이 싸우는 날은 대개 이 글자가 먼저 움직인 날이에요.</p>`;
     } else {
-      fricLine = `<p>두 사람 사이에는 충(沖)도 형(刑)도 없어요. 이 관계의 위험은 부딪힘이 아니라 <b>무관심</b>이에요. 싸우지 않으니까 문제가 안 드러나고, 안 드러나니까 어느 날 갑자기 멀어져요. 한 달에 한 번은 불편한 말을 꺼내야 이 인연이 살아 있어요.</p>`;
+      fricLine = `<p>두 사람 사이에는 부딪히는 기운(충)도, 서로 누르는 기운(형)도 없어요. 이 관계의 위험은 부딪힘이 아니라 <b>무관심</b>이에요. 싸우지 않으니까 문제가 안 드러나고, 안 드러나니까 어느 날 갑자기 멀어져요. 한 달에 한 번은 불편한 말을 꺼내야 이 인연이 살아 있어요.</p>`;
     }
     out.push(fricLine);
 
@@ -318,7 +318,7 @@
 
     out.push(`<p><b>현실 처방</b></p><ol class="gg-rx">${rx.map(r => `<li>${r}</li>`).join('')}</ol>`);
     const worstTitle = worst
-      ? (worst.kind === '천간충' ? '천간충, 말투가 어긋나는 자리' : `${worst.kind}(${worst.hanja})${iGa(worst.kind)} 놓인 자리`)
+      ? (worst.kind === '천간충' ? '부딪히는 기운(천간충) — 말투가 어긋나는 자리' : `${worst.kind}(${worst.hanja})${iGa(worst.kind)} 놓인 자리`)
       : '싸우지 않는 것이 위험한 사이';
     return { title: `부딪히는 지점 — ${worstTitle}`, paras: out };
   }
@@ -378,7 +378,7 @@
       friend: '친구나 동업으로서 올해는 <b>돈과 시간의 경계</b>가 관건이에요. 같이 하는 일에 돈이 오가기 시작하면 몫과 기한을 문서로 남기세요. 그게 관계를 의심하는 게 아니라, 관계를 오래 가게 하는 유일한 방법이에요.'
     }[type.id];
     out.push(`<p>${typeLine}</p>`);
-    return { title: `2026 ${yg}${yj}년 — 두 사람 사이에 놓인 것`, paras: out };
+    return { title: `${sA.year} ${yg}${yj}년 — 두 사람 사이에 놓인 것`, paras: out };
   }
 
   /* ---------- ④ 한 마디 ---------- */
@@ -402,6 +402,46 @@
         `<p class="gg-word serif">“${close}”</p>`,
         `<p class="gg-caption">${score}점 · ${grade} — 이 숫자는 정해진 결말이 아니라, 지금 두 사람 사이에 놓인 기운의 온도예요.</p>`]
     };
+  }
+
+  /* ---------- 재미로 보는 코너 — 한눈팔 확률 ---------- */
+  function funBlock(x) {
+    const w = (global.Gunghap.wander ? global.Gunghap.wander(x) : null);
+    if (!w) return '';
+    const p = w.partner, me = w.me;
+    const chips = p.reasons.slice(0, 4).map(r => `<span class="gg-wc ${r.v > 0 ? 'up' : 'down'}">${r.v > 0 ? '+' : ''}${r.v} ${r.txt}</span>`).join('');
+    return `<div class="card gg-fun">
+      <div class="gg-fun-kicker">🎪 재미로 보는 코너 · 매력·도화 지수</div>
+      <h2 class="serif gg-fun-title">💘 내 배우자(연인) 한눈팔 확률 몇 %?</h2>
+      <p class="gg-fun-disclaim">※ 이 코너는 100% 재미와 웃음을 위한 유희 코너입니다! 절대 진지하게 싸우지 마세요 😂</p>
+
+      <div class="gg-wander">
+        <div class="gg-wander-num">
+          <b class="serif">${p.pct}</b><span>%</span>
+          <em>${p.tier}</em>
+        </div>
+        <div class="gg-gauge">
+          <div class="gg-gauge-track"><i style="width:${p.pct}%"></i><b class="gg-gauge-pin" style="left:${p.pct}%"></b></div>
+          <div class="gg-gauge-legend"><span>12% 철벽</span><span>50% 보통</span><span>88% 문 열림</span></div>
+        </div>
+      </div>
+
+      <div class="gg-fun-hero">
+        <b>${p.flavor.name}</b>
+        <p>${p.flavor.line}</p>
+      </div>
+      <p class="gg-fun-tier">${p.tierLine}</p>
+      <div class="gg-wander-chips">${chips}</div>
+
+      <div class="gg-fun-rx">
+        <b>🛡️ 이렇게 꽉 잡으면 꼼짝 못 해요!</b>
+        <p>${p.flavor.rx}</p>
+        <span class="gg-fun-watch">특히 조심할 순간 — ${p.flavor.look}</span>
+      </div>
+
+      <p class="gg-fun-side">참고로 <b>${x.nameA}</b> 쪽 확률은 <b>${me.pct}%</b>(${me.tier})예요. ${w.coupleLine}</p>
+      <p class="gg-fun-note">숫자는 두 사람 사주에서 도화·역마·이성 기운(돈·직장 자리)이 몇 개인지, 배우자 자리가 흔들리는지, 사이에 합이 있는지만 세어 만든 거예요. 실제 확률도, 미래도 아니고 그냥 웃자고 만든 숫자입니다. 이 숫자로 싸우면 그건 사주 탓이 아니라 사람 탓이에요 😂</p>
+    </div>`;
   }
 
   /* ---------- 렌더 ---------- */
@@ -453,6 +493,8 @@
       <div class="gg-axes">${axesBlock(x)}</div>
       ${interList(x)}
     </div>
+
+    ${funBlock(x)}
 
     <div class="card gg-read">
       <div class="section-head"><h2 class="serif">정밀 풀이</h2><span class="en">READING</span></div>

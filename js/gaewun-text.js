@@ -410,7 +410,7 @@
       <p class="gw-lead">${s.summary}</p>
 
       <div class="gw-ten-bars">
-        ${[['비겁', s.shares.bigyeop, s.dominant === 'bigyeop'], ['식상', s.shares.siksang, s.dominant === 'siksang'], ['재성', s.shares.jaeseong, s.dominant === 'jaeseong'], ['관성', s.shares.gwansung, s.dominant === 'gwansung'], ['인성', s.shares.inseong, s.dominant === 'inseong']]
+        ${[['내 편', s.shares.bigyeop, s.dominant === 'bigyeop'], ['표현', s.shares.siksang, s.dominant === 'siksang'], ['돈', s.shares.jaeseong, s.dominant === 'jaeseong'], ['직장', s.shares.gwansung, s.dominant === 'gwansung'], ['공부', s.shares.inseong, s.dominant === 'inseong']]
       .map(([k, v, on]) => `<div class="gw-ten-bar ${on ? 'on' : ''}"><span>${k}</span><i><b style="width:${v}"></b></i><em>${v}</em></div>`).join('')}
       </div>
 
@@ -438,7 +438,7 @@
   function cardLiving(l) {
     return `<div class="card">
       <div class="section-head"><h2 class="serif">⑤ 매일의 개운 — 색 · 향 · 방향</h2><span class="en">DAILY</span></div>
-      <p class="gw-lead">용신 ${l.yongName}의 기운을 매일 몸에 두는 게 제일 값싼 개운이에요. 큰 의식이 아니라 지갑 색, 향, 머리 방향에서 시작돼요.</p>
+      <p class="gw-lead">나를 살리는 행운 기운(용신) ${l.yongName}을 매일 몸에 두는 게 제일 값싼 개운이에요. 큰 의식이 아니라 지갑 색, 향, 머리 방향에서 시작돼요.</p>
 
       <div class="gw-live-grid">
         <div class="gw-live">
@@ -497,7 +497,7 @@
       <div class="result-title">
         <div class="result-brand serif">살풀이 : 천기(天機) · 외모 · 점 처방</div>
         <h2 class="serif">${who(a)}의 외모 · 점 처방</h2>
-        <p>${m.pillars} · ${m.sijin} · ${m.strengthLevel} · 용신 ${m.yongName}</p>
+        <p>${m.pillars} · ${m.sijin} · ${m.strengthLevel} · 나를 살리는 기운 ${m.yongName}</p>
       </div>
       ${avgNote(b)}
       <div class="gw-hero-tags">
