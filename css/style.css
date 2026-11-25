@@ -2718,3 +2718,10 @@ body.admin-mode .vault.is-locked .vault-inner { filter: none !important; }
   /* 결제 가격표 카드(머리말 포함)는 PDF에서 완전히 제외 */
   #panel-premium .card:has(#priceList) { display: none !important; }
 }
+
+@media print {
+  /* 인쇄 여백·행간을 살짝 조여 리포트가 딱 8쪽(표지+7장)에 담기게 */
+  @page { margin: 12mm 11mm 16mm; }
+  .report-doc p, .report-doc li { line-height: 1.58 !important; margin-bottom: .42em !important; }
+  .report-doc h3 { margin-top: .5em !important; }
+}
