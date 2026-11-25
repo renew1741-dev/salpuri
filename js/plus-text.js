@@ -55,10 +55,10 @@
       <div class="section-head"><h2 class="serif">살(煞) — 재능과 그림자</h2><span class="en">CHARM</span></div>
       ${sals.map(item).join('')}
     </div>` : `<div class="card"><div class="section-head"><h2 class="serif">살(煞)</h2><span class="en">CHARM</span></div>
-      <p class="small">두드러진 살(煞)이 없습니다. 살이 없다는 것은 큰 파도 없이 흐른다는 뜻이고, 그만큼 운이 사람과 습관에 그대로 반응합니다.</p></div>`}
+      <p class="small">두드러진 살(煞)이 없어요. 살이 없다는 건 큰 파도 없이 흐른다는 뜻이고, 그만큼 운이 사람과 습관에 그대로 반응해요.</p></div>`}
 
     <div class="card">
-      <p class="sn-note">살(煞)은 나쁜 것이 아니라 <b>크기가 큰 기운</b>입니다. 다스리면 재능이 되고, 놓으면 사고가 됩니다. 귀인은 그 기운을 눌러 주는 사람입니다 — 귀인은 찾는 것이 아니라 <b>보고하는 습관</b>으로 붙잡는 것입니다.</p>
+      <p class="sn-note">살(煞)은 나쁜 게 아니라 <b>크기가 큰 기운</b>이에요. 다스리면 재능이 되고, 놓으면 사고가 돼요. 귀인은 그 기운을 눌러 주는 사람이에요 — 귀인은 찾는 게 아니라 <b>보고하는 습관</b>으로 붙잡는 거예요.</p>
       ${shareRow('sinsal', '내 귀인 알려주기')}
     </div>`;
   }
@@ -102,14 +102,14 @@
       <div class="td-hours">
         ${x.goodHours.length ? `<div class="td-hour good"><span>잡을 시간</span>${x.goodHours.map(h => `<b>${h.name} ${h.range}</b>`).join('')}</div>` : ''}
         ${x.badHours.length ? `<div class="td-hour bad"><span>피할 시간</span>${x.badHours.map(h => `<b>${h.name} ${h.range}</b>`).join('')}</div>` : ''}
-        ${!x.goodHours.length && !x.badHours.length ? '<p class="small">오늘은 특별히 갈리는 시간대가 없습니다. 평소의 리듬대로 움직이십시오.</p>' : ''}
+        ${!x.goodHours.length && !x.badHours.length ? '<p class="small">오늘은 특별히 갈리는 시간대가 없어요. 평소 리듬대로 움직이세요.</p>' : ''}
       </div>
       <div class="td-luck">
         <div class="td-luck-item"><span>행운의 색</span><b>${x.luck.color}</b><i class="td-swatch" style="background:var(--w-${['wood', 'fire', 'earth', 'metal', 'water'][x.luck.elem]})"></i><small>${x.luck.color2}</small></div>
         <div class="td-luck-item"><span>방향</span><b>${x.luck.dir}</b></div>
         <div class="td-luck-item"><span>숫자</span><b>${x.luck.num.replace('·', ', ')}</b></div>
       </div>
-      <p class="td-note">용신 ${el(x.luck.elem)}의 기운을 오늘 하루 가까이 두십시오. 개운은 큰 의식이 아니라 오늘 어느 쪽으로 앉고 무엇을 입는지에서 시작됩니다.</p>
+      <p class="td-note">용신 ${el(x.luck.elem)}의 기운을 오늘 하루 가까이 두세요. 개운은 큰 의식이 아니라 오늘 어느 쪽으로 앉고 무엇을 입는지에서 시작돼요.</p>
       ${shareRow('today', '오늘의 운세 보내기')}
     </div>`;
   }
@@ -131,7 +131,7 @@
       </div>
       <p class="yr-theme serif">${x.theme}</p>
       <p class="yr-body">${x.body}</p>
-      ${x.jr.length ? `<p class="yr-jr">원국과 <b>${[...new Set(x.jr.map(r => r.name))].join('·')}</b>이 잡혀, 예정에 없던 변화가 생기기 쉬운 해입니다.</p>` : ''}
+      ${x.jr.length ? `<p class="yr-jr">원국과 <b>${[...new Set(x.jr.map(r => r.name))].join('·')}</b>이 잡혀서, 예정에 없던 변화가 생기기 쉬운 해예요.</p>` : ''}
     </div>
 
     <div class="card">
@@ -156,7 +156,7 @@
           <p>${q.act}</p>
         </div>`).join('')}
       </div>
-      <p class="td-note">세운은 같은 일도 어느 달에 하느냐로 결과가 갈립니다. 잡을 달에는 결정을, 피할 달에는 정리를 두십시오.</p>
+      <p class="td-note">세운은 같은 일도 어느 달에 하느냐로 결과가 갈려요. 잡을 달에는 결정을, 피할 달에는 정리를 두세요.</p>
       ${shareRow('year', '신년운세 보내기')}
     </div>`;
   }
@@ -194,7 +194,7 @@
       <div class="section-head"><h2 class="serif">투자 · 동업 주의점</h2><span class="en">RISK</span></div>
       <ul class="wl-caution">${x.caution.map(c => `<li>${c}</li>`).join('')}</ul>
       <div class="hr-gold"></div>
-      <p class="small">지금은 <b>${x.nowDw.startAge}세부터 ${x.nowDw.tgName}</b> 대운입니다. 같은 재능도 대운의 십성에 따라 값이 두 배가 되거나 반으로 줄어듭니다. ${x.nowNote}</p>
+      <p class="small">지금은 <b>${x.nowDw.startAge}세부터 ${x.nowDw.tgName}</b> 대운이에요. 같은 재능도 대운의 십성에 따라 값이 두 배가 되거나 반으로 줄어요. ${x.nowNote}</p>
     </div>
 
     <div class="card">
@@ -204,8 +204,8 @@
         <div><b>${d.startAge}세 ~ ${d.endAge}세</b><span>${d.startYear}~${d.startYear + 9} · ${d.tgName} 대운</span></div>
         <em>${d.good === 2 ? '재성' : '식상'}</em>
       </div>`).join('')}</div>
-      <p class="small">이 대운에 판을 키우고, 그 앞뒤 대운에 정리하십시오. 재물은 버는 시기와 지키는 시기가 따로 옵니다.</p>`
-        : '<p class="small">재성·식상 대운이 두드러지지 않습니다. 이 사주는 대운보다 습관과 전문성에서 돈이 붙습니다. 매달 같은 날 같은 금액을 떼어 두는 규칙이 대운보다 강합니다.</p>'}
+      <p class="small">이 대운에 판을 키우고, 앞뒤 대운에 정리하세요. 재물은 버는 시기와 지키는 시기가 따로 와요.</p>`
+        : '<p class="small">재성·식상 대운이 두드러지지 않아요. 이 사주는 대운보다 습관과 전문성에서 돈이 붙어요. 매달 같은 날 같은 금액을 떼어 두는 규칙이 대운보다 강해요.</p>'}
       ${shareRow('wealth', '내 돈의 그릇 보내기')}
     </div>`;
   }
@@ -223,7 +223,7 @@
 
     <div class="card">
       <div class="section-head"><h2 class="serif">가장 좋은 날 — Top ${x.top.length}</h2><span class="en">BEST DAYS</span></div>
-      ${x.top[0] && x.top[0].score < 60 ? `<p class="small">이 기간에는 크게 길한 날이 없습니다. 그래도 고르라면 아래 날이 가장 낲습니다.</p>` : ''}
+      ${x.top[0] && x.top[0].score < 60 ? `<p class="small">이 기간에는 크게 길한 날이 없어요. 그래도 고르라면 아래 날이 제일 나아요.</p>` : ''}
       <div class="tk-list">
         ${x.top.map((d, i) => `<div class="tk-day ${d.grade === '대길' ? 'top' : ''}">
           <div class="tk-date">
@@ -241,13 +241,13 @@
     ${x.avoid.length ? `<div class="card">
       <div class="section-head"><h2 class="serif">피할 날</h2><span class="en">AVOID</span></div>
       <div class="tk-avoid">
-        ${x.avoid.map(d => `<div class="tk-av"><b>${d.m}/${d.d} (${d.wd})</b><span>${d.ganji}일 · ${d.score}점</span><p>${d.reasons[0] || '기운이 어긋나는 날입니다.'}</p></div>`).join('')}
+        ${x.avoid.map(d => `<div class="tk-av"><b>${d.m}/${d.d} (${d.wd})</b><span>${d.ganji}일 · ${d.score}점</span><p>${d.reasons[0] || '기운이 어긋나는 날이에요.'}</p></div>`).join('')}
       </div>
-      <p class="small">이 날은 계약·서명·큰 지출을 미루십시오. 같은 일도 하루 차이로 결과가 갈립니다.</p>
+      <p class="small">이 날은 계약·서명·큰 지출을 미루세요. 같은 일도 하루 차이로 결과가 갈려요.</p>
     </div>` : ''}
 
     <div class="card">
-      <p class="td-note">택일은 좋은 날을 고르는 일이지, 나쁜 날을 피해 도망가는 일이 아닙니다. 급한 일이라면 좋은 <b>시간</b>을 고르십시오 — 같은 날도 시진에 따라 기운이 달라집니다.</p>
+      <p class="td-note">택일은 좋은 날을 고르는 일이지, 나쁜 날을 피해 도망가는 일은 아니에요. 급한 일이라면 좋은 <b>시간</b>을 고르세요 — 같은 날도 시진에 따라 기운이 달라져요.</p>
       ${shareRow('taekil', '좋은 날 보내기')}
     </div>`;
   }
