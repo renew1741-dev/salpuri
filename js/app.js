@@ -2433,6 +2433,7 @@
       if (lk && !lk.querySelector('.vault-lock-in')) lk.outerHTML = Vault.lockHTML(kind);
     });
     Vault.apply();
+    refreshDuoUI();          /* 👯 2인 패키지 이용 현황을 첫 화면부터 맞춰 둔다 */
     window.__salpuriOnUnlock = (section) => {
       const sec = Vault.sectionOf ? Vault.sectionOf(section) : 'saju';
       renderTalismans();
