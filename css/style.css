@@ -2174,9 +2174,9 @@ body.tal-open { overflow: hidden; }
   background: linear-gradient(135deg, rgba(217, 185, 120, .22), rgba(226, 163, 94, .12));
 }
 .like-btn.liked .like-fire { filter: drop-shadow(0 0 7px rgba(246, 227, 173, .85)); }
-.like-btn.pulse { animation: likePulse .9s ease; }
+.like-btn.pulse, .like-top-btn.pulse { animation: likePulse .9s ease; }
 @keyframes likePulse { 0% { transform: scale(1); } 32% { transform: scale(1.09); } 100% { transform: scale(1); } }
-@media (prefers-reduced-motion: reduce) { .like-btn.pulse { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .like-btn.pulse, .like-top-btn.pulse { animation: none; } }
 #nmResult { scroll-margin-top: 140px; }
 /* 원격(조상운)은 참고용 — 흉수라도 눈에 덜 띄게 */
 .nm-gyeok .nm-gyeok-item:first-child { opacity: .62; }
