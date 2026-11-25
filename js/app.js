@@ -2253,6 +2253,14 @@
         detail: d.reason === 'copy' ? '링크 복사로 해금' : '친구에게 공유로 해금'
       });
     });
+    window.addEventListener('salpuri:unlock', e => {
+      const d = (e && e.detail) || {};
+      if (d.reason === 'pay') return;
+      logEvent('share_unlock', {
+        category: CAT_LABEL[d.section] || d.section || '사주',
+        detail: d.reason === 'copy' ? '링크 복사로 해금' : '친구에게 공유로 해금'
+      });
+    });
     document.addEventListener('salpuri:admin', e => {
       const on = !!(e && e.detail && e.detail.admin);
       try {
