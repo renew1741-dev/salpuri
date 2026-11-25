@@ -21,6 +21,16 @@
   - `doGet?key=salpuri83&limit=4000` — 대시보드용 조회 (키 없으면 `unauthorized`)
   - 시각은 `'YYYY-MM-DD HH:MM:SS'` 텍스트로 저장(시트가 날짜로 변환하지 않게 처리), 응답에 `Access-Control-Allow-Origin: *` 확인.
 
+### 🔥 소름 돋아요 카운터 (2026-11-25 자체 서버로 이관)
+
+- 외부 무료 카운터(`abacus.jasoncameron.dev`)가 500을 뱉어 라이브에 `지금까지 — 소름 돋아요`가 뜨던 문제로, 같은 Apps Script(버전 5)에 `sooreum.gs`를 추가했습니다.
+- 시트 새 탭 **`sooreum`**: `B1` = 현재 누적 숫자(이관 시작값 **6** — abacus 마지막 실측값), `B2` = 마지막 갱신 시각, 4행부터 방문자 1명당 1줄(순번·시각·기기).
+- 엔드포인트(같은 `/exec`):
+  - `GET  ?action=sooreum` → `{ ok:true, count, serverTime }` (누구나, 읽기 전용)
+  - `POST { key:'sp-w-8307', type:'sooreum_hit', device }` → `{ ok:true, count, dup }` (같은 기기는 `dup:true`로 숫자를 올리지 않음)
+- 숫자를 손으로 고칠 때는 시트 `sooreum!B1` 값만 바꾸면 됩니다(로그 줄 수와 무관). 부풀린 숫자는 넣지 않습니다.
+- 사이트 쪽(`js/app.js`의 `Like`)은 localStorage 캐시 → 없으면 6을 먼저 칠하고, 서버 응답으로 갱신합니다.
+
 ## 3. 이벤트 (js/analytics.js · app.js)
 
 | type | 언제 | 담기는 값 |
