@@ -31,7 +31,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20261125-14" />
+<link rel="stylesheet" href="css/style.css?v=20261125-15" />
 </head>
 <body class="locked">
 
@@ -305,9 +305,19 @@
 
     <!-- ========== 아이 사주 ========== -->
     <section class="panel" id="panel-baby">
+      <div class="cat-intro" data-cat="baby">
+        <div class="ci-head">
+          <span class="ci-emoji" aria-hidden="true">👶</span>
+          <span class="ci-titles">
+            <span class="ci-kicker">BABY · 아이 사주</span>
+            <b class="ci-title serif">우리 아이가 타고난 결을 먼저 봐요</b>
+          </span>
+        </div>
+        <p class="ci-desc">타고난 기질과 커서 빛날 재능, 어릴 때 약해지기 쉬운 몸의 자리, 엄마·아빠가 그날 쓸 수 있는 말까지 풀어 드려요.</p>
+        <div class="ci-chips"><span>타고난 기질</span><span>빛날 재능</span><span>건강 포인트</span><span>양육 말투</span></div>
+      </div>
       <div class="card" id="babyFormCard">
-        <div class="section-head"><h2 class="serif">👶 아이 사주</h2><span class="en">BABY</span></div>
-        <p class="small">아이의 생년월일시로 타고난 기질부터 커서 빛날 재능, 약한 몸의 자리, 그리고 엄마·아빠가 그날그날 쓸 수 있는 말 걸기까지 풀어 드려요.</p>
+        <div class="section-head"><h2 class="serif">아이 명식(命式) 입력</h2><span class="en">BIRTH DATA</span></div>
 
         <div class="field mt14">
           <label class="field-label" for="babyName">아이 이름 <b>선택 · 태명도 좋아요</b></label>
@@ -366,9 +376,19 @@
 
     <!-- ========== 궁합 ========== -->
     <section class="panel" id="panel-gunghap">
+      <div class="cat-intro" data-cat="gunghap">
+        <div class="ci-head">
+          <span class="ci-emoji" aria-hidden="true">💞</span>
+          <span class="ci-titles">
+            <span class="ci-kicker">MATCH · 정밀 궁합</span>
+            <b class="ci-title serif">두 사람, 어디서 끌리고 어디서 부딪히는지</b>
+          </span>
+        </div>
+        <p class="ci-desc">두 사람의 여덟 글자를 겹쳐 오행이 서로를 살려주는지, 부딪힐 때 어떻게 풀어야 하는지 정밀 만세력으로 맞춰 봐요.</p>
+        <div class="ci-chips"><span>오행 보완</span><span>감정 온도</span><span>부딪힐 때</span><span>올해 흐름</span></div>
+      </div>
       <div class="card" id="ggFormCard">
-        <div class="section-head"><h2 class="serif">정밀 궁합</h2><span class="en">MATCH READING</span></div>
-        <p class="small">두 사람의 여덟 글자를 겹쳐 봅니다. 같은 명식이라도 어떤 사이인지에 따라 읽는 결이 달라집니다.</p>
+        <div class="section-head"><h2 class="serif">두 사람 명식 입력</h2><span class="en">BIRTH DATA</span></div>
 
         <div class="field mt14">
           <label class="field-label">관계 <b>관계에 따라 읽는 결이 달라집니다</b></label>
@@ -440,21 +460,53 @@
 
     <!-- ========== 오늘의 운세 ========== -->
     <section class="panel" id="panel-today">
+      <div class="cat-intro" data-cat="today">
+        <div class="ci-head">
+          <span class="ci-emoji" aria-hidden="true">🌙</span>
+          <span class="ci-titles">
+            <span class="ci-kicker">TODAY · 오늘의 운세</span>
+            <b class="ci-title serif">오늘은 밀어붙일 날인지, 쉬어갈 날인지</b>
+          </span>
+        </div>
+        <p class="ci-desc">오늘의 일진을 내 사주와 겹쳐 오늘의 점수와 재물·대인·건강, 잡아야 할 시간과 피할 시간을 짚어 드려요.</p>
+        <div class="ci-chips"><span>오늘 점수</span><span>잡을 시간</span><span>피할 시간</span><span>행운 색·방향</span></div>
+      </div>
       <div class="pf-slot" data-pf="today"></div>
       <div id="todayBody"></div>
     </section>
 
     <!-- ========== 신살 · 귀인 ========== -->
     <section class="panel" id="panel-sinsal">
+      <div class="cat-intro" data-cat="sinsal">
+        <div class="ci-head">
+          <span class="ci-emoji" aria-hidden="true">🕯</span>
+          <span class="ci-titles">
+            <span class="ci-kicker">SPIRIT · 신살·귀인</span>
+            <b class="ci-title serif">타고난 살(煞)과 나를 돕는 귀인(貴人)</b>
+          </span>
+        </div>
+        <p class="ci-desc">도화·역마·화개·백호 같은 살과 천을·문창 귀인이 내 기둥 어디에 앉았는지, 어떻게 쓰면 힘이 되는지 알려 드려요.</p>
+        <div class="ci-chips"><span>도화·역마</span><span>백호·괴강</span><span>천을·문창</span><span>쓰는 법</span></div>
+      </div>
       <div class="pf-slot" data-pf="sinsal"></div>
       <div id="sinsalBody"></div>
     </section>
 
     <!-- ========== 신년 · 12개월 ========== -->
     <section class="panel" id="panel-yearly">
+      <div class="cat-intro" data-cat="yearly">
+        <div class="ci-head">
+          <span class="ci-emoji" aria-hidden="true">🔮</span>
+          <span class="ci-titles">
+            <span class="ci-kicker">YEAR · 신년 12개월</span>
+            <b class="ci-title serif">2026 병오년, 열두 달을 미리 펼쳐 봐요</b>
+          </span>
+        </div>
+        <p class="ci-desc">절기 기준 열두 달을 내 사주와 대조해, 잡아야 할 달과 피할 달, 분기마다의 흐름을 한 장에 정리해 드려요.</p>
+        <div class="ci-chips"><span>12개월 흐름</span><span>잡을 달</span><span>피할 달</span><span>분기 조언</span></div>
+      </div>
       <div class="card">
-        <div class="section-head"><h2 class="serif">신년운세 · 12개월</h2><span class="en">YEARLY</span></div>
-        <p class="small">절기 기준 월건으로 그해의 12개월을 내 사주와 대조합니다.</p>
+        <div class="section-head"><h2 class="serif">볼 해 고르기</h2><span class="en">YEARLY</span></div>
         <div class="seg seg-2 mt14" id="yrSeg">
           <button type="button" class="seg-btn active" data-v="2026">2026 병오년</button>
           <button type="button" class="seg-btn" data-v="2027">2027 정미년</button>
@@ -466,15 +518,36 @@
 
     <!-- ========== 재물 · 적성 ========== -->
     <section class="panel" id="panel-wealth">
+      <div class="cat-intro" data-cat="wealth">
+        <div class="ci-head">
+          <span class="ci-emoji" aria-hidden="true">💰</span>
+          <span class="ci-titles">
+            <span class="ci-kicker">MONEY · 재물·적성</span>
+            <b class="ci-title serif">돈이 들어오는 통로와 새는 구멍</b>
+          </span>
+        </div>
+        <p class="ci-desc">사업형인지 직장형인지, 돈이 모이는 구조와 새는 구멍, 동업·투자에서 조심할 점과 재물이 트이는 시기를 봐요.</p>
+        <div class="ci-chips"><span>사업형·직장형</span><span>돈의 통로</span><span>새는 구멍</span><span>재물 대운</span></div>
+      </div>
       <div class="pf-slot" data-pf="wealth"></div>
       <div id="wealthBody"></div>
     </section>
 
     <!-- ========== 택일 ========== -->
     <section class="panel" id="panel-taekil">
+      <div class="cat-intro" data-cat="taekil">
+        <div class="ci-head">
+          <span class="ci-emoji" aria-hidden="true">📅</span>
+          <span class="ci-titles">
+            <span class="ci-kicker">DATE · 택일</span>
+            <b class="ci-title serif">이사·개업·계약, 언제 하는 게 좋을까요</b>
+          </span>
+        </div>
+        <p class="ci-desc">이사·개업·계약·결혼 날짜를 내 사주와 대조해, 길한 날 다섯 곳과 피할 날을 이유와 함께 골라 드려요.</p>
+        <div class="ci-chips"><span>이사</span><span>개업·계약</span><span>결혼·상견례</span><span>길일 Top 5</span></div>
+      </div>
       <div class="card">
-        <div class="section-head"><h2 class="serif">택일 — 길한 날 고르기</h2><span class="en">GOOD DAYS</span></div>
-        <p class="small">무엇을 하는 날인지 고르면, 그 기간의 일진을 내 사주와 대조해 가장 좋은 날을 뽑습니다.</p>
+        <div class="section-head"><h2 class="serif">어떤 날인지 골라 주세요</h2><span class="en">GOOD DAYS</span></div>
 
         <div class="field mt14">
           <label class="field-label">무엇을 하는 날인가요</label>
@@ -503,6 +576,17 @@
 
     <!-- ========== 외모 · 점 (체형·몸무게·점 위치) ========== -->
     <section class="panel" id="panel-gaewun">
+      <div class="cat-intro" data-cat="gaewun">
+        <div class="ci-head">
+          <span class="ci-emoji" aria-hidden="true">✨</span>
+          <span class="ci-titles">
+            <span class="ci-kicker">BODY · DOT · 외모·점</span>
+            <b class="ci-title serif">내 기운에 맞는 몸과 점(點)의 자리</b>
+          </span>
+        </div>
+        <p class="ci-desc">사주에 맞는 체형과 적정 몸무게, 어울리는 헤어, 재물·건강이 붙는 점의 위치(살릴 점 vs 뺄 점), 복 부르는 말투까지.</p>
+        <div class="ci-chips"><span>적정 kg</span><span>헤어</span><span>살릴 점·뺄 점</span><span>말투</span></div>
+      </div>
       <div class="gw-quick" id="gwFormCard">
         <div class="gw-inputs">
           <div class="field">
@@ -522,9 +606,19 @@
 
     <!-- ========== 개명 · 아기 작명 ========== -->
     <section class="panel" id="panel-naming">
+      <div class="cat-intro" data-cat="naming">
+        <div class="ci-head">
+          <span class="ci-emoji" aria-hidden="true">📜</span>
+          <span class="ci-titles">
+            <span class="ci-kicker">NAME · 개명·작명</span>
+            <b class="ci-title serif">이름이 사주를 채우는 마지막 한 칸</b>
+          </span>
+        </div>
+        <p class="ci-desc">지금 쓰는 이름이 사주와 어긋나는지 발음오행과 한자 81수리로 진단하고, 사주에 약이 되는 이름 다섯을 골라 드려요.</p>
+        <div class="ci-chips"><span>이름 진단</span><span>발음오행</span><span>81수리</span><span>후보 5선</span></div>
+      </div>
       <div class="card" id="nmFormCard">
-        <div class="section-head"><h2 class="serif">개명 · 아기 작명</h2><span class="en">NAME</span></div>
-        <p class="small">이름은 사주를 채우는 마지막 한 칸입니다. 지금 쓰는 이름이 사주와 어긋나는지 진단하고, 어긋난다면 사주에 약이 되는 이름 다섯을 받아 보십시오.</p>
+        <div class="section-head"><h2 class="serif">이름 입력</h2><span class="en">NAME</span></div>
 
         <div class="seg seg-2 mt14" id="nmModeSeg">
           <button type="button" class="seg-btn active" data-v="reform">내 이름 감정 · 개명<small>RENAME</small></button>
@@ -577,11 +671,21 @@
 
     <!-- ========== 타로 ========== -->
     <section class="panel" id="panel-tarot">
+      <div class="cat-intro" data-cat="tarot">
+        <div class="ci-head">
+          <span class="ci-emoji" aria-hidden="true">🃏</span>
+          <span class="ci-titles">
+            <span class="ci-kicker">TAROT · 세 장의 카드</span>
+            <b class="ci-title serif">지금 가장 궁금한 것, 카드에 물어보세요</b>
+          </span>
+        </div>
+        <p class="ci-desc">22장 메이저 아르카나에서 과거·현재·미래 세 장을 직접 뽑아, 연애·재물·직장·오늘 중 고른 주제로 읽어 드려요.</p>
+        <div class="ci-chips"><span>과거·현재·미래</span><span>정·역방향</span><span>카드별 조언</span><span>종합 풀이</span></div>
+      </div>
       <div class="card">
         <div class="section-head">
           <h2 class="serif">세 장의 카드</h2><span class="en">3 CARD SPREAD</span>
         </div>
-        <p class="small">무엇이 궁금한지 먼저 정하십시오. 카드를 세 번 눌러 과거 · 현재 · 미래를 뽑습니다.</p>
 
         <div class="cat-row mt14" id="catRow"></div>
 
@@ -610,9 +714,20 @@
 
     <!-- ========== 프리미엄 ========== -->
     <section class="panel" id="panel-premium">
+      <div class="cat-intro" data-cat="premium">
+        <div class="ci-head">
+          <span class="ci-emoji" aria-hidden="true">🧿</span>
+          <span class="ci-titles">
+            <span class="ci-kicker">PREMIUM · 리포트·부적</span>
+            <b class="ci-title serif">깊이 남기고 싶은 한 사람을 위한 것</b>
+          </span>
+        </div>
+        <p class="ci-desc">8쪽 정밀 리포트는 PDF로 저장해 두고두고 볼 수 있고, 용신 기운을 담은 부적 배경화면 네 장은 결제 즉시 내려받아요.</p>
+        <div class="ci-chips"><span>8쪽 리포트</span><span>PDF 저장</span><span>부적 4종</span><span>즉시 다운로드</span></div>
+      </div>
       <div class="card">
         <div class="section-head"><h2 class="serif">살풀이 : 천기 프리미엄</h2><span class="en">PREMIUM</span></div>
-        <p class="small">명식은 무료로 보시고, 깊은 풀이가 필요할 때만 고르세요. 8쪽 리포트와 부적 4종이 여기 있어요.</p>
+        <p class="small">필요한 것만 골라 담으세요. 결제 즉시 이 화면에서 열립니다.</p>
         <div class="price-list mt14" id="priceList"></div>
         <div class="pay-note">
           · 결제 즉시 이 화면에서 프리미엄 리포트가 열립니다.<br>
@@ -714,8 +829,8 @@
 <script src="js/naming-text.js?v=20261125-8"></script>
 <script src="js/tarot.js?v=20261125-2"></script>
 <script src="js/payment.js?v=20261125-7"></script>
-<script src="js/vault.js?v=20261125-3"></script>
+<script src="js/vault.js?v=20261125-4"></script>
 <script src="js/baby-text.js?v=20261125-1"></script>
-<script src="js/app.js?v=20261125-13"></script>
+<script src="js/app.js?v=20261125-14"></script>
 </body>
 </html>
