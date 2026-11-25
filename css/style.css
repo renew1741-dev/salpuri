@@ -505,6 +505,56 @@ body.opened .hero-img { transform: scale(1); filter: brightness(.95) contrast(1.
   letter-spacing: .02em;
 }
 .section-head .en { font-size: 10px; letter-spacing: .2em; color: var(--muted); }
+
+/* ---------- 카테고리 소개 배너 (탭을 누르면 맨 위에 붙는 안내) ---------- */
+.cat-intro {
+  position: relative;
+  margin: 0 0 14px; padding: 14px 16px 13px;
+  border-radius: var(--r);
+  border: 1px solid rgba(217, 185, 120, .32);
+  background: linear-gradient(168deg, rgba(58, 27, 63, .55) 0%, rgba(17, 12, 24, .94) 62%);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, .42), inset 0 1px 0 rgba(246, 227, 173, .08);
+  overflow: hidden;
+}
+.cat-intro::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(circle at 10% -20%, rgba(217, 185, 120, .22), transparent 58%);
+}
+.ci-head { position: relative; display: flex; align-items: center; gap: 10px; }
+.ci-emoji {
+  flex: 0 0 auto; width: 34px; height: 34px; border-radius: 50%;
+  display: grid; place-items: center; font-size: 16px; line-height: 1;
+  border: 1px solid rgba(217, 185, 120, .45);
+  background: radial-gradient(circle at 50% 28%, rgba(217, 185, 120, .24), rgba(217, 185, 120, .03));
+  box-shadow: 0 0 16px rgba(217, 185, 120, .16);
+}
+.ci-titles { display: block; min-width: 0; }
+.ci-kicker { display: block; font-size: 9.5px; letter-spacing: .18em; color: var(--gold); }
+.ci-title {
+  display: block; margin-top: 3px;
+  font-size: 15.5px; line-height: 1.42; font-weight: 600; color: #fff3d6;
+  letter-spacing: .01em; word-break: keep-all;
+}
+.ci-desc {
+  position: relative; margin: 9px 0 0;
+  font-size: 12.5px; line-height: 1.75; color: #d3c9b7; word-break: keep-all;
+}
+.ci-chips { position: relative; display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+.ci-chips span {
+  font-size: 10.5px; line-height: 1.2; color: #f0dcb2;
+  padding: 4px 8px; border-radius: 999px;
+  border: 1px solid rgba(217, 185, 120, .26);
+  background: rgba(217, 185, 120, .08);
+  white-space: nowrap;
+}
+@media (max-width: 420px) {
+  .cat-intro { padding: 12px 13px 11px; margin-bottom: 12px; }
+  .ci-emoji { width: 30px; height: 30px; font-size: 14px; }
+  .ci-title { font-size: 14.5px; line-height: 1.38; }
+  .ci-desc { margin-top: 7px; font-size: 12px; line-height: 1.68; }
+  .ci-chips { margin-top: 8px; gap: 4px; }
+  .ci-chips span { font-size: 10px; padding: 3px 7px; }
+}
 .hr-gold {
   height: 1px; margin: 18px 0;
   background: linear-gradient(90deg, transparent, rgba(217,185,120,.35), transparent);
