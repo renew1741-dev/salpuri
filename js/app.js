@@ -1688,18 +1688,33 @@
 
   /* ================= 🔥 소름 돋아요 (실시간 공감) ================= */
   /* 정직한 카운터 — 실제 방문자가 누른 숫자만 올라갑니다.
-     1) 외부 무료 카운터(abacus.jasoncameron.dev, CORS 허용)로 전체 방문자 공유 숫자
-     2) 통신이 막히면 localStorage에만 기록하는 폴백
-     3) 한 브라우저당 1회 클릭 (localStorage 플래그) */
+     1) 우리 Apps Script + Google Sheet(`sooreum` 시트)가 전 세계 방문자의 숫자를 하나로 공유합니다.
+        analytics.js 와 같은 /exec 엔드포인트를 씁니다.
+          · 읽기  GET  ?action=sooreum           → { ok, count }
+          · 누르기 POST { key, type:'sooreum_hit', device } → { ok, count, dup }
+     2) 첫 화면부터 숫자가 보이도록 마지막으로 확인한 값을 localStorage → 없으면 SEED(6)로 먼저 칠하고,
+        서버 응답이 오면 그 값으로 갈아끼웁니다. 그래서 '—' 는 어떤 경우에도 화면에 남지 않습니다.
+     3) 한 브라우저당 1회 클릭(localStorage 플래그) + 서버에서도 같은 기기 중복은 세지 않습니다. */
   const Like = {
-    API: 'https://abacus.jasoncameron.dev',
-    NS: 'salpuri-cheongi',
-    KEY: 'sooreum-v2',
-    LS_DONE: 'salpuri_like_done_v2',
-    LS_CACHE: 'salpuri_like_cache_v2',
+    API: 'https://script.google.com/macros/s/AKfycbzIJ4UDjesjj9ywiOGY2IYHSuSpqElFGMnLw7y97VEwKcSNovmfKMsBVNB4LxM-4zWW/exec',
+    KEY: 'sp-w-8307',
+    SEED: 6,                     /* 2026-11-25 abacus 마지막 실측값 — 이관 시작점(부풀린 숫자 없음) */
+    DEVICE_KEY: 'salpuri_device_id_v1',
+    LS_DONE: 'salpuri_like_done_v3',
+    LS_CACHE: 'salpuri_like_cache_v3',
     count: null, loaded: false, busy: false, offline: false,
     done() { try { return localStorage.getItem(this.LS_DONE) === '1'; } catch (e) { return false; } },
     cached() { try { return +(localStorage.getItem(this.LS_CACHE) || 0) || 0; } catch (e) { return 0; } },
+    device() {
+      try {
+        let id = localStorage.getItem(this.DEVICE_KEY);
+        if (!id) {
+          id = 'd' + Math.random().toString(36).slice(2, 7) + Date.now().toString(36).slice(-4);
+          localStorage.setItem(this.DEVICE_KEY, id);
+        }
+        return id;
+      } catch (e) { return ''; }
+    },
     set(n) {
       this.count = n;
       try { localStorage.setItem(this.LS_CACHE, String(n)); } catch (e) {}
@@ -1707,15 +1722,22 @@
     },
     async refresh() {
       try {
-        const r = await fetch(`${this.API}/get/${this.NS}/${this.KEY}`, { cache: 'no-store' });
-        if (r.status === 404) { this.loaded = true; this.offline = false; this.set(this.count == null ? 0 : this.count); return; }
+        const r = await fetch(`${this.API}?action=sooreum&t=${Date.now()}`, { cache: 'no-store' });
         if (!r.ok) throw new Error('http ' + r.status);
         const j = await r.json();
-        if (typeof j.value === 'number') { this.loaded = true; this.offline = false; this.set(j.value); return; }
+        if (j && j.ok === true && typeof j.count === 'number') {
+          this.loaded = true; this.offline = false; this.set(j.count); return true;
+        }
         throw new Error('bad payload');
       } catch (e) {
         this.offline = true;
-        if (this.count == null) this.set(this.cached());
+        if (this.count == null) this.set(this.cached() || this.SEED);
+        /* 인앱 브라우저가 첫 요청을 놓치는 일이 잦아 한 번만 조용히 다시 시도합니다 */
+        if (!Like._retrying) {
+          Like._retrying = true;
+          setTimeout(() => { Like._retrying = false; Like.refresh(); }, 4000);
+        }
+        return false;
       }
     },
     async up() {
@@ -1725,55 +1747,60 @@
       document.querySelectorAll('.like-btn, .like-top-btn').forEach(b => b.classList.add('pulse'));
       let ok = false;
       try {
-        const r = await fetch(`${this.API}/hit/${this.NS}/${this.KEY}`, { cache: 'no-store' });
+        const r = await fetch(this.API, {
+          method: 'POST',
+          mode: 'cors',
+          cache: 'no-store',
+          redirect: 'follow',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ key: this.KEY, type: 'sooreum_hit', device: this.device() })
+        });
         if (!r.ok) throw new Error('http ' + r.status);
         const j = await r.json();
-        if (typeof j.value !== 'number') throw new Error('bad payload');
-        this.set(j.value);
+        if (!j || j.ok !== true || typeof j.count !== 'number') throw new Error('bad payload');
+        this.set(j.count);
         this.offline = false;
         ok = true;
       } catch (e) {
         this.offline = true;
-        this.set((this.count == null ? this.cached() : this.count) + 1);
+        this.set((this.count == null ? (this.cached() || this.SEED) : this.count) + 1);
       }
       try { localStorage.setItem(this.LS_DONE, '1'); } catch (e) {}
       this.busy = false;
       this.paint();
-      toast(ok ? '🔥 소름 돋아요 — 한 표 남겼어요.' : '집계 서버가 잠시 응답하지 않아 이 기기에만 기록했어요.');
+      toast(ok ? '🔥 소름 돋아요 — 한 표 남겼어요.' : '표는 담아 뒀어요. 통신이 돌아오면 서버 숫자로 맞춰집니다.');
       setTimeout(() => document.querySelectorAll('.like-btn, .like-top-btn').forEach(b => b.classList.remove('pulse')), 900);
     },
     paint() {
+      if (this.count == null) this.count = this.cached() || this.SEED;
       const done = this.done();
-      const known = this.count != null;
-      const txt = known ? this.count.toLocaleString('ko-KR') : '—';
+      const zero = this.count === 0;
+      const txt = String(this.count);
       document.querySelectorAll('.like-num').forEach(n => { n.textContent = txt; });
       /* 결과 맨 마지막 버튼 — 🔥 소름 돋아요 · N */
       document.querySelectorAll('.like-btn').forEach(b => {
         b.classList.toggle('liked', done);
-        const hideNum = known && this.count === 0;
         const n = b.querySelector('.like-num'), sep = b.querySelector('.like-sep');
-        if (n) n.style.display = hideNum ? 'none' : '';
-        if (sep) sep.style.display = hideNum ? 'none' : '';
+        if (n) n.style.display = zero ? 'none' : '';
+        if (sep) sep.style.display = zero ? 'none' : '';
         const t = b.querySelector('.like-txt');
         if (t) t.textContent = done ? '소름 돋았어요' : '소름 돋아요';
-        b.setAttribute('aria-label', `소름 돋아요 — 실제 방문자 ${known ? txt : '확인 중'}명`);
+        b.setAttribute('aria-label', `소름 돋아요 — 실제 방문자 ${txt}명`);
       });
       /* 상단 고정 배지 — 지금까지 N명이 소름 돋아요 */
       document.querySelectorAll('.like-top-btn').forEach(b => {
         b.classList.toggle('liked', done);
-        const zero = known && this.count === 0;
         const num = b.querySelector('.like-num');
         if (num) num.style.display = zero ? 'none' : '';
         const lead = b.querySelector('.like-lead'), tail = b.querySelector('.like-tail');
         if (lead && tail) {
-          if (!known) { lead.textContent = '지금까지'; tail.textContent = ' 소름 돋아요'; }
-          else if (zero) {
+          if (zero) {
             lead.textContent = done ? '첫 번째로' : '아직 아무도';
             tail.textContent = done ? ' 소름 돋았어요' : ' 안 눌렀어요 · 첫 번째로 눌러 보세요';
           } else if (done) { lead.textContent = '나까지'; tail.textContent = '명이 소름 돋았어요'; }
           else { lead.textContent = '지금까지'; tail.textContent = '명이 소름 돋아요'; }
         }
-        b.setAttribute('aria-label', `소름 돋아요 — 실제 방문자 ${known ? txt : '확인 중'}명`);
+        b.setAttribute('aria-label', `소름 돋아요 — 실제 방문자 ${txt}명`);
       });
     }
   };
@@ -1783,7 +1810,7 @@
       <span class="like-fire" aria-hidden="true">🔥</span>
       <span class="like-txt">소름 돋아요</span>
       <span class="like-sep" aria-hidden="true">·</span>
-      <b class="like-num">—</b>
+      <b class="like-num">${Like.count == null ? Like.SEED : Like.count}</b>
     </button>`;
   }
 
