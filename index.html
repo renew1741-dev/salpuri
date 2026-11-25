@@ -31,7 +31,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20261125-23" />
+<link rel="stylesheet" href="css/style.css?v=20261125-24" />
 <link rel="stylesheet" href="css/pdf.css?v=20261125-2" />
 </head>
 <body class="locked">
@@ -166,6 +166,21 @@
           <label class="field-label">태어난 시간 <b>12시진</b></label>
           <div class="time-grid" id="timeGrid"></div>
           <div class="hint">※ 자시(23:00 이후)에 태어났다면 일주는 다음 날로 계산됩니다(자시 일주설).</div>
+        </div>
+
+        <div class="field" id="mainBodyField">
+          <label class="field-label" for="mainHeight">키 · 몸무게 <b>선택 입력 · 키가 클수록 적정 운세 체중이 달라져요</b></label>
+          <div class="gw-inputs body-pair">
+            <div class="body-cell">
+              <span class="body-cell-k">키 <b>cm</b></span>
+              <input id="mainHeight" class="inp" type="number" inputmode="numeric" min="130" max="210" step="1" placeholder="예: 165" autocomplete="off" aria-label="키(cm)" />
+            </div>
+            <div class="body-cell">
+              <span class="body-cell-k">현재 몸무게 <b>kg</b></span>
+              <input id="mainWeight" class="inp" type="number" inputmode="decimal" min="25" max="200" step="0.1" placeholder="예: 62" autocomplete="off" aria-label="현재 몸무게(kg)" />
+            </div>
+          </div>
+          <div class="hint">비워 두어도 사주는 그대로 나와요. 넣어 두면 <b>외모·점</b> 탭에서 내 키에 맞는 적정 체중이 바로 계산됩니다.</div>
         </div>
 
         <button class="btn-gold" id="calcBtn">내 사주 명식 펼쳐보기</button>
@@ -607,7 +622,7 @@
             <input id="gwWeight" class="inp" type="number" inputmode="decimal" min="30" max="160" step="0.1" placeholder="예: 62" autocomplete="off" />
           </div>
         </div>
-        <p class="hint">키·몸무게를 넣으면 0.4초 만에 다시 계산됩니다. 비워 두면 평균 신장(여 160 · 남 173cm) 기준입니다.</p>
+        <p class="hint">키·몸무게를 넣으면 0.4초 만에 다시 계산됩니다. 메인 화면에서 넣은 값도 그대로 이어져요. 비워 두면 평균 신장(여 160 · 남 173cm) 기준입니다.</p>
         <div class="pf-slot" data-pf="gaewun"></div>
       </div>
       <div id="gaewunBody"></div>
@@ -865,8 +880,8 @@
 <script src="js/gunghap-text.js?v=20261125-2"></script>
 <script src="js/plus-engine.js?v=20261125-2"></script>
 <script src="js/plus-text.js?v=20261125-2"></script>
-<script src="js/gaewun-engine.js?v=20261125-8"></script>
-<script src="js/gaewun-text.js?v=20261125-9"></script>
+<script src="js/gaewun-engine.js?v=20261125-9"></script>
+<script src="js/gaewun-text.js?v=20261125-10"></script>
 <script src="js/naming-engine.js?v=20261125-7"></script>
 <script src="js/naming-text.js?v=20261125-8"></script>
 <script src="js/tarot.js?v=20261125-2"></script>
@@ -875,6 +890,6 @@
 <script src="js/analytics.js?v=20261125-2"></script>
 <script src="js/baby-text.js?v=20261125-1"></script>
 <script src="js/pdf.js?v=20261125-2"></script>
-<script src="js/app.js?v=20261125-22"></script>
+<script src="js/app.js?v=20261125-23"></script>
 </body>
 </html>
