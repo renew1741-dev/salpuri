@@ -1872,7 +1872,9 @@
         ? `<span class="num"><s>${p.listPrice.toLocaleString()}원</s> ${p.price.toLocaleString()}원</span>`
         : `<span class="num">${p.price.toLocaleString()}원</span>`;
       const duoLine = id === 'duo' && di && di.active
-        ? `<p class="duo-used">👯 2인 패키지 이용 중 · <b>${di.used}/${di.limit}명 등록</b>${di.charts.length ? ' · ' + di.charts.map(c => c.name || '이름 없음').join(' · ') : ''}</p>`
+        ? (di.unlimited
+          ? '<p class="duo-used">👯 2인 패키지 결제 완료 · <b>명식 인원 제한 없음</b></p>'
+          : `<p class="duo-used">👯 2인 패키지 이용 중 · <b>${di.used}/${di.limit}명 등록</b>${di.charts.length ? ' · ' + di.charts.map(c => c.name || '이름 없음').join(' · ') : ''}</p>`)
         : '';
       return `<div class="price-item ${id === 'duo' ? 'featured duo' : id === 'vip' ? 'featured' : ''} ${owned ? 'owned' : ''}">
         <div class="info">
