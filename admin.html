@@ -487,7 +487,7 @@
         return '<tr>'
           + '<td class="ts"><b>' + esc(timeOf(r.ts)) + '</b><i>' + esc(dateOf(r.ts)) + '</i></td>'
           + '<td><span class="pill t-' + esc(r.type) + '">' + esc(typeLabel(r.type)) + '</span></td>'
-          + '<td>' + (r.name ? esc(r.name) : '<span class="muted">—</span>') + (r.admin ? '<span class="adm">👑</span>' : '') + '</td>'
+          + '<td>' + (r.admin ? '<span class="adm">👑</span>' : '') + (r.name ? esc(r.name) : '<span class="muted">—</span>') + '</td>'
           + '<td>' + (kind ? esc(kind) : '<span class="muted">—</span>') + '</td>'
           + '<td>' + (detail ? esc(detail) : '<span class="muted">—</span>') + '</td>'
           + '<td class="amt">' + amt + '</td>'
