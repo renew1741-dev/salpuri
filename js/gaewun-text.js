@@ -321,8 +321,8 @@
         ${b.actions.map((x, i) => `<div class="gw-act"><span>${String(i + 1).padStart(2, '0')}</span><div><b>${x.k}</b><p>${x.v}</p></div></div>`).join('')}
       </div>
 
-      <p class="gw-fine">체형은 ${el(b.shape.top)} ${Math.round(b.shape.topPct * 100)}% · ${el(b.shape.low)} ${Math.round(b.shape.lowPct * 100)}%의 배치에서 나온 ${b.shape.trait}의 몸입니다. ${b.shape.text}</p>
-      <p class="gw-note">체중 조절은 질환이나 복용 중인 약에 따라 달라집니다. 몸에 이상이 느껴지면 이 처방보다 진료가 먼저입니다.</p>
+      <p class="gw-fine">체형은 ${el(b.shape.top)} ${Math.round(b.shape.topPct * 100)}% · ${el(b.shape.low)} ${Math.round(b.shape.lowPct * 100)}%의 배치에서 나온 ${b.shape.trait}의 몸이에요. ${b.shape.text}</p>
+      <p class="gw-note">체중 조절은 병이나 드시는 약에 따라 달라져요. 몸에 이상이 느껴지면 이 처방보다 진료가 먼저예요.</p>
     </div>`;
   }
 
@@ -370,7 +370,7 @@
       <div class="gw-dot-legend-top">
         <span class="gw-chip good"><i></i>살릴 점 吉</span>
         <span class="gw-chip bad"><i></i>뺄 점 凶</span>
-        <span class="gw-chip">번호는 도해의 번호와 같습니다</span>
+        <span class="gw-chip">번호는 그림의 번호와 같아요</span>
       </div>
 
       <div class="gw-face-wrap">
@@ -438,7 +438,7 @@
   function cardLiving(l) {
     return `<div class="card">
       <div class="section-head"><h2 class="serif">⑤ 매일의 개운 — 색 · 향 · 방향</h2><span class="en">DAILY</span></div>
-      <p class="gw-lead">용신 ${l.yongName}의 기운을 매일 몸에 두는 것이 가장 값싼 개운입니다. 큰 의식이 아니라 지갑 색, 향, 머리 방향에서 시작됩니다.</p>
+      <p class="gw-lead">용신 ${l.yongName}의 기운을 매일 몸에 두는 게 제일 값싼 개운이에요. 큰 의식이 아니라 지갑 색, 향, 머리 방향에서 시작돼요.</p>
 
       <div class="gw-live-grid">
         <div class="gw-live">
@@ -452,7 +452,7 @@
         <div class="gw-live">
           <span>향 계열</span>
           <b>${l.scent.join(' · ')}</b>
-          <p>방에 한 가지 향만 두십시오. 여러 향이 섞이면 ${l.yongName}의 결이 흐려집니다.</p>
+          <p>방에는 한 가지 향만 두세요. 여러 향이 섞이면 ${l.yongName}의 결이 흐려져요.</p>
         </div>
         <div class="gw-live">
           <span>잠자는 머리 방향</span>
@@ -476,7 +476,7 @@
   /* ============================================================
      전체 렌더
      ============================================================ */
-  function render(x, a) {
+  function renderFree(x, a) {
     const m = x.meta;
     return `<div class="card gw-hero">
       <div class="result-title">
@@ -497,20 +497,24 @@
       </div>
       <p class="gw-lead serif">${x.body.headline}</p>
       <p class="gw-hero-num">${x.body.numLine}</p>
-    </div>
+    </div>`;
+  }
 
-    ${cardBody(x.body)}
+  function renderDeep(x, a) {
+    return `${cardBody(x.body)}
     ${cardHair(x.hair)}
     ${cardDots(x.dots)}
     ${cardSpeech(x.speech)}
     ${cardLiving(x.living)}
 
     <div class="card">
-      <p class="gw-note">이 처방은 사주의 오행·십성 배치에서 나온 상징적 조언입니다. 병의 진단이나 치료를 대신하지 않으며, 몸에 이상이 있으면 의료진의 판단이 먼저입니다.</p>
+      <p class="gw-note">이 처방은 사주의 오행·십성 배치에서 나온 상징적인 조언이에요. 병을 진단하거나 치료하는 건 아니고, 몸에 이상이 있으면 의료진 판단이 먼저예요.</p>
       ${shareRow('gaewun', '내 외모·점 처방 보내기')}
       <div class="center mt14"><button class="btn-ghost" data-goto="saju">생년월일 다시 입력하기</button></div>
     </div>`;
   }
+
+  function render(x, a) { return renderFree(x, a) + renderDeep(x, a); }
 
   function shareText(x, a) {
     const b = x.body, h = x.hair, s = x.speech;
@@ -518,5 +522,5 @@
     return `${name} 개운 처방 — ${b.type.name}(${b.type.sub}). 목표 체중 ${kgTxt(b.kg.lo)}~${kgTxt(b.kg.hi)}kg · ${h.title} · ${s.dominantKo} 우세라 ${s.habits[0] ? '말버릇 하나만 바꿔도' : ''} 흐름이 달라집니다. 살풀이 : 천기에서 봤어요.`;
   }
 
-  global.GaewunText = { render, shareText, silhouette, bodyFigures, hairBust, gaugeSVG, faceSVG, handSVG, neckSVG, kgTxt };
+  global.GaewunText = { render, renderFree, renderDeep, shareText, silhouette, bodyFigures, hairBust, gaugeSVG, faceSVG, handSVG, neckSVG, kgTxt };
 })(window);
