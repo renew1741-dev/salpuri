@@ -1584,7 +1584,7 @@
       this.busy = false;
       this.paint();
       toast(ok ? '🔥 소름 돋아요 — 한 표 남겼습니다.' : '집계 서버가 잠시 응답하지 않아 이 기기에만 기록했습니다.');
-      setTimeout(() => document.querySelectorAll('.like-btn').forEach(b => b.classList.remove('pulse')), 900);
+      setTimeout(() => document.querySelectorAll('.like-btn, .like-top-btn').forEach(b => b.classList.remove('pulse')), 900);
     },
     paint() {
       const done = this.done();
