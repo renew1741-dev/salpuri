@@ -2,7 +2,7 @@
    살풀이 : 천기 해석문 생성 v4
    - 일주(60갑자) · 격국 · 십이운성 · 신살 · 세운 월별까지 맞물린 해석
    - 문체 원칙: 1:1 대화체(~요/~거든요) · 한자는 바로 풀어서 · 딱딱한 보고서 말투 금지
-   - 맛보기(buildTaste) / 잠금 구간 심층(buildDeep) / 8쪽 리포트(buildPremium)
+   - 맛보기(buildTaste) / 잠금 구간 심층(buildDeep) / 9쪽 리포트(buildPremium)
    ============================================================ */
 (function (global) {
   'use strict';
@@ -348,6 +348,32 @@
   };
 
   /* 2026 월별 — 절입일 기준 */
+  /* 월별 운세 페이지용 한 줄 결 · 조심할 점 (십성 0~9) */
+  const MONTH_VIBE = {
+    0: '내 힘이 세지는 달 — 사람이 상해요',
+    1: '경쟁과 지출이 같이 오는 달',
+    2: '먹고 즐기고 표현하는 달',
+    3: '말과 재주가 튀는 달 — 구설도 와요',
+    4: '큰돈이 움직이는 달 — 손실도 같이',
+    5: '성실한 수입이 쌓이는 달',
+    6: '압박과 책임이 오는 달',
+    7: '자리와 규칙이 정리되는 달',
+    8: '혼자 깊어지는 달 — 시작은 늦어요',
+    9: '도움과 배움이 오는 달'
+  };
+  const MONTH_WATCH = {
+    0: '동업·대출·보증 얘기는 꺼내지 마세요.',
+    1: '지인 돈 거래·보증을 피하세요.',
+    2: '과식·음주로 몸이 먼저 늘어져요.',
+    3: '윗사람과 다투면 오래 갑니다.',
+    4: '한곳에 몰아넣는 투자가 위험해요.',
+    5: '반복 결제·구독을 먼저 정리하세요.',
+    6: '압박이 오면 판을 키우고 싶어져요.',
+    7: '기한·서류를 두 번 확인하세요.',
+    8: '준비만 하다 시작을 놓치지 마세요.',
+    9: '도움을 기다리다 결정이 늦어져요.'
+  };
+
   const MONTH_NAMES = ['인월', '묘월', '진월', '사월', '오월', '미월', '신월', '유월', '술월', '해월', '자월', '축월'];
   const MONTH_START = ['2/4', '3/5', '4/5', '5/5', '6/6', '7/7', '8/7', '9/8', '10/8', '11/7', '12/7', '1/5'];
   const MONTH_HANJA = ['寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥', '子', '丑'];
@@ -518,7 +544,7 @@
   }
 
   /* ============================================================
-     8쪽 정밀 리포트 — 표지 + 7개 장
+     9쪽 정밀 리포트 — 표지 + 8개 장 (마지막 장은 2026 월별 운세)
      ============================================================ */
   function buildPremium(a) {
     const who = a.name ? a.name + ' 님' : '당신';
@@ -554,7 +580,7 @@
       <div class="report-brand-sub">天機 · 命理 · TAROT</div>
       <div class="report-seal serif">命</div>
       <h2 class="report-title">2026 정밀 사주 리포트</h2>
-      <p class="report-meta">${who} · ${stamp} 발행 · 8쪽</p>
+      <p class="report-meta">${who} · ${stamp} 발행 · 9쪽</p>
       <div class="report-pillars">${a.pillars.map(p => p.gan == null
         ? `<span class="rp empty"><b>${p.label}</b><i>—</i></span>`
         : `<span class="rp"><b>${p.label}</b><i class="g serif">${GAN[p.gan]}</i><i class="j serif">${JI[p.ji]}</i></span>`).join('')}</div>
@@ -578,7 +604,7 @@
        <p><strong>기운의 세기</strong>는 ${a.strength.level}이고, ${el(maxE)} ${pcts[maxE]}% · ${el(minE)} ${pcts[minE]}%로 잡혀 있어요.
         이 사주에 약이 되는 기운(용신)은 <strong>${el(yong)}</strong>, 도와주는 기운(희신)은 ${el(hee)}, 넘치면 판단을 흐리는 기운(기신)은 ${el(gi)}이에요.
         ${ELEM_TRAIT[yong]}이 운을 여는 열쇠이고, ${ELEM_TRAIT[gi]}이 과해지는 순간 판단이 흐려져요.</p>`,
-      '리포트는 여덟 쪽이에요. 2쪽은 기질, 3쪽은 겉과 속, 4쪽은 돈, 5쪽은 일과 건강, 6쪽은 인연, 7쪽은 2026년 12개월, 8쪽은 대운과 처방이에요.'));
+      '리포트는 아홉 쪽이에요. 2쪽은 기질, 3쪽은 겉과 속, 4쪽은 돈, 5쪽은 일과 건강, 6쪽은 인연, 7쪽은 2026년 12개월, 8쪽은 대운과 처방, 9쪽은 2026년 달마다의 운세와 조심할 점이에요.'));
 
     /* ── 3쪽 겉과 속 ── */
     out.push(P('CHAPTER 2 · 겉과 속', '② 사람들이 모르는 당신',
@@ -671,6 +697,28 @@
        ${a.gongmang && a.gongmang.hits.length ? `<p><strong>공망(空亡)</strong> — <strong>${a.gongmang.jis.map(j => JI[j]).join('·')}</strong>이 비어 있어요. ${a.gongmang.hits.map(h => `${h.pos}주 ${JI[h.ji]}`).join(', ')}가 그 자리예요. 애써도 안 채워지는 자리이니 기대를 걸지 말고, 같은 목적을 다른 통로로 여세요.</p>` : ''}
        <p><strong>7일 처방</strong> — ${WEEK_RX[yong]} 일주일만 해 보세요. ${who}의 사주는 ${gk.gist}의 사주예요. 오늘 ${dm.rx.split('.')[0]} — 이것 하나면 충분해요.</p>`,
       '여기까지 읽었으면 이제 아는 걸로 충분해요. 남은 건 매일 조금씩 옮겨 보는 일이에요.'));
+
+    /* ── 9쪽 2026 병오년 월별 운세 & 조심할 점 ── */
+    const mRows = months.map((m, i) => {
+      const cls = m.label === '길(吉)' ? 'good' : m.label === '주의' ? 'bad' : 'mid';
+      const giHit = S.GAN_ELEM[m.gan] === gi || S.JI_ELEM[m.ji] === gi;
+      return `<tr${m.label === '길(吉)' ? ' class="row-good"' : ''}>` +
+        `<td class="mo-when"><b>${m.start}</b> <span>${m.name}</span></td>` +
+        `<td class="mo-flow"><span class="tag ${cls}">${m.label}</span> <span class="mo-tg">${TEN_GODS[m.tenGod]}</span></td>` +
+        `<td class="mo-vibe">${MONTH_VIBE[m.tenGod]}</td>` +
+        `<td class="mo-watch">${MONTH_WATCH[m.tenGod]}</td></tr>`;
+    }).join('');
+    out.push(P('CHAPTER 8 · 2026 병오년 월별', '⑧ 달마다 무엇을 조심할까 — 2026년 한 장 달력',
+      `<p>2026년은 <strong>병오(丙午)</strong>년, ${who}의 사주에는 <strong>${s26.tenGodName}</strong>의 기운이 한 해를 통과해요. 열두 달을 절입 기준으로 끊어 달마다의 결와 조심할 한 가지를 적었어요.</p>
+       <table class="m-table month-table"><thead><tr><th>달</th><th>흐름</th><th>이 달의 결</th><th>조심할 점</th></tr></thead><tbody>
+       ${mRows}
+       </tbody></table>
+       <p><strong>올해 세 줄로 줄이면</strong><br>
+        · 밀어붙일 달 — ${good.map(m => `<strong>${m.start} ${m.name}</strong>`).join(', ')}. 미뤄 둔 일·계약·지원은 이 달에 하세요.<br>
+        · 지킬 달 — ${bad.map(m => `<strong>${m.start} ${m.name}</strong>`).join(', ')}. 새 일을 벌이지 말고 정산·정리에 쓰세요.<br>
+        · 한 가지 규칙 — 큰 결정은 <strong>${good[0].start} ${good[0].name}</strong> 이후로 미루세요. 세운은 같은 일도 날짜로 결과가 갈려요.</p>
+       <p class="m-note">달의 경계는 양력 1일이 아니라 절입(節入) 시각이에요. 그래서 1월 1일~2월 3일은 2025년의 마지막 달(축월)로 봅니다.</p>`,
+      '표 한 장만 냉장고에 붙여 두셔도 돼요. 초록은 밀어붙일 달, 붉은색은 새 일을 벌이지 말 달이에요.'));
 
     return out.join('');
   }

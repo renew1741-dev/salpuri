@@ -2,7 +2,7 @@
    살풀이 : 천기 — 실제 PDF 파일 생성·다운로드 (js/pdf.js)
    ------------------------------------------------------------
    · 인쇄 대화상자(window.print) 없이 진짜 .pdf 파일을 만들어 저장합니다.
-   · 리포트 8쪽을 오프스크린 스테이지(css/pdf.css)에 밝은 인쇄 테마로 다시 그린 뒤
+   · 리포트 9쪽을 오프스크린 스테이지(css/pdf.css)에 밝은 인쇄 테마로 다시 그린 뒤
      html2canvas 로 2배 해상도 캔버스로 뜨고, jsPDF 로 A4(210×297mm) 페이지에 담습니다.
      (한글은 폰트 임베딩이 아니라 그림으로 들어가므로 절대 깨지지 않습니다)
    · 안드로이드 인앱 웹뷰(카톡·스레드·인스타)에서 blob 다운로드가 막히면
@@ -83,7 +83,7 @@
       'S.browser_fallback_url=' + encodeURIComponent(https) + ';end';
   }
 
-  /* ---------------- 리포트 8쪽을 PDF 스테이지로 ---------------- */
+  /* ---------------- 리포트 9쪽을 PDF 스테이지로 ---------------- */
   function buildStage(a) {
     var textMod = global.SajuText;
     if (!textMod || typeof textMod.buildPremium !== 'function') {
@@ -216,7 +216,7 @@
         '<div class="pdf-ui-head">' +
           '<span class="pdf-ui-kicker">살풀이 : 천기 · PDF</span>' +
           '<h3 class="pdf-ui-title" id="pdfUiTitle">PDF 만드는 중…</h3>' +
-          '<p class="pdf-ui-sub" id="pdfUiSub">여덟 쪽을 한 장씩 그려서 묶는 중이에요.</p>' +
+          '<p class="pdf-ui-sub" id="pdfUiSub">아홉 쪽을 한 장씩 그려서 묶는 중이에요.</p>' +
         '</div>' +
         '<div class="pdf-ui-bar"><i id="pdfUiBar" style="width:6%"></i></div>' +
         '<div class="pdf-ui-prog" id="pdfUiProg">0 / 8 쪽</div>' +
@@ -297,7 +297,7 @@
     var fileName = safeFileName(analysis.name);
     var stage = null;
 
-    showUI({ busy: true, title: 'PDF 만드는 중…', sub: '여덟 쪽을 한 장씩 그려서 묶는 중이에요.', prog: '준비 중', pct: 4 });
+    showUI({ busy: true, title: 'PDF 만드는 중…', sub: '아홉 쪽을 한 장씩 그려서 묶는 중이에요.', prog: '준비 중', pct: 4 });
 
     return waitFonts()
       .then(function () { return ensureAssets(); })
@@ -378,7 +378,7 @@
         showUI({
           busy: false,
           title: 'PDF를 만들지 못했어요',
-          sub: (err && err.message ? err.message : '알 수 없는 오류') + ' — 인쇄로 저장하면 같은 8쪽 리포트를 받으실 수 있어요.',
+          sub: (err && err.message ? err.message : '알 수 없는 오류') + ' — 인쇄로 저장하면 같은 9쪽 리포트를 받으실 수 있어요.',
           actions: [
             { label: '🖨️ 인쇄로 PDF 저장', primary: true, onClick: function () { hideUI(); setTimeout(function () { try { global.print(); } catch (e) {} }, 120); } },
             { label: '다시 시도', onClick: function () { hideUI(); saveReport(analysis); } },
@@ -445,7 +445,7 @@
     var payload = {
       files: [file],
       title: '살풀이 : 천기 — 정밀 사주 리포트',
-      text: '살풀이 : 천기 8쪽 정밀 리포트'
+      text: '살풀이 : 천기 9쪽 정밀 리포트'
     };
     return Promise.resolve()
       .then(function () { return navigator.share(payload); })

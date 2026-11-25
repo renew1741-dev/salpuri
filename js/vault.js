@@ -183,7 +183,7 @@
       '2026·2027 월별로 피할 달과 잡을 달',
       '재물·연애·직장 타이밍 심층 풀이',
       '외모·점 개운 처방(적정 kg·길점/흉점)',
-      '8쪽 정밀 PDF 리포트',
+      '9쪽 정밀 PDF 리포트',
       '스마트폰 부적 4종'
     ],
     baby: [
@@ -374,7 +374,8 @@
     noUi:   { title: '공유창이 뜨지 않나요?', note: '아래 방법 중 하나를 고르면 바로 공유돼요' },
     stuck:  { title: '공유창을 열 수 없어요', note: '이 환경에서는 아래 방법으로 보내 주세요' },
     abort:  { title: '공유를 취소하셨어요', note: '아래에서 다시 보내시면 잠금이 풀려요' },
-    failed: { title: '공유가 막혀 있어요', note: '아래 방법 중 하나로 보내 주세요' }
+    failed: { title: '공유가 막혀 있어요', note: '아래 방법 중 하나로 보내 주세요' },
+    save:   { title: '내 카톡에 저장해 두기', note: '카톡 [나와의 채팅]에 붙여넣으면 언제든 다시 들어올 수 있어요' }
   };
 
   function ensureSheet() {
@@ -447,6 +448,16 @@
     el.querySelector('.ss-fine').textContent = sheetOpts.unlock === false
       ? '친구에게 보내면 오늘의 명(命)을 함께 나눌 수 있어요.'
       : `보내 주시면 이 기기에서 ${labelOf(sec)}가 계속 열려 있어요.`;
+    /* 💬 내 카톡에 저장 모드 — 잠금 해제가 아니라 '다시 오기'용 문구로 바꾼다 */
+    if (mode === 'save' || sheetOpts.mode === 'save') {
+      el.querySelector('#ssTitle').textContent = SHEET_COPY.save.title;
+      el.querySelector('#ssNote').textContent = SHEET_COPY.save.note;
+      const kb = el.querySelector('[data-ss="kakao"] .ss-tx');
+      if (kb) kb.innerHTML = '<b>카카오톡 [나와의 채팅]에 저장</b><i>링크가 복사돼요 · 나와의 채팅에 붙여넣기만 하면 끝</i>';
+      const cb = el.querySelector('[data-ss="copy"] .ss-tx');
+      if (cb) cb.innerHTML = '<b>링크 복사해서 저장</b><i>메모·즐겨찾기 어디든 붙여넣어 두세요</i>';
+      el.querySelector('.ss-fine').textContent = '카톡 나와의 채팅에 저장하면 언제든 다시 들어올 수 있어요.';
+    }
     el.classList.add('show');
     document.body.classList.add('ss-open');
     return el;
@@ -499,7 +510,9 @@
       btn.classList.remove('busy');
       if (ok) {
         afterShare('share');
-        toast('링크가 복사되었어요! 카카오톡에 붙여넣어 친구에게 보내주세요.', 3800);
+        toast(sheetOpts.mode === 'save'
+          ? '링크가 복사됐어요! 카톡 [나와의 채팅]에 붙여넣으면 저장돼요.'
+          : '링크가 복사되었어요! 카카오톡에 붙여넣어 친구에게 보내주세요.', 3800);
       } else {
         flashRaw('복사가 막혀 있어요. 아래 문구를 길게 눌러 복사한 뒤 카카오톡에 붙여넣어 주세요.');
         toast('아래 문구를 길게 눌러 복사해 주세요.', 3200);
@@ -537,7 +550,9 @@
           unlock(sheetOpts.section, 'copy');
           toast(`링크를 복사했어요. 친구에게 붙여넣기로 보내 주세요. ${labelOf(secOf(sheetOpts.section))}가 열렸어요.`, 3800);
         } else {
-          toast('링크를 복사했어요. 친구에게 붙여넣기로 보내 주세요.', 3200);
+          toast(sheetOpts.mode === 'save'
+            ? '링크를 복사했어요. 카톡 [나와의 채팅]·메모에 붙여넣어 두세요.'
+            : '링크를 복사했어요. 친구에게 붙여넣기로 보내 주세요.', 3200);
         }
       } else {
         flashRaw('복사가 막혀 있어요. 아래 문구를 길게 눌러 복사해 주세요.');
@@ -635,8 +650,21 @@
       if (!quiet) toast(`고마워요! ${labelOf(sec)}가 열렸어요. 아래로 내려서 확인해 보세요.`, 3200);
       else toast(`공유했어요! ${labelOf(sec)}가 열렸어요.`, 3000);
     } else if (!quiet) {
-      toast('공유창을 열었어요. 친구에게 보내 주세요.', 2600);
+      toast(o.mode === 'save'
+        ? '공유창에서 [카카오톡]을 고르고 [나와의 채팅]에 보내면 저장돼요.'
+        : '공유창을 열었어요. 친구에게 보내 주세요.', 3000);
     }
+  }
+
+  /* ---------- 💬 내 카톡에 저장해 두기 (재방문용 · 잠금 해제 아님) ---------- */
+  function saveToKakao() {
+    const payload = {
+      title: '🔮 살풀이 : 천기',
+      text: '🔮 [살풀이 : 천기] 내 사주·오늘의 운세 다시 보기\n내일 아침 오늘의 운세도 여기서 바로 확인하세요!',
+      url: URL_LIVE
+    };
+    toast('공유창이 열리면 [카카오톡] → [나와의 채팅]을 골라 주세요.', 2600);
+    return shareFlow(payload, { unlock: false, mode: 'save', section: 'saju' });
   }
 
   /* ---------- 공개 API ---------- */
@@ -700,6 +728,7 @@
     toggleAdmin: function () { setAdmin(!isAdmin()); },
     /* 새 공유 진입점: 상단·하단·결과 공유 버튼이 모두 이걸 씁니다 (opts.section으로 카테고리 지정) */
     share: shareFlow,
+    saveToKakao,
     openSheet, closeSheet,
     sectionOf: secOf, labelOf, keyOf,
     get shared() { return isShared('saju'); },

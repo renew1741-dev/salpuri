@@ -2355,7 +2355,7 @@
     };
     const vpdf = $('#vaultPdfBtn');
     if (vpdf) vpdf.onclick = () => {
-      if (!Vault.isOpen('saju')) { toast('공유하면 8쪽 리포트가 바로 열려요. 위 버튼을 눌러 주세요.'); return; }
+      if (!Vault.isOpen('saju')) { toast('공유하면 9쪽 리포트가 바로 열려요. 위 버튼을 눌러 주세요.'); return; }
       if (!state.analysis) { toast('명식을 먼저 조회해 주세요.'); return; }
       renderReport(state.analysis);
       switchTab('premium');
@@ -2367,6 +2367,16 @@
     const shareTop = $('#shareTop'), shareFoot = $('#shareFoot');
     if (shareTop) shareTop.onclick = () => shareSite('살풀이 : 천기 — 촛불 아래에서 내 명(命)을 풀어봤어요.');
     if (shareFoot) shareFoot.onclick = () => shareSite('살풀이 : 천기 — 촛불 아래에서 내 명(命)을 풀어봤어요.');
+    /* 💬 내 카톡에 저장해 두기 (재방문용 — 잠금 해제 아님) */
+    const saveKakao = () => {
+      if (!(window.Vault && Vault.saveToKakao)) { toast('공유 기능을 불러오지 못했어요.'); return; }
+      audio.tap();
+      logEvent('save_kakao', { category: '사주', detail: '내 카톡에 저장' });
+      Vault.saveToKakao();
+    };
+    const sk1 = $('#saveKakaoBtn'), sk2 = $('#saveKakaoFoot');
+    if (sk1) sk1.onclick = saveKakao;
+    if (sk2) sk2.onclick = saveKakao;
     const sSaju = $('#shareSaju'), sTarot = $('#shareTarot');
     if (sSaju) sSaju.onclick = shareSaju;
     if (sTarot) sTarot.onclick = shareTarot;
