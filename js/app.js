@@ -623,10 +623,47 @@
   }
 
   /* ================= 개운 처방 ================= */
+  /* 키·몸무게 — 메인 입력폼(mainHeight·mainWeight)과 외모·점 탭(gwHeight·gwWeight)을 한 벌로 다룬다.
+     어느 칸에 넣어도 state.gw 하나에 모이고, 반대쪽 칸에 그대로 비춰진다. */
+  const GW_IDS = { height: ['mainHeight', 'gwHeight'], weight: ['mainWeight', 'gwWeight'] };
+
+  function gwNum(el) {
+    if (!el) return null;
+    const v = String(el.value == null ? '' : el.value).trim();
+    if (v === '') return null;
+    const n = +v;
+    return isFinite(n) ? Math.round(n * 10) / 10 : null;
+  }
+
+  function gwMirror(kind, value, srcEl) {
+    (GW_IDS[kind] || []).forEach(id => {
+      const el = document.getElementById(id);
+      if (!el || el === srcEl) return;
+      const v = value == null ? '' : String(value);
+      if (el.value !== v) el.value = v;
+    });
+  }
+
+  /** 한 칸이 바뀌면 state를 갱신하고 같은 종류의 다른 칸에 비춰 준다 */
+  function setGw(kind, srcEl) {
+    const v = gwNum(srcEl);
+    state.gw[kind] = v;
+    gwMirror(kind, v, srcEl);
+    return v;
+  }
+
+  /** 탭 진입·계산 직전에 네 칸을 다시 한 번 맞춘다 */
   function readGw() {
-    const h = $('#gwHeight'), w = $('#gwWeight');
-    state.gw.height = h && h.value !== '' ? +h.value : null;
-    state.gw.weight = w && w.value !== '' ? +w.value : null;
+    ['height', 'weight'].forEach(kind => {
+      let v = null;
+      (GW_IDS[kind] || []).forEach(id => {
+        if (v != null) return;
+        const n = gwNum(document.getElementById(id));
+        if (n != null) v = n;
+      });
+      state.gw[kind] = v;
+      gwMirror(kind, v, null);
+    });
   }
 
   function renderGaewunPanel() {
@@ -949,6 +986,7 @@
       sijin: state.sijin
     });
     if (res.error) { toast(res.error); return; }
+    readGw();          /* 메인 폼에 넣은 키·몸무게를 외모·점 계산에 그대로 넘긴다 */
     state.analysisSig = JSON.stringify({
       name, gender: state.gender, year: y, month: m, day: d,
       calendar: state.cal === '양력' ? '양력' : '음력', leap: state.cal === '음력윤달', sijin: state.sijin
@@ -1064,9 +1102,10 @@
     const snap = $('#gwSnapshot');
     if (snap) {
       try {
-        const gx = Gaewun.build(a, {});
+        const gx = Gaewun.build(a, { height: state.gw.height, weight: state.gw.weight });
+        const basis = gx.body.keySource === 'average' ? ` · 평균 키 ${gx.body.key}cm 기준` : ` · ${gx.body.key}cm 기준`;
         snap.innerHTML = `<div class="baby-kv">
-          <div><span>적정 체중</span><b>${GaewunText.kgTxt(gx.body.kg.lo)}~${GaewunText.kgTxt(gx.body.kg.hi)}kg <span style="color:#9c9488">(${gx.body.type.name} · ${gx.body.type.sub})</span></b></div>
+          <div><span>적정 체중</span><b>${GaewunText.kgTxt(gx.body.kg.lo)}~${GaewunText.kgTxt(gx.body.kg.hi)}kg <span style="color:#9c9488">(${gx.body.type.name} · ${gx.body.type.sub}${basis})</span></b></div>
           <div><span>살릴 점</span><b>${gx.dots.good.slice(0, 3).map(z => `${z.name}(${z.point})`).join(' · ')}</b></div>
           <div><span>뺄 점</span><b>${gx.dots.bad.slice(0, 3).map(z => `${z.name}(${z.point})`).join(' · ')}</b></div>
           <div><span>말버릇</span><b>“${(gx.speech.habits[0] || {}).bad || ''}” 대신 “${(gx.speech.habits[0] || {}).good || ''}”</b></div>
@@ -2583,20 +2622,40 @@
       const t = $('#gaewunBody');
       if (t) setTimeout(() => t.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
     };
-    ['gwHeight', 'gwWeight'].forEach(id => {
+    [['mainHeight', 'height'], ['mainWeight', 'weight'], ['gwHeight', 'height'], ['gwWeight', 'weight']].forEach(([id, kind]) => {
       const el2 = document.getElementById(id);
       if (!el2) return;
       el2.addEventListener('input', () => {
+        setGw(kind, el2);
         clearTimeout(el2._gwt);
         el2._gwt = setTimeout(softRenderGaewun, 420);
       });
-      el2.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); renderGaewunPanel(); } });
+      el2.addEventListener('change', () => {
+        setGw(kind, el2);
+        if (state.gw.shown) softRenderGaewun();
+      });
+      /* Enter — 메인 폼에서는 키보드만 닫고, 외모·점 탭에서는 바로 다시 계산 */
+      el2.addEventListener('keydown', e => {
+        if (e.key !== 'Enter') return;
+        e.preventDefault();
+        if (id === 'mainHeight' || id === 'mainWeight') { el2.blur(); return; }
+        renderGaewunPanel();
+      });
     });
 
     /* 확장 메뉴 공유 · 메뉴 이동 */
     document.addEventListener('click', e => {
       const sh = e.target.closest && e.target.closest('[data-share]');
       if (sh) { shareExtended(sh.dataset.share); return; }
+      const gwFocus = e.target.closest && e.target.closest('[data-gw-focus]');
+      if (gwFocus) {
+        const fEl = document.getElementById('gwHeight');
+        if (fEl) {
+          fEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          setTimeout(() => { try { fEl.focus({ preventScroll: true }); } catch (_) { fEl.focus(); } }, 260);
+        }
+        return;
+      }
       const go = e.target.closest && e.target.closest('[data-goto]');
       if (go) {
         const id = go.dataset.goto;

@@ -258,6 +258,8 @@
     return {
       type: T, typeKey: bt.key, reason: bt.reason,
       key, keySource, height: key, weight: cur, bmi: bmiNow,
+      gender: a.gender === '남' ? '남' : '여',
+      avgKey: AVG_HEIGHT[a.gender === '남' ? '남' : '여'],
       kg, bmiBand: bmi, gauge, status, statusTitle, statusText,
       headline, numLine, actions,
       shape: {

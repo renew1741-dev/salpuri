@@ -474,16 +474,32 @@
   }
 
   /* ============================================================
+     키 미입력 — 평균 신장 기준 안내 (결과 맨 위)
+     ============================================================ */
+  function avgNote(b) {
+    if (b.keySource !== 'average') return '';
+    return `<div class="gw-avg-note" role="note">
+        <div class="gw-avg-tx">
+          <b>지금은 ${b.gender === '남' ? '남성' : '여성'} 평균 키 ${b.key}cm 기준이에요</b>
+          <p>위 <b>키(cm)</b> 칸에 실제 키를 넣으면 이 카드가 키에 맞춰 바로 다시 계산돼요. 첫 화면 명식 입력란에 넣어도 이어지고, 165cm와 182cm는 적정 구간이 10kg 넘게 차이 나요.</p>
+        </div>
+        <button type="button" class="gw-avg-btn" data-gw-focus="height">내 키 넣기</button>
+      </div>`;
+  }
+
+  /* ============================================================
      전체 렌더
      ============================================================ */
   function renderFree(x, a) {
     const m = x.meta;
+    const b = x.body;
     return `<div class="card gw-hero">
       <div class="result-title">
         <div class="result-brand serif">살풀이 : 천기(天機) · 외모 · 점 처방</div>
         <h2 class="serif">${who(a)}의 외모 · 점 처방</h2>
         <p>${m.pillars} · ${m.sijin} · ${m.strengthLevel} · 용신 ${m.yongName}</p>
       </div>
+      ${avgNote(b)}
       <div class="gw-hero-tags">
         <span class="gw-tag main">${x.body.type.name}</span>
         <span class="gw-tag">${x.hair.title}</span>
